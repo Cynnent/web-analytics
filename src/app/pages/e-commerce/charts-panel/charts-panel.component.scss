@@ -1,0 +1,195 @@
+@import '../../../@theme/styles/themes';
+
+$legend-all-orders-color: #00977e;
+$legend-payment-color: #6935ca;
+$legend-canceled-color: #3f4fda;
+
+@include nb-install-component() {
+
+  nb-tabset {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    ::ng-deep ul {
+      // make same size as card header
+      border-color: transparent;
+      padding-bottom: 1px;
+      .tab-link {
+        padding: 1.25rem 2rem;
+      }
+    }
+  }
+
+  nb-tab {
+    flex: 1;
+    padding: 0 0 1.25rem;
+  }
+
+  .chart-container {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  ngx-profit-chart,
+  ngx-orders-chart {
+    padding: 0 1.25rem;
+  }
+}
+
+@import '../../../@theme/styles/themes';
+
+@include nb-install-component() {
+  nb-card-body {
+    display: flex;
+    justify-content: space-between;
+
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+
+  margin: 0 auto; /* Center the row horizontally */
+  max-width: 100%; /* Ensure the row doesn't exceed the viewport width */
+}
+
+@include nb-install-component() {
+  .list-card {
+    nb-card-header {
+      border-bottom: none;
+    }
+
+    nb-card-body {
+      padding: 0;
+     
+    }
+    nb-list-item{
+     padding: 12px;
+     
+    }
+    nb-list{
+      //height: 227px;
+      
+    }
+    nb-list::-webkit-scrollbar {
+      width: 8px;
+      height: 4px;
+    }
+    
+    nb-list::-webkit-scrollbar-thumb {
+      background-color: #7fa59f; /* Color of the scrollbar thumb */
+      border-radius: 10px;
+    }
+    
+    nb-list::-webkit-scrollbar-track {
+      background-color: #f1f1f1; /* Color of the scrollbar track */
+      border-radius: 10px;
+    }
+    
+  }
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ensure the container takes up the full viewport height */
+}
+
+.chart{
+  margin-top: 50px;
+}
+.flex-container {
+  display: flex;
+  //flex-wrap: wrap; /* Allow flex items to wrap onto multiple lines */
+  justify-content: space-between; /* Distribute items evenly */
+  overflow-y: auto; 
+  max-height: 300px; /* Set a fixed height for the container */
+}
+
+// .list-card {
+//   margin-right: 10px; /* Add margin between cards for better spacing */
+// }
+
+.flex-container::-webkit-scrollbar {
+  width: 8px;
+  height: 10px;
+}
+.main-container{
+  height: 200px;
+}
+
+.flex-container::-webkit-scrollbar-thumb {
+  background-color: #7fa59f; /* Color of the scrollbar thumb */
+  border-radius: 10px;
+}
+
+.flex-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Color of the scrollbar track */
+  border-radius: 10px;
+}
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.card {
+  padding: 10px;
+  margin-bottom: 10px;
+  ul { list-style: none;
+    padding: 0;
+  strong{
+    margin-top: 10px;
+    margin-left: 10px;
+    color: #fff;
+    background-color: #6935ca;
+    padding: 3px;
+    border-radius: 8px;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+}
+  h2 {
+    font-size: 0.9734rem;
+    border-bottom: 1px solid #ccc;
+  }
+}
+.gap-1 {
+  display: flex;
+  gap: 16px;
+}
+
+.menu-item a.active {
+  color:#050505 !important;
+  .menu-icon {
+    color:#050505 !important;
+  }
+}
