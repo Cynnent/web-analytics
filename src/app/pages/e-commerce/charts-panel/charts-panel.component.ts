@@ -29,24 +29,34 @@ export class ECommerceChartsPanelComponent
   private alive = true;
   dates: string[] = [];
   uniqueUsernames: string[] = [];
+  clientList: string[] = [];
+  selectedInterval: string = 'daily'; 
   // selectedUsername: string;
   chartPanelSummary: OrderProfitChartSummary[];
   period: string = "week";
   allDates: string[] = [];
   ordersChartData: OrdersChart;
   profitChartData: ProfitChart;
+  fromDate: string = "";
+  toDate: string = "";
   selectedUserIndex: number = 0;
   // buttonCounts: { label: string; total: number }[] = [];
   selectedScreenData: any;
-  selectedUsername: string = "all";
-
+  selectedUsername: any = "all";
+  selectedOption: string;
+  dateList: { id: number; value: string }[] = [];
+  clientNames: string[] = [];
   screen1Data: any = {};
   screen2Data: any = {};
   screenLabels: string[] = [];
+  filteredData: any[] = [];
+  selectedClient: string = 'all';
   selectedDate: string = "";
   selectedUserScreenData: any;
   selectedUserButtonTotals: { label: string; total: number }[] = [];
   selectedUserButtonTotalsScreen1: { label: string; total: number }[] = [];
+  userList: { id: number; value: string }[] = [];
+  objUser: { id: number, value: string }[] = [];
   selectedUserButtonTotalsScreen2: { label: string; total: number }[] = [];
   userEventDates: string[] = [];
 
@@ -54,7 +64,7 @@ export class ECommerceChartsPanelComponent
   @ViewChild("userSelect") userSelect: NbSelectComponent;
   @ViewChild("profitChart", { static: true }) profitChart: ProfitChartComponent;
   // jsonData = jsonData;
-  apiData: any[];
+  apiData: any[] = []; 
   constructor(
     private ordersProfitChartService: OrdersProfitChartData,
     private cdr: ChangeDetectorRef,
@@ -79,17 +89,26 @@ export class ECommerceChartsPanelComponent
         this.uniqueUsernames = userData.map((user) => user.username);
 
         this.dates = userData[0]?.dates || [];
-
-        this.selectedUsername = this.uniqueUsernames[0];
+        if(!this.selectedUsername){
+          this.selectedUsername = this.uniqueUsernames[0];
+        }
+        this.updateHighChart();
       });
   }
 
   ngOnInit() {
+    this.selectedInterval = 'weekly';
+
+    // Call onIntervalSelected to set the initial date range
+  
     // this.extractUniqueUsernames();a
     this.selectedUsername = "all"; 
+    this.clientNames = this.getClientNames(); 
     this.extractScreenLabels();
     this.getData();
     this.updateCharts();
+    this.populateClientNames();
+    // this.clientNames = this.getClientNames();
   }
 
   ngAfterViewInit() {
@@ -102,30 +121,210 @@ export class ECommerceChartsPanelComponent
   }
 
   // getData() {
-  //   this.dataService.getAllData().subscribe((apiData) => {
+  //   this.dataService.getDataForUser().subscribe((apiData) => {
   //     console.log("Api data:", apiData);
   //     this.apiData = apiData;
   //     this.processApiData(apiData);
   //     this.extractDates(apiData);
   //     this.filterOutDateAndTotalCountData();
   //     this.extractScreenLabels();
+  //     this.populateClientNames();
   //     this.updateCharts();
   //   });
   // }
 
+  logCurrentWeekDates() {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+
+    // Set to the first day of the week (Monday in India)
+    const dayOfWeek = startOfWeek.getDay();
+    const diff = (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // Adjust for Monday being the start of the week
+    startOfWeek.setDate(today.getDate() - diff);
+
+    const weekDates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
+
+      // Format date as a string (YYYY-MM-DD)
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      weekDates.push(formattedDate);
+    }
+
+    console.log("my week:", weekDates);
+    return weekDates;
+}
+
+
+  updateHighChart() {
+    if (this.selectedInterval === 'weekly') {
+      const weekDates = this.logCurrentWeekDates();
+      const totalCounts: number[] = this.getTotalCountsForSelectedUser(this.selectedUsername);
+      const weeklyOptions: Highcharts.Options = {
+        chart: {
+          type: 'line',
+        },
+        title: {
+          text: 'Weekly Data',
+        },
+        xAxis: {
+          categories: weekDates,
+          labels: {
+            style: {
+              color: "#000000",
+            },
+          },
+          type: 'datetime',
+          title: {
+            text: 'Date',
+          },
+        },
+        series: [{
+          name: this.selectedUsername,
+          type: 'line',
+          data: totalCounts,
+        }],
+      };
+
+      if (Highcharts.charts && Highcharts.charts[0]) {
+        Highcharts.charts[0].update(weeklyOptions);
+      } else {
+        Highcharts.chart('container', weeklyOptions);
+      }
+    } else if (this.selectedInterval === 'monthly') {
+      const monthDates = this.logCurrentMonthDates();
+      const totalCounts: number[] = this.getTotalCountsForSelectedUserByMonth(this.selectedUsername);
+      const monthlyOptions: Highcharts.Options = {
+        chart: {
+          type: 'line',
+        },
+        title: {
+          text: 'Monthly Data',
+        },
+        xAxis: {
+          categories: monthDates,
+          labels: {
+            style: {
+              color: "#000000",
+            },
+          },
+          type: 'datetime',
+          title: {
+            text: 'Date',
+          },
+        },
+        series: [{
+          name: this.selectedUsername,
+          type: 'line',
+          data: totalCounts,
+        }],
+      };
+  
+      if (Highcharts.charts && Highcharts.charts[0]) {
+        Highcharts.charts[0].update(monthlyOptions);
+      } else {
+        Highcharts.chart('container', monthlyOptions);
+      }
+    } else {
+      // Handle daily interval...
+    }
+  }
+
+  logCurrentMonthDates() {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+  
+    const monthDates = [];
+  
+    for (let currentDate = firstDayOfMonth; currentDate <= lastDayOfMonth; currentDate.setDate(currentDate.getDate() + 1)) {
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      monthDates.push(formattedDate);
+    }
+  
+    console.log("Current month dates:", monthDates);
+    return monthDates;
+  }
+
+  getTotalCountsForSelectedUserByMonth(selectedUser: string): number[] {
+    const userEvents: Record<string, number> = this.apiData
+      .filter(user => user.userInfo[0]?.userName === selectedUser)
+      .map(user => user.userEvents)
+      .reduce((acc, events) => acc.concat(events), [])
+      .reduce((countsMap: Record<string, number>, event) => {
+        const date: string = event.date;
+        const totalCount: number = event.totalCount || 0;
+        countsMap[date] = (countsMap[date] || 0) + totalCount;
+        return countsMap;
+      }, {});
+  
+    const monthDates: string[] = this.logCurrentMonthDates();
+  
+    const totalCounts: number[] = monthDates.map(date => userEvents[date] || 0);
+  
+    return totalCounts;
+  }
+
+  getTotalCountsForSelectedUser(selectedUser: string): number[] {
+    const userEvents: Record<string, number> = this.apiData
+      .filter(user => user.userInfo[0]?.userName === selectedUser)
+      .map(user => user.userEvents)
+      .reduce((acc, events) => acc.concat(events), [])
+      .reduce((countsMap: Record<string, number>, event) => {
+        const date: string = event.date;
+        const totalCount: number = event.totalCount || 0;
+        countsMap[date] = (countsMap[date] || 0) + totalCount;
+        return countsMap;
+      }, {});
+  
+    const weekDates: string[] = this.logCurrentWeekDates();
+  
+    const totalCounts: number[] = weekDates.map(date => userEvents[date] || 0);
+  
+    return totalCounts;
+  }
+  
+
+  
+
+  onChangeByselection(selectedOption: string) {
+    // Handle interval change
+    this.selectedInterval = selectedOption;
+
+    // Update Highcharts based on the selected interval
+    this.updateHighChart();
+  }
+
   getData() {
     this.dataService.getDataForUser().subscribe((apiData) => {
-      console.log("Api data:", apiData);
+      // Filter data based on date range and selected user
+      const filteredData = apiData.filter(entry => {
+        return entry.userInfo[0].userName === this.selectedUsername &&
+          entry.userEvents.some(event => {
+            return event.date >= this.fromDate && event.date <= this.toDate;
+          });
+      });
+
+      console.log("Filtered Api data:", filteredData);
+
+
       this.apiData = apiData;
-      this.processApiData(apiData);
-      this.extractDates(apiData);
+      this.processApiData(filteredData);
+      this.extractDates(filteredData);
       this.filterOutDateAndTotalCountData();
       this.extractScreenLabels();
+      this.populateClientNames();
       this.updateCharts();
     });
   }
   
-
+  onDateRangeChange() {
+    this.getData();
+  }
   
 
   // getData() {
@@ -212,11 +411,13 @@ export class ECommerceChartsPanelComponent
 
    public screensList = [];
   getScreenDataForSelectedUserAndDate(): any {
-    this.screensList = []
-
+    this.screensList = [];
+    if(this.selectedUsername.value){
+      this.selectedUsername = this.selectedUsername.value;
+    }
     this.apiData.forEach((e, i) => {
       if (
-        e.userInfo[0].userName.trim() == this.selectedUsername.trim()
+        (e.userInfo[0].userName.trim() == this.selectedUsername.trim())
       ) {
         console.log('e');
 
@@ -410,79 +611,82 @@ export class ECommerceChartsPanelComponent
   
 
   updateCharts() {
-    const seriesData: Highcharts.SeriesLineOptions[] = [];
-    const dates: string[] = [];
+
+    if (Array.isArray(this.apiData)) {
+      const seriesData: Highcharts.SeriesLineOptions[] = [];
+      const dates: string[] = [];
   
-    let filteredUserData = this.apiData;
+      let filteredUserData = this.apiData;
   
-    if (this.selectedUsername !== "all") {
-      filteredUserData = filteredUserData.filter(
-        (data) => data.userInfo[0].userName === this.selectedUsername
-      );
+      if (this.selectedUsername !== "all") {
+        filteredUserData = filteredUserData.filter(
+          (data) => data.userInfo[0].userName === this.selectedUsername
+        );
+      }
+      filteredUserData.forEach((userData: any, index: number) => {
+        const userEvents = userData.userEvents;
+        userEvents.forEach((event: any) => {
+          const eventDate = event.date;
+          if (!dates.includes(eventDate)) {
+            dates.push(eventDate);
+          }
+        });
+      });
+    
+      filteredUserData.forEach((userData: any, index: number) => {
+        const userEvents = userData.userEvents;
+        const username = userData.userInfo[0].userName;
+        const dataPoints: number[] = [];
+    
+        dates.forEach((date) => {
+          const eventData = userEvents.find((event: any) => event.date === date);
+          dataPoints.push(eventData ? eventData.totalCount : 0);
+        });
+    
+        seriesData.push({
+          name: username,
+          type: "line",
+          data: dataPoints,
+        });
+      });
+    
+      this.cdr.detectChanges();
+    
+      const options: Highcharts.Options = {
+        chart: {
+          type: "line",
+          backgroundColor: "#ffffff",
+        },
+        title: {
+          text: "Total Counts",
+          style: {
+            color: "#000",
+            fontSize: "14px",
+            fontWeight: "bold",
+          },
+        },
+        xAxis: {
+          categories: dates,
+          labels: {
+            style: {
+              color: "#000000",
+            },
+          },
+        },
+        yAxis: {
+          gridLineWidth: 0,
+          labels: {
+            style: {
+              color: "#ffffff",
+            },
+          },
+        },
+        series: seriesData,
+      };
+    
+      Highcharts.chart("container", options);
     }
-  
-    filteredUserData.forEach((userData: any, index: number) => {
-      const userEvents = userData.userEvents;
-      userEvents.forEach((event: any) => {
-        const eventDate = event.date;
-        if (!dates.includes(eventDate)) {
-          dates.push(eventDate);
-        }
-      });
-    });
-  
-    filteredUserData.forEach((userData: any, index: number) => {
-      const userEvents = userData.userEvents;
-      const username = userData.userInfo[0].userName;
-      const dataPoints: number[] = [];
-  
-      dates.forEach((date) => {
-        const eventData = userEvents.find((event: any) => event.date === date);
-        dataPoints.push(eventData ? eventData.totalCount : 0);
-      });
-  
-      seriesData.push({
-        name: username,
-        type: "line",
-        data: dataPoints,
-      });
-    });
-  
-    this.cdr.detectChanges();
-  
-    const options: Highcharts.Options = {
-      chart: {
-        type: "line",
-        backgroundColor: "#ffffff",
-      },
-      title: {
-        text: "Total Counts",
-        style: {
-          color: "#000",
-          fontSize: "14px",
-          fontWeight: "bold",
-        },
-      },
-      xAxis: {
-        categories: dates,
-        labels: {
-          style: {
-            color: "#000000",
-          },
-        },
-      },
-      yAxis: {
-        gridLineWidth: 0,
-        labels: {
-          style: {
-            color: "#ffffff",
-          },
-        },
-      },
-      series: seriesData,
-    };
-  
-    Highcharts.chart("container", options);
+    
   }
 
   
@@ -553,11 +757,10 @@ export class ECommerceChartsPanelComponent
 
  
 
-  onUserSelected(selectedUsername: string) {
+  onUserSelected(selectedUsername: any) {
     
     this.selectedUsername = selectedUsername;
-
-    
+    this.filterUserData();
     // Check if "All Users" is selected
     if (selectedUsername === "all") {
       this.selectedDate = ''; // Reset selected date
@@ -568,12 +771,11 @@ export class ECommerceChartsPanelComponent
       // Other actions as needed...
     } else {
 
-      
       // Display charts for the selected user
       this.selectedUsername = selectedUsername;
       this.getData();
-      this.calculateButtonTotalsForUser(selectedUsername, 1);
-      this.calculateButtonTotalsForUser(selectedUsername, 2);
+      this.calculateButtonTotalsForUser(selectedUsername.value, 1);
+      this.calculateButtonTotalsForUser(selectedUsername.value, 2);
       this.cdr.detectChanges();
       this.updateCharts();
       this.selectedUserScreenData = this.getScreenDataForSelectedUserAndDate();
@@ -597,8 +799,37 @@ export class ECommerceChartsPanelComponent
     }
     this.updateCharts();
   }
+
+  updateUserList(newValue: string) {
+    this.selectedUsername = ''; 
+    this.selectedDate = ''; 
+    this.userList = [];
   
+    this.apiData.map((e, i) => {
+      let userName =
+        e.userInfo[0].clientName == newValue ? e.userInfo[0].userName : null;
+      if (userName) {
+        let objUser = { id: i, value: userName };
+        this.userList.push(objUser);
+        console.log('nishitha', objUser);
+      }
+    });
   
+    this.selectedUsername = this.userList.length > 0 ? this.userList[0].value : '';
+    this.onUserSelected(this.selectedUsername);
+  }
+  
+  filterUserData() {
+    this.filteredData = this.apiData.filter((entry) => {
+      return entry.userInfo[0].userName === this.selectedUsername &&
+        entry.userEvents.some((event) => {
+          return event.date >= this.fromDate && event.date <= this.toDate;
+        });
+    });
+
+    // Call your method to update the charts with the filtered data
+    this.updateCharts();
+  }
 
   updateScreenDataCard() {
     this.buttonCounts = [];
@@ -626,10 +857,13 @@ export class ECommerceChartsPanelComponent
 
   calculateButtonTotalsForUser(selectedUsername: string, screenNumber: number) {
     const buttonTotals: { [key: string]: number } = {};
-
+    console.log(selectedUsername)
     const userData = this.apiData.find(
       (data) => data.userInfo[0].userName === selectedUsername
     );
+
+    console.log("existing user data"+this.apiData);
+    console.log(" user data"+userData);
 
     if (userData) {
       const screenKey = `screen${screenNumber}`;
@@ -671,6 +905,132 @@ export class ECommerceChartsPanelComponent
     }
   }
 
+
+
+  // getClientNames(): string[] {
+  //   const clientNamesSet = new Set<string>();
+
+  //   if (Array.isArray(this.apiData)) {
+  //     this.apiData.forEach((data) => {
+  //       data.userInfo.forEach((userInfo) => {
+  //         clientNamesSet.add(userInfo.clientName);
+  //       });
+  //     });
+  //   }
+
+  //   return Array.from(clientNamesSet);
+  // }
+
+  getClientNames(): string[] {
+    const clientNames: string[] = [];
+  console.log("names: ",clientNames)
+    if (Array.isArray(this.apiData)) {
+      this.apiData.forEach((data) => {
+        data.userInfo.forEach((userInfo) => {
+          clientNames.push(userInfo.clientName);
+        });
+      });
+    }
+  
+    return clientNames;
+  }
+
+  populateClientNames() {
+    this.clientNames = this.getClientNames();
+  }
+  
+
+  // onChange(newValue: string) {
+  //   console.log(`Selected option: ${newValue}`);
+  //   this.selectedOption = newValue;
+  //   this.userList = [];
+  //   this.dateList = [];
+  
+  //   // Filter data based on the selected client name
+  //   const filteredData = this.apiData.filter(
+  //     (e) => e.userInfo[0].clientName == newValue
+  //   );
+  
+  //   filteredData.forEach((e, i) => {
+  //     let userName = e.userInfo[0].userName;
+  //     let objUser = { id: i, value: userName };
+  //     this.userList.push(objUser);
+  //     console.log('nishitha', objUser);
+  //   });
+  
+  //   if (this.userList.length > 0) {
+  //     this.selectedUsername = this.userList[0].value;
+  //     this.onUserSelected(this.selectedUsername);
+  //   } else {
+  //     this.selectedUsername = ''; // Handle the case when there are no users for the selected client
+  //   }
+  // }
+
+
+  onChange(newValue: string) {
+    console.log(`Selected option: ${newValue}`);
+    this.selectedOption = newValue;
+    this.userList = [];
+    this.dateList = [];
+  
+    // Filter data based on the selected client name
+    const filteredData = this.apiData.filter(
+      (e) => e.userInfo[0].clientName == newValue
+    );
+  
+    filteredData.forEach((e, i) => {
+      let userName = e.userInfo[0].userName;
+      let objUser = { id: i, value: userName };
+      this.userList.push(objUser);
+      console.log('nishitha', objUser);
+    });
+  
+    // Extract all usernames for the selected client
+    const allUsernames = this.userList.map(user => user.value);
+  
+    // Set the selectedUsername to the first username in the list (if available)
+    this.selectedUsername = allUsernames.length > 0 ? allUsernames[0] : '';
+  
+    // Trigger the user selection logic
+    this.onUserSelected(this.selectedUsername);
+  }
+  
+  
+  
+  
+  
+
+  // onChange(newValue: string) {
+  //   console.log('onChange triggered with:', newValue);
+  
+  //   this.clientNames = this.getClientNames();
+  
+  //   console.log('Client names:', this.clientNames);
+  
+  //   if (!this.clientNames) {
+  //     console.warn('Client names not yet populated.');
+  //     return;
+  //   }
+  //   this.selectedOption = newValue;
+  //   this.userList = [];
+  //   this.dateList = [];
+  //   this.clientList = []; // Add this line to store unique client names
+  
+  //   this.apiData.forEach((e, i) => {
+  //     let userName =
+  //       e.userInfo[0].clientName == newValue ? e.userInfo[0].userName : null;
+  //     if (userName) {
+  //       let objUser = { id: i, value: userName };
+  //       this.userList.push(objUser);
+  //     }
+  //   });
+  
+  //   this.selectedUsername = this.userList.length > 0 ? this.userList[0].value : '';
+  
+  //   // Call updateUserList method explicitly
+  //   this.updateUserList(newValue);
+  // }
+  
   ngOnDestroy() {
     this.alive = false;
   }

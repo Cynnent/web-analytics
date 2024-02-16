@@ -1,18 +1,29 @@
 <div class="row col-md-12 col-lg-3 col-xxxl-3">
+
   <div class="col-md-12 col-lg-3 col-xxxl-3">
     <nb-card>
-      <nb-card-header>Users</nb-card-header>
+      <nb-card-header>Client Name</nb-card-header>
       <nb-card-body>
-        <nb-select placeholder="Select User" [(selected)]="selectedUsername" (selectedChange)="onUserSelected($event)">
-          <nb-option value="all">All user</nb-option>
-          <nb-option *ngFor="let user of uniqueUsernames" [value]="user">{{ user }}</nb-option>
+        <nb-select placeholder="Select Client" [(selected)]="selectedOption" (selectedChange)="onChange(selectedOption)">
+          <nb-option *ngFor="let client of clientNames" [value]="client">{{ client }}</nb-option>
         </nb-select>
       </nb-card-body>
     </nb-card>
   </div>
-  
 
-  
+
+  <div class="col-md-12 col-lg-3 col-xxxl-3">
+    <nb-card>
+      <nb-card-header>Users</nb-card-header>
+      <nb-card-body>
+        <nb-select placeholder="Select User" [(selected)]="selectedUsername" [(selected)]="selectedUsername" (selectedChange)="onUserSelected(selectedUsername)">
+          <nb-option value="all">All user</nb-option>
+          <nb-option *ngFor="let user of userList" [value]="user.value">{{ user.value }}</nb-option>
+        </nb-select>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
   <div class="col-md-12 col-lg-3 col-xxxl-3" *ngIf="selectedUsername !== 'all'">
     <nb-card>
       <nb-card-header>Date</nb-card-header>
@@ -23,12 +34,26 @@
       </nb-card-body>
     </nb-card>
   </div>
-
- 
 </div>
 
+
+  <div class="col-md-12 col-lg-3 col-xxxl-3">
+    <nb-card>
+      <nb-card-header>Interval</nb-card-header>
+      <nb-card-body>
+        <nb-select placeholder="Select Interval" [(selected)]="selectedInterval" (selectedChange)="onChangeByselection(selectedInterval)">
+          <nb-option value="daily">Daily</nb-option>
+          <nb-option value="weekly">Weekly</nb-option>
+          <nb-option value="monthly">Monthly</nb-option>
+        </nb-select>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+
+
 <div class="row">
-  <div class=" col-md-12 col-lg-12 col-xxxl-12" *ngIf="selectedDate">
+  <div class=" col-md-12 col-lg-12 col-xxxl-12" *ngIf="selectedDate && selectedOption">
     <h4>Screens Overview</h4>
     <div class="row gap-1 main-container" style="max-height: 500px; overflow-y: auto;">     
         
@@ -41,41 +66,10 @@
             </li>
           </ul>
         </div>
-     
-      <!-- <div class="" *ngFor="let screenLabel of screenLabels">
-        <ng-container *ngIf="selectedDate">
-          <div class="">
-            <nb-card class="list-card" *ngIf="getScreenData(screenLabel, selectedDate, selectedUsername).length > 0">
-              <nb-card-header>{{ screenLabel.toUpperCase() }}</nb-card-header>
-              <nb-card-body>
-                <nb-list *ngFor="let data of getScreenData(screenLabel, selectedDate, selectedUsername)">
-                  <nb-list-item *ngFor="let item of data | keyvalue">
-                    {{ item.key }}: {{ item.value }}
-                  </nb-list-item>
-                </nb-list>
-              </nb-card-body>
-            </nb-card> 
-            
-
-          </div>
-        </ng-container>
-      </div> -->
     </div>
   </div>
 </div>
-<!-- charts -->
-<!-- <div class="row chart">
-  <div class="col-md-12 col-lg-12 col-xxxl-12">
-    <nb-card class="high-chart" size="large">
-      <div *ngIf="selectedUsername === 'all'; else allUsersContent">
-        <div id="container" style="width: 100%; height: 400px;"></div> 
-      </div>
-      <ng-template #allUsersContent>
-        <div id="container" style="width: 100%; height: 400px;"></div> 
-      </ng-template>
-    </nb-card>
-  </div>
-</div> -->
+
 
 <div class="row chart" *ngIf="selectedUsername">
   <div class="col-md-12 col-lg-12 col-xxxl-12">
