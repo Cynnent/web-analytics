@@ -1,81 +1,100 @@
 <div class="row col-md-12 col-lg-3 col-xxxl-3">
-
   <div class="col-md-12 col-lg-3 col-xxxl-3">
     <nb-card>
       <nb-card-header>Client Name</nb-card-header>
       <nb-card-body>
-        <nb-select placeholder="Select Client" [(selected)]="selectedOption" (selectedChange)="onChange(selectedOption)">
-          <nb-option *ngFor="let client of clientNames" [value]="client">{{ client }}</nb-option>
+        <nb-select
+          placeholder="Select Client"
+          [(selected)]="selectedOption"
+          (selectedChange)="onChange(selectedOption)"
+        >
+          <nb-option *ngFor="let client of clientNames" [value]="client">{{
+            client
+          }}</nb-option>
         </nb-select>
       </nb-card-body>
     </nb-card>
   </div>
-
 
   <div class="col-md-12 col-lg-3 col-xxxl-3">
     <nb-card>
       <nb-card-header>Users</nb-card-header>
       <nb-card-body>
-        <nb-select placeholder="Select User" [(selected)]="selectedUsername" [(selected)]="selectedUsername" (selectedChange)="onUserSelected(selectedUsername)">
+        <nb-select
+          placeholder="Select User"
+          [(selected)]="selectedUsername"
+          [(selected)]="selectedUsername"
+          (selectedChange)="onUserSelected(selectedUsername)"
+        >
           <nb-option value="all">All user</nb-option>
-          <nb-option *ngFor="let user of userList" [value]="user.value">{{ user.value }}</nb-option>
+          <nb-option *ngFor="let user of userList" [value]="user.value">{{
+            user.value
+          }}</nb-option>
         </nb-select>
       </nb-card-body>
     </nb-card>
   </div>
+  <!-- <div>
+    <input type="text" [(ngModel)]="searchUsername" (input)="onSearch()" placeholder="Search by username">
+  </div> -->
+
 
   <div class="col-md-12 col-lg-3 col-xxxl-3" *ngIf="selectedUsername !== 'all'">
     <nb-card>
       <nb-card-header>Date</nb-card-header>
       <nb-card-body>
-        <nb-select placeholder="Select Date" [(selected)]="selectedDate" (selectedChange)="onDateSelected($event)">
-          <nb-option *ngFor="let date of userEventDates" [value]="date">{{date}}</nb-option>
+        <nb-select
+          placeholder="Select Date"
+          [(selected)]="selectedDate"
+          (selectedChange)="onDateSelected(selectedUsername, selectedDate)"
+        >
+          <nb-option *ngFor="let date of userEventDates" [value]="date">{{
+            date
+          }}</nb-option>
         </nb-select>
       </nb-card-body>
     </nb-card>
   </div>
 </div>
 
-
-  <div class="col-md-12 col-lg-3 col-xxxl-3">
-    <nb-card>
-      <nb-card-header>Interval</nb-card-header>
-      <nb-card-body>
-        <nb-select placeholder="Select Interval" [(selected)]="selectedInterval" (selectedChange)="onChangeByselection(selectedInterval)">
-          <nb-option value="daily">Daily</nb-option>
-          <nb-option value="weekly">Weekly</nb-option>
-          <nb-option value="monthly">Monthly</nb-option>
-        </nb-select>
-      </nb-card-body>
-    </nb-card>
-  </div>
-
-
-
 <div class="row">
-  <div class=" col-md-12 col-lg-12 col-xxxl-12" *ngIf="selectedDate && selectedOption">
+  <div
+    class="col-md-12 col-lg-12 col-xxxl-12"
+    *ngIf="selectedDate && selectedOption"
+  >
     <h4>Screens Overview</h4>
-    <div class="row gap-1 main-container" style="max-height: 500px; overflow-y: auto;">     
-        
-        <div *ngFor="let s of screensList" class="card col-md-3 col-lg-3">
-          <h2>{{ s.pageName }}</h2>
-          <ul>
-            <li *ngFor="let e of s.actions">
-              <span>{{ e.key }}</span
-              ><strong>{{ e.value }}</strong>
-            </li>
-          </ul>
-        </div>
+    <div
+      class="row gap-1 main-container"
+      style="max-height: 500px; overflow-y: auto"
+    >
+      <div *ngFor="let s of screensList" class="card col-md-3 col-lg-3">
+        <h2>{{ s.pageName }}</h2>
+        <ul>
+          <li *ngFor="let e of s.actions">
+            <span>{{ e.key }}</span
+            ><strong>{{ e.value }}</strong>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
 
-
 <div class="row chart" *ngIf="selectedUsername">
+  <div class="col-md-12 col-lg-3 col-xxxl-3">
+    <nb-select
+      class="Select-Interval"
+      [(selected)]="selectedInterval"
+      (selectedChange)="onChangeByselection(selectedInterval)"
+    >
+      <nb-option value="daily">Daily</nb-option>
+      <nb-option value="weekly">Weekly</nb-option>
+      <nb-option value="monthly">Monthly</nb-option>
+    </nb-select>
+  </div>
   <div class="col-md-12 col-lg-12 col-xxxl-12">
-    <nb-card class="high-chart" size="large"  >
-      <div id="container" style="width: 100%; height: 450px;"></div> 
+    <nb-card class="high-chart" size="large">
+      <div id="container" style="width: 100%; height: 450px"></div>
     </nb-card>
   </div>
 </div>
-

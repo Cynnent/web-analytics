@@ -5,10 +5,11 @@
  */
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
+import { FormsModule ,  ReactiveFormsModule} from '@angular/forms';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import {
@@ -17,6 +18,7 @@ import {
   NbDialogModule,
   NbMenuModule,
   NbSidebarModule,
+  NbSelectModule,
   NbToastrModule,
   NbWindowModule,
 } from '@nebular/theme';
@@ -25,6 +27,9 @@ import {
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    NbSelectModule,
+    FormsModule,
+    ReactiveFormsModule ,
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
@@ -41,6 +46,10 @@ import {
     ThemeModule.forRoot(),
   ],
   bootstrap: [AppComponent],
+  
+  schemas: [
+    NO_ERRORS_SCHEMA
+  ]
 })
 export class AppModule {
 }
