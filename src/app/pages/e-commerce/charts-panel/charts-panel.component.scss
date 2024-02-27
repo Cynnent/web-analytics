@@ -196,3 +196,360 @@ body {
     color:#050505 !important;
   }
 }
+
+.btn-container {
+  display: flex;
+  flex-wrap: wrap; // Allow buttons to wrap onto the next line
+}
+
+.btn {
+  position: relative;
+  white-space: nowrap;
+  // margin-right: 20px; // Add margin between buttons
+  // margin-bottom: 10px; // Add margin below buttons
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.btn > span {
+  display: inline-block;
+}
+
+.arrow-right {
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid black;
+}
+
+.tooltip {
+  position: fixed;
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  z-index: 999;
+  white-space: nowrap;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column; // Arrange tooltip content vertically
+}
+
+.tooltip-content span {
+  margin-bottom: 5px; // Add spacing between tooltip items
+}
+
+.btn-selected {
+  background-color: #007bff; /* Change the color to your desired color */
+  color: white;
+}
+
+// .btn {
+//   position: relative;
+//   white-space: nowrap;
+//   margin-right: 20px; /* Add margin between buttons */
+//   margin-bottom: 10px; /* Add margin below buttons */
+//   background-color: #007bff; /* Blue color for buttons */
+//   color: white; /* White text color */
+// }
+
+.btn-selected {
+  background-color: #f0b04b; /* Red color for selected button */
+  /* You can adjust the selected button's text color if needed */
+  transition: width 0.5s ease, left 0.5s ease, background-color 0.5s ease; 
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  padding: 10px; /* Add padding for better spacing */
+  border: 2px solid #007bff; /* Add a border */
+  border-radius: 8px; /* Add rounded corners */
+  background-color: #f0f0f0; /* Add a light background color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  max-height: 100px; /* Set a maximum height */
+  overflow-y: auto; 
+}
+
+.tooltip-content span {
+  font-size: 14px; /* Adjust font size */
+  color: #333; /* Adjust text color */
+}
+
+.tooltip-content span:last-child {
+  margin-bottom: 0; /* Remove margin from the last span */
+}
+
+/* Add hover effect */
+.tooltip-content:hover {
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.flow-graph button {
+  width: 100%;
+  height: 100%; /* Make button fill the entire height of the list item */
+}
+
+.flow-graph ol {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  --hue: 1;
+  --unit: 0.5rem;
+}
+.flow-graph h1 {
+  text-align: center;
+}
+.flow-graph p {
+  line-height: 1.3;
+}
+.flow-graph .event-date {
+  margin: 0 0 0.25rem;
+  font-weight: bold;
+  font-size: 12px;
+}
+.flow-graph .event-description {
+  margin: 0;
+  display: none;
+}
+.flow-graph li {
+  --height: 1rem; /* Adjust the height of the list item */
+  position: relative;
+  display: inline-block;
+  background-color: #38f2d9;
+  border-color: #38f2d9;
+  padding: 0.1rem;
+  margin: 0.1rem;
+}
+.flow-graph li::before {
+  content: "";
+  background-color: inherit;
+  position: absolute;
+  display: block;
+  width: var(--unit);
+  height: var(--unit);
+  top: 100%;
+  left: calc(50% - (var(--unit)/2));
+}
+.flow-graph li::after {
+  content: "";
+  position: absolute;
+  display: block;
+  top: calc(100% + var(--unit));
+  left: calc(50% - (var(--unit)));
+  border: var(--unit) solid transparent;
+  border-top-color: inherit;
+}
+.flow-graph li:last-child::before,
+.flow-graph li:last-child::after {
+  content: none;
+}
+.flow-graph li:nth-child(20n+1){
+  --hue: 1;
+}
+.flow-graph li:nth-child(20n+2){
+  --hue: 2;
+}
+.flow-graph li:nth-child(20n+3){
+  --hue: 3;
+}
+.flow-graph li:nth-child(20n+4){
+  --hue: 4;
+}
+.flow-graph li:nth-child(20n+5){
+  --hue: 5;
+}
+.flow-graph li:nth-child(20n+6){
+  --hue: 6;
+}
+.flow-graph li:nth-child(20n+7){
+  --hue: 7;
+}
+.flow-graph li:nth-child(20n+8){
+  --hue: 8;
+}
+.flow-graph li:nth-child(20n+9){
+  --hue: 9;
+}
+.flow-graph li:nth-child(20n+10){
+  --hue: 10;
+}
+.flow-graph li:nth-child(20n+11){
+  --hue: 11;
+}
+.flow-graph li:nth-child(20n+12){
+  --hue: 12;
+}
+.flow-graph li:nth-child(20n+13){
+  --hue: 13;
+}
+.flow-graph li:nth-child(20n+14){
+  --hue: 14;
+}
+.flow-graph li:nth-child(20n+15){
+  --hue: 15;
+}
+@media (min-width: 550px) and (max-width: 899px){
+  .flow-graph li {
+    margin: 0.6rem;
+    width: calc(33.33% - 1.2rem);
+    float: left;
+    height: 2rem;
+  }
+  .flow-graph li:nth-child(6n+4),
+    .flow-graph li:nth-child(6n+5),
+    .flow-graph li:nth-child(6n+6) {
+      float: right;
+    }
+    .flow-graph li:nth-child(6n+1)::before,
+    .flow-graph li:nth-child(6n+2)::before {
+      top: calc(var(--height)/2 + var(--unit)/2);
+      left: 100%;
+    }
+    .flow-graph li:nth-child(6n+1)::after,
+    .flow-graph li:nth-child(6n+2)::after {
+      top: 0.5rem;
+      left: calc(100% + (var(--unit)));
+      border: var(--unit) solid transparent;
+      border-left-color: inherit;
+    }
+    .flow-graph li:nth-child(6n+4)::before,
+    .flow-graph li:nth-child(6n+5)::before{
+      top: calc(var(--height)/2 + var(--unit)/2);
+      left: -0.5rem;
+    }
+    .flow-graph li:nth-child(6n+4)::after,
+    .flow-graph li:nth-child(6n+5)::after{
+      top: calc(var(--height)/2);
+      left: -1.5rem;
+      border: var(--unit) solid transparent;
+      border-right-color: inherit;
+    }
+}
+
+@media (min-width: 900px){
+  .flow-graph ol {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .flow-graph li {
+    margin: 0.6rem;
+    width: calc(16.66% - 1.2rem);
+    float: left;
+     height: 2rem;
+    border-radius: 4px;
+  }
+  .flow-graph li:nth-child(12n+7),
+    .flow-graph li:nth-child(12n+8),
+    .flow-graph li:nth-child(12n+9),
+    .flow-graph li:nth-child(12n+10),
+    .flow-graph li:nth-child(12n+11){
+      float: right;
+    }
+    .flow-graph li:nth-child(12n+1)::before,
+    .flow-graph li:nth-child(12n+2)::before,
+    .flow-graph li:nth-child(12n+3)::before,
+    .flow-graph li:nth-child(12n+4)::before,
+    .flow-graph li:nth-child(12n+5)::before{
+      top: calc(var(--height)/2 + var(--unit)/2);
+      left: 100%;
+    }
+    .flow-graph li:nth-child(12n+1)::after,
+    .flow-graph li:nth-child(12n+2)::after,
+    .flow-graph li:nth-child(12n+3)::after,
+    .flow-graph li:nth-child(12n+4)::after,
+    .flow-graph li:nth-child(12n+5)::after{
+      top: calc(var(--height)/2);
+      left: calc(100% + (var(--unit)));
+      border: var(--unit) solid transparent;
+      border-left-color: inherit;
+    }
+    .flow-graph li:nth-child(12n+7)::before,
+    .flow-graph li:nth-child(12n+8)::before,
+    .flow-graph li:nth-child(12n+9)::before,
+    .flow-graph li:nth-child(12n+10)::before,
+    .flow-graph li:nth-child(12n+11)::before{
+      top: calc(var(--height)/2 + var(--unit)/2);
+      left: -0.5rem;
+    }
+    .flow-graph li:nth-child(12n+7)::after,
+    .flow-graph li:nth-child(12n+8)::after,
+    .flow-graph li:nth-child(12n+9)::after,
+    .flow-graph li:nth-child(12n+10)::after,
+    .flow-graph li:nth-child(12n+11)::after {
+      top: calc(var(--height)/2);
+      left: -1.5rem;
+      border: var(--unit) solid transparent;
+      border-right-color: inherit;
+    }
+}
+
+
+/* Media query for screens with maximum width up to 549px */
+@media (max-width: 549px){
+  .flow-graph li {
+    margin: 0.7rem auto;
+    width: calc(100% - 2rem);
+    height: 2rem;
+    position: relative;
+  }
+  .flow-graph li::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 10px solid #38f2d9; /* Corrected to point downwards */
+    top: -px; /* Adjusted to be above the list item */
+    left: calc(50% - 4px);
+  }
+  .flow-graph li::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #38f2d9; /* Corrected to point upwards */
+    bottom: -10px; /* Adjusted to be below the list item */
+    left: calc(50% - 10px);
+    top: 42px;
+  }
+}
+
+.btn span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 100%;
+  background-color: transparent;
+  transition: width 0.3s ease, left 0.3s ease, background-color 0.3s ease;
+}
+
+.btn.btn-primary::after {
+  background-color: #f0b04b; /* Red color */
+}
+
+.btn.btn-selected::after {
+  left: 0;
+  width: 100%;
+}

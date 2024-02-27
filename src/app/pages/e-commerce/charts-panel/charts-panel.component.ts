@@ -13,7 +13,7 @@ import {
 } from "../../../@core/data/orders-profit-chart";
 import { ChangeDetectorRef } from "@angular/core";
 import { DataService } from "./data.service";
-
+import { interval, Subscription } from 'rxjs';
 @Component({
   selector: "ngx-ecommerce-charts",
   styleUrls: ["./charts-panel.component.scss"],
@@ -61,6 +61,14 @@ export class ECommerceChartsPanelComponent
   selectedUserButtonTotalsScreen2: { label: string; total: number }[] = [];
   userEventDates: string[] = [];
 
+  showActionsTooltip = false;
+  tooltipActions: string[] = [];
+  tooltipTop = 0;
+  tooltipLeft = 0;
+  tooltipInterval$: Subscription;
+  selectedScreen: any = null;
+
+
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
   @ViewChild("userSelect") userSelect: NbSelectComponent;
   @ViewChild("profitChart", { static: true }) profitChart: ProfitChartComponent;
@@ -106,7 +114,7 @@ export class ECommerceChartsPanelComponent
     this.updateCharts();
     this.populateClientNames();
     this.filteredUsernames = this.uniqueUsernames;
-
+    this.resetTooltip();
     this.onChange(this.selectedClient);
   }
 
@@ -397,8 +405,58 @@ export class ECommerceChartsPanelComponent
 
     this.dateSelected = true;
     this.onIntervalChange();
+    this.resetTooltip();
+  }
+///////////////////////////////////////////////////////////////////////////////////////////////
+isSelected(screen: any): boolean {
+  return this.selectedScreen === screen;
+}
+
+setSelected(screen: any) {
+  this.selectedScreen = screen;
+}
+
+
+resetTooltip() {
+  this.showActionsTooltip = false;
+  this.tooltipActions = [];
+  this.selectedScreen = null;
+}
+
+
+toggleTooltip(event: MouseEvent, actions: any[]) {
+  // Reset selected screen when data changes
+  this.selectedScreen = null;
+
+  // Clear previous interval
+  if (this.tooltipInterval$) {
+    this.tooltipInterval$.unsubscribe();
   }
 
+  // Set initial state of tooltip
+  this.showActionsTooltip = true;
+  this.tooltipActions = []; // Reset tooltip actions
+  this.tooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
+  this.tooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
+
+  // Initialize index to 0
+  let index = 0;
+
+  // Set interval to show tooltip actions one by one after 1 second
+  this.tooltipInterval$ = interval(500).subscribe(() => {
+    // Show current action
+    this.tooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
+    
+    // Increment index
+    index++;
+
+    // If all actions are displayed, unsubscribe from interval
+    if (index === actions.length) {
+      this.tooltipInterval$.unsubscribe();
+    }
+  });
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
   updateHighchart(totalCount: number) {
     console.log("my totalcount", totalCount);
 
@@ -565,6 +623,7 @@ export class ECommerceChartsPanelComponent
     });
 
     return this.screensList;
+    
   }
 
   processApiData(apiData: any[]) {
