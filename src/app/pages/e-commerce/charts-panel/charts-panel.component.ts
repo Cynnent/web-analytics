@@ -376,8 +376,6 @@ export class ECommerceChartsPanelComponent
   }
 
   onDateSelected(username: string, selectedDate: string) {
-
-    
     this.selectedDate = selectedDate;
     this.selectedUserScreenData = this.getScreenDataForSelectedUserAndDate();
     const userData = this.apiData.find(
@@ -803,85 +801,268 @@ export class ECommerceChartsPanelComponent
     }
   }
 
+  // getClientNames(): string[] {
+  //   const clientNames: string[] = [];
+  //   if (Array.isArray(this.apiData)) {
+  //     this.apiData.forEach((data) => {
+  //       data.userInfo.forEach((userInfo) => {
+  //         clientNames.push(userInfo.clientName);
+  //       });
+  //     });
+  //   }
+
+  //   console.log("names: ", clientNames);
+
+  //   return clientNames;
+  // }
+
   getClientNames(): string[] {
-    const clientNames: string[] = [];
-    console.log("names: ", clientNames);
+    const clientNamesSet: Set<string> = new Set(); // Using Set to automatically remove duplicates
+
     if (Array.isArray(this.apiData)) {
-      this.apiData.forEach((data) => {
-        data.userInfo.forEach((userInfo) => {
-          clientNames.push(userInfo.clientName);
+        this.apiData.forEach((data) => {
+            data.userInfo.forEach((userInfo) => {
+                clientNamesSet.add(userInfo.clientName); // Add each client name to the set
+            });
         });
-      });
     }
 
+    // Convert Set back to array
+    const clientNames: string[] = Array.from(clientNamesSet);
+
+    console.log("names: ", clientNames);
+
     return clientNames;
-  }
+}
+
 
   populateClientNames() {
     this.clientNames = this.getClientNames();
   }
 
   onChange(newValue: string) {
-    const seriesData: any[] = [];
-    console.log(`Selected option: ${newValue}`);
-    this.selectedOption = newValue;
-    this.userList = [];
-    this.dateList = [];
-
     const filteredData = this.apiData.filter(
-      (e) => e.userInfo[0].clientName == newValue
+        (e) => e.userInfo[0].clientName == newValue
     );
 
-    const dates: string[] = [];
+    console.log("filtered data_>>>>",filteredData)
 
-    filteredData.forEach((userData: any) => {
-      const userEvents = userData.userEvents;
-      userEvents.forEach((event: any) => {
-        const eventDate = event.date;
-        if (!dates.includes(eventDate)) {
-          dates.push(eventDate);
+    filteredData.forEach((e, i) => {
+        let userName = e.userInfo[0].userName;
+        let objUser = { id: i, value: userName };
+        this.userList.push(objUser);
+        console.log("nishitha", objUser);
+    });
+
+    if (this.selectedInterval === 'weekly') {
+        const clientName = newValue; // Assuming newValue is the client name
+        const interval = this.selectedInterval; // Pass the interval
+        this.getAndDisplayEventsForClient(clientName, interval);
+    } else if (this.selectedInterval === 'monthly') {
+        const clientName = newValue; // Assuming newValue is the client name
+        this.getAndDisplayEventsForClient(clientName, this.selectedInterval); // Pass the interval
+    }
+
+    // Reset to weekly interval after filtering
+    // this.selectedInterval = 'weekly';
+}
+
+
+
+getAndDisplayEventsForMonthly(clientName) {
+  const filteredUserEvents = this.filterUserEventsForCurrentMonth(clientName);
+  const dates = this.getCurrentMonthDates(); // Get the dates for the current month
+
+  // Initialize an array to store series data
+  const seriesData = [];
+
+  // Iterate over each user
+  filteredUserEvents.forEach((user) => {
+      // Initialize an array to store data points for the current user
+      const dataPoints = [];
+
+      // Iterate over all dates in the specified range
+      dates.forEach((date) => {
+          // Get total count for the current date
+          const totalCount = user.dateWiseCounts[date] || 0;
+          dataPoints.push(totalCount); // Push total count to dataPoints array
+      });
+
+      // Push series data for the current user
+      seriesData.push({
+          name: user.userName,
+          type: 'line',
+          data: dataPoints,
+      });
+  });
+
+  // Display the series data
+  console.log(seriesData);
+  this.renderChart(seriesData, dates);
+}
+
+  getCurrentWeekStartDate() {
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay();
+    const firstDayOfWeek = new Date(
+      currentDate.setDate(
+        currentDate.getDate() - currentDay + (currentDay === 0 ? -6 : 1)
+      )
+    );
+    const dates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(firstDayOfWeek);
+      date.setDate(date.getDate() + i);
+      dates.push(date.toISOString().slice(0, 10));
+    }
+    return dates;
+  }
+
+  getCurrentMonthDates() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const dates = [];
+
+    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+        const date = new Date(year, month, i);
+        dates.push(date.toISOString().slice(0, 10));
+    }
+
+    return dates;
+}
+
+  filterUserEventsForCurrentWeek(clientName) {
+    const currentWeekStartDate = this.getCurrentWeekStartDate();
+    const endDate = new Date().toISOString().slice(0, 10);
+
+    const filteredData = [];
+
+    this.apiData.forEach((user) => {
+      user.userInfo.forEach((userInfo) => {
+        if (userInfo.clientName === clientName) {
+          const userEvents = user.userEvents;
+
+          // Initialize an object to store total counts for each date of the week
+          const dateWiseCounts = {};
+
+          // Iterate over all dates of the current week
+          currentWeekStartDate.forEach((date) => {
+            dateWiseCounts[date] = 0; // Initialize count to 0 for each date
+          });
+
+          // Iterate over user events and accumulate total counts for each date
+          userEvents.forEach((event) => {
+            const eventDate = new Date(event.date).toISOString().slice(0, 10);
+
+            if (dateWiseCounts.hasOwnProperty(eventDate)) {
+              dateWiseCounts[eventDate] += event.totalCount; // Accumulate total counts
+            }
+          });
+
+          filteredData.push({
+            userName: userInfo.userName.trim(),
+            dateWiseCounts: dateWiseCounts,
+          });
         }
       });
     });
 
-    console.log("userdates", dates);
+    return filteredData;
+  }
 
-    filteredData.forEach((e, i) => {
-      let userName = e.userInfo[0].userName;
-      let objUser = { id: i, value: userName };
-      this.userList.push(objUser);
-      console.log("nishitha", objUser);
+  filterUserEventsForCurrentMonth(clientName) {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const dates = [];
+
+    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+      const date = new Date(year, month, i);
+      dates.push(date.toISOString().slice(0, 10));
+    }
+
+    const filteredData = [];
+
+    this.apiData.forEach((user) => {
+      user.userInfo.forEach((userInfo) => {
+        if (userInfo.clientName === clientName) {
+          const userEvents = user.userEvents;
+
+          // Initialize an object to store total counts for each date of the month
+          const dateWiseCounts = {};
+
+          // Iterate over all dates of the current month
+          dates.forEach((date) => {
+            dateWiseCounts[date] = 0; // Initialize count to 0 for each date
+          });
+
+          // Iterate over user events and accumulate total counts for each date
+          userEvents.forEach((event) => {
+            const eventDate = new Date(event.date).toISOString().slice(0, 10);
+
+            if (dateWiseCounts.hasOwnProperty(eventDate)) {
+              dateWiseCounts[eventDate] += event.totalCount; // Accumulate total counts
+            }
+          });
+
+          filteredData.push({
+            userName: userInfo.userName.trim(),
+            dateWiseCounts: dateWiseCounts,
+          });
+        }
+      });
     });
 
-    console.log(filteredData);
+    return filteredData;
+  }
 
-    const totalCountsByDate: { [date: string]: number } = {};
+  getAndDisplayEventsForClient(clientName, interval) {
+    let filteredUserEvents = [];
+    let dates = [];
 
-    filteredData.forEach((userData: any) => {
-      const userEvents = userData.userEvents;
-      const username = userData.userInfo[0].userName;
-      const dataPoints: number[] = [];
+    if (interval === "weekly") {
+      filteredUserEvents = this.filterUserEventsForCurrentWeek(clientName);
+      dates = this.getCurrentWeekStartDate(); // Get the dates for the current week
+    } else if (interval === "monthly") {
+      // Implement filtering and date retrieval logic for monthly interval
+      filteredUserEvents = this.filterUserEventsForCurrentMonth(clientName);
+      dates = this.getCurrentMonthDates(); // Get the dates for the current month
+    } else {
+      console.error("Invalid interval provided.");
+      return;
+    }
 
-      console.log("heloo userEvents", userEvents);
-      console.log("heloo username", username);
-      console.log("heloo username", username);
+    // Initialize an array to store series data
+    const seriesData = [];
 
+    // Iterate over each user
+    filteredUserEvents.forEach((user) => {
+      // Initialize an array to store data points for the current user
+      const dataPoints = [];
+
+      // Iterate over all dates in the specified range
       dates.forEach((date) => {
-        const eventData = userEvents.find((event: any) => event.date === date);
-        dataPoints.push(eventData ? eventData.totalCount : 0);
+        // Get total count for the current date
+        const totalCount = user.dateWiseCounts[date] || 0;
+        dataPoints.push(totalCount); // Push total count to dataPoints array
       });
 
+      // Push series data for the current user
       seriesData.push({
-        name: username,
+        name: user.userName,
         type: "line",
         data: dataPoints,
       });
     });
 
-    console.log("selected client series data values:", seriesData);
-
-    console.log("dates by counts:>>>", totalCountsByDate);
-
+    // Display the series data
+    console.log(seriesData);
     this.renderChart(seriesData, dates);
   }
 
