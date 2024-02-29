@@ -407,7 +407,7 @@ export class ECommerceChartsPanelComponent
     this.onIntervalChange();
     this.resetTooltip();
   }
-///////////////////////////////////////////////////////////////////////////////////////////////
+
 isSelected(screen: any): boolean {
   return this.selectedScreen === screen;
 }
@@ -425,38 +425,38 @@ resetTooltip() {
 
 
 toggleTooltip(event: MouseEvent, actions: any[]) {
-  // Reset selected screen when data changes
+  
   this.selectedScreen = null;
 
-  // Clear previous interval
+  
   if (this.tooltipInterval$) {
     this.tooltipInterval$.unsubscribe();
   }
 
-  // Set initial state of tooltip
+ 
   this.showActionsTooltip = true;
-  this.tooltipActions = []; // Reset tooltip actions
+  this.tooltipActions = []; 
   this.tooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
   this.tooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
 
-  // Initialize index to 0
+  
   let index = 0;
 
-  // Set interval to show tooltip actions one by one after 1 second
+  
   this.tooltipInterval$ = interval(500).subscribe(() => {
-    // Show current action
+    
     this.tooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
     
-    // Increment index
+    
     index++;
 
-    // If all actions are displayed, unsubscribe from interval
+    
     if (index === actions.length) {
       this.tooltipInterval$.unsubscribe();
     }
   });
 }
-///////////////////////////////////////////////////////////////////////////////////////////////
+
   updateHighchart(totalCount: number) {
     console.log("my totalcount", totalCount);
 

@@ -79,10 +79,10 @@
     </div>
   </div>
 </div>
+
 <div class="flow-graph row">
   <div class="col-lg-12 col-md-12 col-sm-12">
     <ol>
-      <!-- Iterate over screensList and display buttons with tooltips -->
       <ng-container *ngFor="let s of screensList; let i = index">
         <li>
           <button class="btn" 
@@ -92,13 +92,13 @@
                   title="View clicked buttons"
                   >
             <span>{{ s.pageName + ' page' }}</span>
-            <!-- Add arrow mark if it's not the last button -->
           </button>
         </li>
       </ng-container>
     </ol>
   </div>
 </div>
+
 <ng-container *ngIf="showActionsTooltip" class="tooltip" [style.top.px]="tooltipTop" [style.left.px]="tooltipLeft">
   <div class="tooltip-content">
     <span *ngFor="let action of tooltipActions">{{ action }}</span>
