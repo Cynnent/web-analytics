@@ -5,8 +5,8 @@
       <nb-card-body>
         <nb-select
           placeholder="Select Client"
-          [(selected)]="selectedOption"
-          (selectedChange)="onChange(selectedOption)"
+          [(selected)]="selectedIntervalOption"
+          (selectedChange)="onClientChange(selectedIntervalOption)"
         >
           <nb-option *ngFor="let client of clientNames" [value]="client">{{
             client
@@ -23,7 +23,6 @@
         <nb-select
           placeholder="Select User"
           [(selected)]="selectedUsername"
-          [(selected)]="selectedUsername"
           (selectedChange)="onUserSelected(selectedUsername)"
         >
           <nb-option value="all">All user</nb-option>
@@ -34,10 +33,6 @@
       </nb-card-body>
     </nb-card>
   </div>
-  <!-- <div>
-    <input type="text" [(ngModel)]="searchUsername" (input)="onSearch()" placeholder="Search by username">
-  </div> -->
-
 
   <div class="col-md-12 col-lg-3 col-xxxl-3" *ngIf="selectedUsername !== 'all'">
     <nb-card>
@@ -60,7 +55,7 @@
 <div class="row">
   <div
     class="col-md-12 col-lg-12 col-xxxl-12"
-    *ngIf="selectedDate && selectedOption"
+    *ngIf="selectedDate && selectedIntervalOption"
   >
     <h4>Screens Overview</h4>
     <div
@@ -85,7 +80,7 @@
     <nb-select
       class="Select-Interval"
       [(selected)]="selectedInterval"
-      (selectedChange)="onChangeByselection(selectedInterval)"
+      (selectedChange)="onChangeByIntervalSelection(selectedInterval)"
     >
       <nb-option value="daily">Daily</nb-option>
       <nb-option value="weekly">Weekly</nb-option>
