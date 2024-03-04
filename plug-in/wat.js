@@ -332,4 +332,52 @@ function startObserving() {
   observer.observe(targetNode, observerConfig);
 }
 
+// Check if device type cookie exists, if not, detect device type and set the cookie
+if (!getCookie('deviceType')) {
+  var deviceType = detectDeviceType();
+  setCookie('deviceType', deviceType, 365); 
+}
+
+// Function to detect the type of device based on user agent
+function detectDeviceType() {
+  var userAgent = navigator.userAgent;
+ 
+  if (/tablet|ipad|playbook|silk|(android(?!.*mobile))/i.test(userAgent)) {
+      return 'tablet';
+  } else if (/mobile|iphone|ipod|blackberry|opera mini|iemobile|windows phone|trident|opera mobi|mobilesafari|htc|nokia|sony|symbian|samsung|lg|htc|mot|mot\-/i.test(userAgent)) {
+      return 'mobile';
+  } else {
+      return 'pc';
+  }
+}
+
+// Function to set a cookie with a specified expiration time
+function setCookie(cookieName, cookieValue, expirationDays) {
+  const expirationDate = new Date();
+  expirationDate.setTime(expirationDate.getTime() + expirationDays * 24 * 60 * 60 * 1000);
+  var expires = "expires=" + expirationDate.toUTCString();
+  document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/";
+}
+
+// Function to get the value of a cookie by its name
+function getCookie(cookieName) {
+  var name = cookieName + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var cookieArray = decodedCookie.split(";");
+  for (var i = 0; i < cookieArray.length; i++) {
+      var cookie = cookieArray[i];
+      while (cookie.charAt(0) == " ") {
+          cookie = cookie.substring(1);
+      }
+      if (cookie.indexOf(name) == 0) {
+          return cookie.substring(name.length, cookie.length);
+      }
+  }
+  return "";
+}
+
+
+var deviceType = getCookie("deviceType");
+console.log("Device Type:", deviceType);
+
 document.addEventListener("DOMContentLoaded", startObserving);

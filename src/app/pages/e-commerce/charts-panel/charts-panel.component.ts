@@ -11,7 +11,7 @@ import { NbSelectComponent } from "@nebular/theme";
 import { OrdersChartComponent } from "./charts/orders-chart.component";
 import { ProfitChartComponent } from "./charts/profit-chart.component";
 import { DataService } from "./data.service";
-
+import { interval, Subscription } from 'rxjs';
 @Component({
   selector: "ngx-ecommerce-charts",
   styleUrls: ["./charts-panel.component.scss"],
@@ -23,6 +23,11 @@ export class ECommerceChartsPanelComponent
   public dates: string[] = [];
   alive: boolean = true;
   currentDate: string = new Date().toISOString().split("T")[0];
+  searchInput: string = "";
+  filteredUsernames: string[] = [];
+  filteredApiData = [];
+  uniqueUsernames: string[] = [];
+  clientList: string[] = [];
   selectedInterval: string = "daily";
   period: string = "week";
   searchUsername: string = "";
@@ -43,6 +48,13 @@ export class ECommerceChartsPanelComponent
   objUser: { id: number; value: string }[] = [];
   userEventDates: string[] = [];
   isAllClients: boolean = false;
+  showActionsTooltip = false;
+  tooltipActions: string[] = [];
+  tooltipTop = 0;
+  tooltipLeft = 0;
+  tooltipInterval$: Subscription;
+  selectedScreen: any = null;
+
 
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
   @ViewChild("userSelect") userSelect: NbSelectComponent;
@@ -65,6 +77,8 @@ export class ECommerceChartsPanelComponent
     this.cdr.detectChanges();
     this.populateClientNames();
     this.onClientChange(this.selectedClient);
+    this.filteredUsernames = this.uniqueUsernames;
+    this.resetTooltip();
   }
 
   ngAfterViewInit() {
@@ -417,7 +431,47 @@ export class ECommerceChartsPanelComponent
     }
 
     this.onIntervalChange();
+    this.resetTooltip();
   }
+
+isSelected(screen: any): boolean {
+  return this.selectedScreen === screen;
+}
+
+setSelected(screen: any) {
+  this.selectedScreen = screen;
+}
+
+
+resetTooltip() {
+  this.showActionsTooltip = false;
+  this.tooltipActions = [];
+  this.selectedScreen = null;
+}
+
+toggleTooltip(event: MouseEvent, actions: any[]) {
+  this.selectedScreen = null;
+  if (this.tooltipInterval$) {
+    this.tooltipInterval$.unsubscribe();
+  }
+  this.showActionsTooltip = true;
+  this.tooltipActions = []; 
+  this.tooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
+  this.tooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
+
+  let index = 0;
+
+  this.tooltipInterval$ = interval(500).subscribe(() => {
+    
+    this.tooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
+  
+    index++;
+
+    if (index === actions.length) {
+      this.tooltipInterval$.unsubscribe();
+    }
+  });
+}
 
   updateHighchart(totalCount: number) {
     const seriesData = [
@@ -429,7 +483,6 @@ export class ECommerceChartsPanelComponent
     ];
 
     const dates = [this.selectedDate];
-
     this.renderChart(seriesData, dates);
   }
 
@@ -499,6 +552,7 @@ export class ECommerceChartsPanelComponent
     });
 
     return this.screensList;
+    
   }
 
   extractUserEventDates() {
