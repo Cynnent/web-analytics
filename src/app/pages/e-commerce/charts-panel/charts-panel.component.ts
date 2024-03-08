@@ -68,8 +68,6 @@ export class ECommerceChartsPanelComponent
   tooltipInterval$: Subscription;
   selectedScreen: any = null;
 
-  deviceCounts: { deviceType: string, count: number }[] = [];
-  totalDeviceCount: number = 0;
 
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
   @ViewChild("userSelect") userSelect: NbSelectComponent;
@@ -91,7 +89,6 @@ export class ECommerceChartsPanelComponent
       });
 
     this.extractUniqueUsernames();
-    this.getDeviceData();
   }
 
   extractUniqueUsernames() {
@@ -119,7 +116,6 @@ export class ECommerceChartsPanelComponent
     this.filteredUsernames = this.uniqueUsernames;
     this.resetTooltip();
     this.onChange(this.selectedClient);
-    
   }
 
   ngAfterViewInit() {
@@ -318,52 +314,6 @@ export class ECommerceChartsPanelComponent
 
     return totalCounts;
   }
-
-  getDeviceData() {
-    this.dataService.getUsersData().subscribe(data => {
-      const deviceCounts: { [key: string]: number } = data.reduce((counts, entry) => {
-        if (entry.DeviceName && entry.DeviceName) {
-          counts[entry.DeviceName] = (counts[entry.DeviceName] || 0) + 1;
-        } else {
-          console.warn('Invalid entry:', entry);
-        }
-        return counts;
-      }, {});
-  
-      const deviceData = Object.entries(deviceCounts).map(([DeviceName, count]: [string, number]) => ({
-        name: DeviceName,
-        y: count,
-      }));
-  
-      this.totalDeviceCount = Object.values(deviceCounts).reduce((total, count) => total + count, 0);
-  
-      Highcharts.chart('pieChartContainer', {
-        chart: {
-          type: 'pie'
-        },
-        title: {
-          text: 'Active User by Device',
-        },
-        tooltip: {
-          pointFormat: '{series.name}: <b>{point.y}</b>'
-        },
-        plotOptions: {
-          pie: {
-            innerSize: '80%',
-            depth: 10
-          }
-        },
-        series: [{
-          type: 'pie',
-          name: 'Count',
-          data: deviceData.map(item => [item.name, item.y]) 
-        }]
-      });
-  
-      document.getElementById('total-count').innerText = 'Total Device Count: ' + this.totalDeviceCount;
-    });
-  }
-  
 
   getTotalCountsForSelectedClient(
     clientName: string,
