@@ -26,8 +26,14 @@ const htmlTemplate = `
   <div class="wrapper" style="background: #fff; position: fixed; bottom: 20px; left: 50px; max-width: 500px; border-radius: 15px; text-align: center; border: 1px solid #493179; padding: 25px; overflow: hidden; box-shadow: 0 0 18px rgba(0, 0, 0, 0.13);">
     <img src="../../assets/img/cookie.png" alt="" style="max-width: 90px;">
     <div class="content" style="margin-top: 10px;">
-      <header style="font-size: 25px; font-weight: 600;">Cookies</header>
-      <p style="color: #858585; margin-bottom: 20px;">We use cookies to provide a better user experience. Accept our cookies to continue.</p>
+      <h1 style="font-size: 25px; font-weight: 600;">GDPR Compliance Notice</h1>
+      <h5>What data do we collect?</h5>
+      <ul style="list-style-type: 'disc'>
+        <li>
+        We collect personal information such as your name, email address, and location when you sign up for our service or interact with our platform.
+         </li>
+         <li>We also gather data on your usage patterns, preferences, and interactions with our website/application/service to improve your experience and tailor our offerings to your needs.</li>
+      </ul>    
       <div class="buttons" style="display: flex; justify-content: center; align-items: center;">
         <button class="item cancel" onclick="onBlock()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #eee; color: #333;">Cancel</button>
         <button class="item accept" onclick="onAccept()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #493179; color: #fff;">Accept</button>

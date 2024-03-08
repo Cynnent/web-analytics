@@ -2,74 +2,54 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-
+interface UserResponse {
+  _id: string;
+  date: string;
+  screens: { [key: string]: { [key: string]: number } };
+  totalCount: number;
+}
 @Injectable({
   providedIn: "root",
 })
 export class DataService {
-  private apiData: any[] = [];
+  public userDropdownData: { id: string; value: string }[] = [];
+  public userEventDates: { id: string; value: string }[] = [];
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-    this.getAllData().subscribe((data) => {
-      this.apiData = data;
-    });
+  getAllClients(): Observable<string[]> {
+    return this.http
+      .get<any[]>("https://webanalyticals.onrender.com/getAllClients")
+      .pipe(map((response) => response.map((client) => client.clientName)));
   }
 
-  getAllData(): Observable<any[]> {
+  getUsersByClientName(selectedClient: string): Observable<{ _id: string }[]> {
     return this.http
-      .get<any[]>("https://webanalyticals.onrender.com/getAllData")
+      .get<UserResponse[]>(
+        `https://webanalyticals.onrender.com/getUsersByClientName/${selectedClient}`
+      )
+      .pipe(map((response) => response.map((user) => ({ _id: user._id }))));
+  }
+
+  getDatesByUserId(
+    userId: string
+  ): Observable<{ id: string; value: string }[]> {
+    return this.http
+      .get<UserResponse[]>(
+        `https://webanalyticals.onrender.com/getDates/${userId}`
+      )
       .pipe(
-        map((data) => {
-          this.apiData = data;
-          return data;
-        })
+        map((response) =>
+          response.map((item) => ({ id: item.date, value: item.date }))
+        )
       );
   }
 
-  getAllUsernames(): Observable<string[]> {
-    return this.http
-      .get<any[]>("https://webanalyticals.onrender.com/getAllData")
-      .pipe(
-        map((data) => {
-          return data.map((item) => item.userInfo[0].userName);
-        })
-      );
-  }
-
-  getDataForUser(): Observable<any> {
-    return this.http.get<any>("https://webanalyticals.onrender.com/getAllData");
-  }
-
-  getAllUsernamesAndDates(): Observable<
-    { username: string; dates: string[] }[]
-  > {
-    return this.getAllData().pipe(
-      map((data) => {
-        return data.map((entry) => ({
-          username: entry.userInfo[0].userName,
-          dates: entry.userInfo.map((user) => user.dates),
-        }));
-      })
-    );
-  }
-
-  getTotalCountForDate(selectedDate: string): number {
-    let totalCount = 0;
-
-    this.apiData.forEach((entry) => {
-      entry.userEvents.forEach((event) => {
-        if (event.date === selectedDate) {
-          totalCount += event.totalCount;
-        }
-      });
-    });
-
-    return totalCount;
-  }
-
-  getClientNames(): string[] {
-    return Array.from(
-      new Set(this.apiData.map((data) => data.userInfo[0].clientName))
+  getUserEvents(
+    selectedUsername: string,
+    selectedDate: string
+  ): Observable<UserResponse> {
+    return this.http.get<UserResponse>(
+      `https://webanalyticals.onrender.com/getUserEvents/${selectedUsername}/${selectedDate}`
     );
   }
 }
