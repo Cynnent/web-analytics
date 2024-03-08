@@ -24,8 +24,9 @@ export class DataService {
     );
   }
   
-  
-
+  getUsersData(): Observable<any> {
+    return this.http.get('https://webanalyticals.onrender.com/getAllDeviceData');
+  }
 
 
   getAllUsernames(): Observable<string[]> {

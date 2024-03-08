@@ -1,4 +1,5 @@
 @import '../../../@theme/styles/themes';
+@import url("https://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css");
 
 $legend-all-orders-color: #00977e;
 $legend-payment-color: #6935ca;
@@ -540,4 +541,32 @@ body {
 .btn.btn-selected::after {
   left: 0;
   width: 100%;
+}
+
+.highcharts-figure {
+    margin: 0;
+    border: 1px solid whitesmoke;
+    box-shadow: 3px 3px 5px rgba(139, 139, 139, 0.5);
+}
+
+#parent-container {
+    position: relative; 
+}
+
+#pieChartContainer {
+    height: 400px;
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: ghostwhite;
+}
+
+.center-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: rgb(80, 80, 150);
 }
