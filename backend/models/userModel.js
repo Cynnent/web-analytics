@@ -8,22 +8,18 @@ const userEventSchema = new mongoose.Schema({
 }, { strict: false, _id: false });
 
 const userInfoSchema = new mongoose.Schema({
-    ip: String,
-    userName: String,
     browserName: String,
-    dates: String,
-    time: String,
-    clientName: String
+    clientName: String,
+    userType : String
 }, { _id: false, strict: false});
 
 const userSchema = new mongoose.Schema({
     
-    userInfo: [userInfoSchema],
+    userInfo: userInfoSchema,
     userEvents: [userEventSchema]
 },{ strict: false });
 
 
-// Create a mongoose model
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
