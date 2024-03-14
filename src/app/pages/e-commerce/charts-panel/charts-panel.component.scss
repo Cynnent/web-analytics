@@ -209,6 +209,8 @@ body {
   white-space: nowrap;
   font-size: 0.7rem;
   text-align: center;
+  background-color: #38f2d9;
+  border: none;
 }
 
 .btn > span {
@@ -504,6 +506,7 @@ body {
     border-bottom: 10px solid #38f2d9; 
     top: -px; 
     left: calc(50% - 4px);
+    
   }
   .flow-graph li::after {
     content: "";

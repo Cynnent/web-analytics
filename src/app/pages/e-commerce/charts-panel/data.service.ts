@@ -18,7 +18,7 @@ export class DataService {
 
   getUsersData(): Observable<any> {
     return this.http.get(
-      "https://webanalyticals.onrender.com/getAllDeviceData"
+      `https://webanalyticals.onrender.com/getAllDeviceData/${selectedClient}`
     );
   }
 
@@ -58,4 +58,12 @@ export class DataService {
       `https://webanalyticals.onrender.com/getUserEvents/${selectedUsername}/${selectedDate}`
     );
   }
+
+  getScreenData(selectedUsername: string, selectedDate: string): Observable<any> {
+    return this.http.get<any>(
+      `https://webanalyticals.onrender.com/getScreenData/${selectedUsername}/${selectedDate}`
+    );
+  }
+
 }
+
