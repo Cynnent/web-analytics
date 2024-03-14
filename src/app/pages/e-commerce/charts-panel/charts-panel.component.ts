@@ -36,10 +36,10 @@ export class ECommerceChartsPanelComponent
   totalDeviceCount: number = 0;
   screenData: { [key: string]: { [key: string]: number } } = {};
   showActionsTooltip = false;
-  tooltipActions: string[] = [];
-  tooltipTop = 0;
-  tooltipLeft = 0;
-  tooltipInterval$: Subscription;
+  userFlowTooltipActions: string[] = [];
+  userFlowTooltipTop = 0;
+  userFlowTooltipLeft = 0;
+  userFlowTooltipInterval$: Subscription;
   selectedScreen: any = null;
 
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
@@ -284,26 +284,26 @@ export class ECommerceChartsPanelComponent
   
   resetTooltip() {
     this.showActionsTooltip = false;
-    this.tooltipActions = [];
+    this.userFlowTooltipActions = [];
     this.selectedScreen = null;
   }
   
   
   toggleTooltip(event: MouseEvent, actions: any[]) {
     this.selectedScreen = null;
-    if (this.tooltipInterval$) {
-      this.tooltipInterval$.unsubscribe();
+    if (this.userFlowTooltipInterval$) {
+      this.userFlowTooltipInterval$.unsubscribe();
     }
     this.showActionsTooltip = true;
-    this.tooltipActions = []; 
-    this.tooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
-    this.tooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
+    this.userFlowTooltipActions = []; 
+    this.userFlowTooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
+    this.userFlowTooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
     let index = 0;
-    this.tooltipInterval$ = interval(500).subscribe(() => {
-    this.tooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
+    this.userFlowTooltipInterval$ = interval(500).subscribe(() => {
+    this.userFlowTooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
       index++;
       if (index === actions.length) {
-        this.tooltipInterval$.unsubscribe();
+        this.userFlowTooltipInterval$.unsubscribe();
       }
     });
   }
