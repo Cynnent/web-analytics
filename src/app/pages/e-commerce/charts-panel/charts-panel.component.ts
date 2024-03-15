@@ -59,10 +59,6 @@ export class ECommerceChartsPanelComponent
   isInterval: boolean = false;
   isDisableClickedAction: boolean = false;
   showActionsTooltip = false;
-  // userFlowTooltipActions: string[] = [];
-  // userFlowTooltipTop = 0;
-  // userFlowTooltipLeft = 0;
-  // userFlowTooltipInterval$: Subscription;
   tooltipActions: string[] = [];
   tooltipTop = 0;
   tooltipLeft = 0;
@@ -497,7 +493,6 @@ export class ECommerceChartsPanelComponent
 
     if (this.selectedUsername !== "" && this.selectedDate !== "") {
       this.loadDatesForUser(this.selectedUsername);
-      // this.getChartDataBYUserId(this.selectedDate);
       if (this.selectedDate != "") {
         this.selectedInterval = "daily";
         this.isScreenOverview = false;
@@ -506,22 +501,14 @@ export class ECommerceChartsPanelComponent
   }
 
   loadDatesForUser(userId: string): void {
-    // this.loadScreenContent();
     this.dataService.getDatesByUserId(userId).subscribe((dates) => {
       this.userEventDates = dates;
       this.selectedDate = dates[0].id;
-      // this.loadChartData();
-
-      // if (dates.length > 0) {
-      //   this.selectedDate = dates[0].id;
-      //   this.loadChartData();
-      // }
       this.loadScreenContent();
 
       this.cdr.detectChanges();
     });
 
-    // this.loadScreenContent();
   }
 
   loadScreenContent(): void {
@@ -1045,7 +1032,7 @@ export class ECommerceChartsPanelComponent
                   marker: {
                     symbol:
                       "url(https://github.com/Cynnent/web-analytics/blob/main/src/assets/images/location.png?raw=true)",
-                    width: 18, // Adjust the width of the symbol
+                    width: 18,
                     height: 22,
                   },
 
