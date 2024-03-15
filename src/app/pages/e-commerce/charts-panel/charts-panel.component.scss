@@ -635,6 +635,41 @@ button {
 .mr-20 {
   margin-right: 20px;
 }
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  max-height: 100px;
+  overflow-y: auto;
+}
+ 
+.tooltip-content span {
+  font-size: 14px;
+  color: #333;
+}
+ 
+.tooltip-content span:last-child {
+  margin-bottom: 0;
+}
+ 
+ 
+.tooltip-content:hover {
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.row {
+  display: flex;
+  flex-direction: row;
+ 
+  margin: 0 auto; /* Center the row horizontally */
+  max-width: 100%; /* Ensure the row doesn't exceed the viewport width */
+}
+
 .disable-class{
   display: none;
 }

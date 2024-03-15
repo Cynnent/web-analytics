@@ -57,6 +57,7 @@
     </nb-card>
   </div>
 
+
   <div class="date-calender col-12 col-lg-4">
     <nb-card class="custom-card-height">
       <nb-card-header>Date</nb-card-header>
@@ -73,6 +74,7 @@
       ></p-calendar>
     </nb-card>
   </div>
+
 
   <div class="col-md-12 p-0" *ngIf="selectedUsername">
     <div class="col-md-12 text-right mb-20">
@@ -96,7 +98,7 @@
   </div>
 </div>
 
-<div class="row" *ngIf="tabToggle">
+<div class="row" *ngIf="tabToggle" [ngClass]="{ 'disable-class': isScreenOverview === true }">
   <div class="col-md-12 col-lg-12 col-xxxl-12">
     <h4>Screens Overview</h4>
     <div
@@ -105,10 +107,10 @@
     >
       <ng-container *ngFor="let s of screensList">
         <div class="card col-md-3 col-lg-3">
-          <h2>{{ s.pageName }}</h2>
+          <h2 style="color: black;">{{ s.pageName }}</h2>
           <ul>
             <li *ngFor="let e of s.actions">
-              <span>{{ e.key }}</span
+              <span style="color: black;">{{ e.key }}</span
               ><strong>{{ e.value }}</strong>
             </li>
           </ul>
@@ -118,7 +120,7 @@
   </div>
 </div>
 
-<div class="flow-graph row" *ngIf="tabToggle">
+<div class="flow-graph row" *ngIf="tabToggle" [ngClass]="{ 'disable-class': isScreenOverview === true }">
   <div class="col-lg-12 col-md-12 col-sm-12">
     <ol>
       <ng-container *ngFor="let s of screensList; let i = index">
@@ -137,6 +139,11 @@
     </ol>
   </div>
 </div>
+<ng-container *ngIf="showActionsTooltip && tabToggle" class="tooltip" [style.top.px]="tooltipTop" [style.left.px]="tooltipLeft" >
+  <div class="tooltip-content">
+    <span *ngFor="let action of tooltipActions">{{ action }}</span>
+  </div>
+</ng-container>
 <!-- 
 dashboard -->
 <div *ngIf="!tabToggle">
