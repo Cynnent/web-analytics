@@ -2,11 +2,12 @@ const getDate = new Date();
 const year = getDate.getFullYear();
 const month = (getDate.getMonth() + 1).toString().padStart(2, "0");
 const day = getDate.getDate();
-const date = `${year}-${month}-${day.toLocaleString()}`;
+const date = formatDate(getDate);
 const hh = getDate.getHours();
 const mm = getDate.getMinutes();
 const ss = getDate.getSeconds();
 const times = `${hh.toLocaleString()}:${mm.toLocaleString()}:${ss.toLocaleString()}`;
+
 const browserNameMapping = {
   Firefox: "Mozilla Firefox",
   "Edg/": "Microsoft Edge",
@@ -26,14 +27,13 @@ const htmlTemplate = `
   <div class="wrapper" style="background: #fff; position: fixed; bottom: 20px; left: 50px; max-width: 500px; border-radius: 15px; text-align: center; border: 1px solid #493179; padding: 25px; overflow: hidden; box-shadow: 0 0 18px rgba(0, 0, 0, 0.13);">
     <img src="../../assets/img/cookie.png" alt="" style="max-width: 90px;">
     <div class="content" style="margin-top: 10px;">
+      <header style="font-size: 25px; font-weight: 600;">Cookies</header>
       <h1 style="font-size: 25px; font-weight: 600;">GDPR Compliance Notice</h1>
       <h5>What data do we collect?</h5>
-      <ul style="list-style-type: 'disc'>
-        <li>
-        We collect personal information such as your name, email address, and location when you sign up for our service or interact with our platform.
-         </li>
-         <li>We also gather data on your usage patterns, preferences, and interactions with our website/application/service to improve your experience and tailor our offerings to your needs.</li>
-      </ul>    
+      <ul style="list-style-type: disc; text-align: left;">
+      <li>We collect personal information such as your name, email address, and location when you sign up for our service or interact with our platform.</li>
+      <li>We also gather data on your usage patterns, preferences, and interactions with our website/application/service to improve your experience and tailor our offerings to your needs.</li>
+    </ul>
       <div class="buttons" style="display: flex; justify-content: center; align-items: center;">
         <button class="item cancel" onclick="onBlock()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #eee; color: #333;">Cancel</button>
         <button class="item accept" onclick="onAccept()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #493179; color: #fff;">Accept</button>
@@ -54,6 +54,15 @@ let isResponseToDB = false;
 let ipAddress;
 let ls = {};
 let clickCounts = {};
+
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); 
+  const day = String(date.getDate()).padStart(2, '0');
+ 
+  return `${year}-${month}-${day}`;
+}
 
 const generateString = (length) => {
   let result = "";
@@ -132,14 +141,11 @@ function onAccept() {
 
 function onBlock() {
   closeCookiePopup();
-  isCookieCancel = true;
+  isCookieCancel = false;
   if(isCookieCancel){
     sendUserInfoToConfig(userDetail.userInfo[0])
   }
 }
-
-
-
 
 // Function to close the cookie popup
 function closeCookiePopup() {
@@ -174,11 +180,7 @@ function getUserRegion() {
           .then((data) => {
             const country = data.address.country;
             const city = data.address.county;
-            const storedUserData = sessionStorage.getItem("usernames");
-
-            // Set cookies with expiry time
-            setCookie("Country", country, 24);
-            setCookie("City", city, 24);            
+            const storedUserData = sessionStorage.getItem("usernames");        
 
             for (let i = 0; i < sessionStorage.length; i++) {
               const key = sessionStorage.key(i);
@@ -191,9 +193,7 @@ function getUserRegion() {
             }
 
             const deviceType = getCookie("deviceType");
-            console.log("Device Type:", deviceType);
-
-            // Include latitude and longitude in userInfo object
+            console.log("Device Type:", deviceType);            
             const userInfo = {
               ip: ipAddress,
               userName: generateString(5),
@@ -203,18 +203,26 @@ function getUserRegion() {
               time: times,
               clientName: clientName,
               deviceType : deviceType,
-              latitude: latitude,
-              longitude: longitude,
-              country: country,
+ 
             };
+            const locationInfo = {
+              clientName: clientName,
+              latitude: latitude.toString(),
+              longitude: longitude.toString(),
+              cityName : city.toString(),
+              country: country.toString(),
 
-            // Send userInfo to the config API
-            sendUserInfoToConfig(userInfo);
+            }
+            const deviceTypeInfo = {
+              clientName: clientName,
+              DeviceName : deviceType,
+            }
+
+           sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo);
+    
           });
 
         setCookie("cookieAccepted", "true", 24);
-        setCookie("latitude", latitude, 24);
-        setCookie("longitude", longitude, 24);
       },
       (error) => {
         console.error("Error getting user location:", error);
@@ -225,7 +233,7 @@ function getUserRegion() {
   }
 }
 
-async function sendUserInfoToConfig(userInfo) {
+async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
 
   try {
     const response = await fetch("https://webanalyticals.onrender.com/config", {
@@ -250,25 +258,75 @@ async function sendUserInfoToConfig(userInfo) {
     time = configData.serverUpdateTime;
     setCookie("serverUpdateTime", time, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
     setCookie("userId", id, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
+    locationInfo ._id = id;
+    deviceTypeInfo._id = id;
+    sendUserLocation(locationInfo);
+    sendDeviceInfo(deviceTypeInfo);
   }
   catch (error) {
     console.error("Error sending userInfo to config API:", error);
   }
 }
 
-// Function to detect the type of device based on user agent
+async function sendUserLocation(loctioninfo) {
+  try {
+    const response = await fetch("https://webanalyticals.onrender.com/saveMapData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loctioninfo),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Error sending loctioninfo to saveMapData API: ${response.status}`
+      );
+    }
+    const locationData = await response.json();
+    console.log("Location Data:", locationData);
+
+  }
+  catch (error) {
+    console.error("Error sending Location Information to Location API:", error);
+  }
+}
+
+async function sendDeviceInfo(deviceTypeInfo) {
+  try {
+    const response = await fetch("https://webanalyticals.onrender.com/saveDeviceData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(deviceTypeInfo),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Error sending loctioninfo to saveMapData API: ${response.status}`
+      );
+    }
+    const deviceData = await response.json();
+    console.log("Device Data:", deviceData);
+
+  }
+  catch (error) {
+    console.error("Error sending Device Information to Device API:", error);
+  }
+}
+
 function detectDeviceType() {
-  const userAgent = navigator.userAgent;
+  const userAgent = navigator.userAgent.toLowerCase();
  
-  if (/tablet|ipad|playbook|silk|(android(?!.*mobile))/i.test(userAgent)) {
+  if (/ipad|tablet|playbook|silk/i.test(userAgent)) {
       return 'tablet';
-  } else if (/mobile|iphone|ipod|blackberry|opera mini|iemobile|windows phone|trident|opera mobi|mobilesafari|htc|nokia|sony|symbian|samsung|lg|htc|mot|mot\-/i.test(userAgent)) {
+  } else if (/mobile|iphone|ipod|blackberry|opera mini|iemobile|windows phone|trident|opera mobi|mobilesafari|htc|nokia|symbian|samsung|lg|mot/i.test(userAgent)) {
       return 'mobile';
   } else {
       return 'pc';
   }
 }
-
 const deviceType = getCookie("deviceType");
 console.log("Device Type:", deviceType);
 
@@ -332,11 +390,6 @@ function changedPageName(isPageChangedtoOtherScreen) {
   let requesteDataToDB;
 
   function updateClickCount(tagId, tagType) {
-    let oldObject;
-    let userEventData = sessionStorage.getItem("userevents");
-    let newObject = JSON.parse(JSON.stringify(userDetail));
-    let curretUserEvents;
-    let newDerivedObject;
 
     if (!clickCounts[tagId]) {
       clickCounts[tagId] = 1;
@@ -356,26 +409,35 @@ function changedPageName(isPageChangedtoOtherScreen) {
       captureObject[pageName] = {};
     }
 
-
+    userDetail.userEvents = [];
     captureObject[pageName][`${tagType}${tagId}`] = clickCounts[tagId];
     userDetail.userEvents = [{ ...captureObject }];
+    console.log("User Clicked Events: " + JSON.stringify(userDetail));
     captureObject = {};
-    clickCounts = {};    
-    oldObject = [userEventData];
-    
+    clickCounts = {};
+
+    let oldObject;
+    let userEventDetail = sessionStorage.getItem("userevents");
+    let newObject = JSON.parse(JSON.stringify(userDetail));
+    let currentUserEvents;
+    let newDerivedObject;
+
+    oldObject = [userEventDetail];
+
     if (oldObject == "" || oldObject == undefined) {
-      console.log("New Object"+ JSON.stringify(newObject))
-      curretUserEvents = [JSON.parse(JSON.stringify(newObject))];
+      currentUserEvents = [JSON.parse(JSON.stringify(newObject))];
       newObject.userEvents[0].date = date;
+      console.log(`New derived object: ${JSON.stringify(newObject)}`);
       storeUserEvent([newObject]);
     } else {
       let todayObject = oldObject;
 
       if (!todayObject) {
-        curretUserEvents = oldObject;
+        currentUserEvents = oldObject;
         
         newObject.userEvents.forEach((newEvent) => {
-          curretUserEvents[0].userEvents.push(newEvent);
+          console.log(JSON.stringify(newEvent));
+          currentUserEvents[0].userEvents.push(newEvent);
         });
 
       } else {
@@ -400,6 +462,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
         }
 
         newDerivedObject[0].userEvents[0].date = date;
+        console.log("New Dervied Object" + JSON.stringify(newDerivedObject));
         const requestData = newDerivedObject[0];
         storeUserEvent([requestData]);
       }
@@ -414,6 +477,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
       requesteDataToDB = JSON.stringify(userEvents);
     }
   }
+  console.log("responseToDB", responseToDB);
   
   async function sendUserEventData() {
     if (isResponseToDB) {
@@ -450,7 +514,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
 
     if (serverUpdateTime != null) {
       console.log("Server update time"+ serverUpdateTime)
-      setInterval(sendUserEventData, 20000);
+      setInterval(sendUserEventData, serverUpdateTime);
       clearInterval(setTintervalTimer)
     }
   }
