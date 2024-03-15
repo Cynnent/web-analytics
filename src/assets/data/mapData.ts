@@ -1,4 +1,4 @@
-export const mapData=[
+export let mapData=[
     ["fo", 0],
     ["um", 1],
     ["us", 2],
@@ -212,4 +212,9 @@ export const mapData=[
     ["eg", 210],
     ["kg", 211],
     ["np", 212],
+    {
+      name: "India",
+      color: "red",
+      "hc-key": "in",
+    },
   ];
