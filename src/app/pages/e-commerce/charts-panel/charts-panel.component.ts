@@ -281,7 +281,6 @@ export class ECommerceChartsPanelComponent
       }
       if (this.selectedUsername != "" && this.selectedInterval == "weekly") {
         this.getWeeklyData();
-        this.disableChart();
       }
       if (this.selectedInterval == "monthly") {
         this.fetchMonthlyChartData();
