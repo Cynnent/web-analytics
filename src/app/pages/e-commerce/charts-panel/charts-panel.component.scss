@@ -1,5 +1,7 @@
 @import '../../../@theme/styles/themes';
-
+@import url("https://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css");
+@import 'ngx-toastr/toastr';
+@import "primeicons/primeicons.css";
 $legend-all-orders-color: #00977e;
 $legend-payment-color: #6935ca;
 $legend-canceled-color: #3f4fda;
@@ -75,10 +77,6 @@ $legend-canceled-color: #3f4fda;
      padding: 12px;
      
     }
-    nb-list{
-      //height: 227px;
-      
-    }
     nb-list::-webkit-scrollbar {
       width: 8px;
       height: 4px;
@@ -129,7 +127,7 @@ body {
   height: 200px;
 }
 .Select-Interval{
-  margin-left: 59.5rem;
+  margin-left: 69rem;
 }
 
 .flex-container::-webkit-scrollbar-thumb {
@@ -541,4 +539,102 @@ body {
 .btn.btn-selected::after {
   left: 0;
   width: 100%;
+}
+
+button {
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  border-bottom: 5px solid #ccc;
+  padding: 10px 50px;  
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+
+  &:hover, &.active, &:focus {
+    border-color: #3498db;
+    color:#3498db;
+    font-weight: bold;
+  }
+}
+
+
+
+.highcharts-figure {
+  margin: 0;
+  border: 1px solid whitesmoke;
+  box-shadow: 3px 3px 5px rgba(139, 139, 139, 0.5);
+}
+
+#parent-container {
+  position: relative; 
+}
+
+#pieChartContainer {
+  height: 400px;
+  max-width: 1000px;
+  margin: 0 auto;
+  //background-color: ghostwhite;
+}
+
+.dashboard {
+  margin-top: -4%;
+  margin-left: 83%;
+}
+
+.dropdowns
+{
+  margin-top: 25px;
+    padding: 12px;
+}
+
+.center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: rgb(80, 80, 150);
+}
+
+::ng-deep .p-datepicker table td {
+  padding: 0.2rem !important;
+}
+
+::ng-deep .p-datepicker table td > span {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+::ng-deep .p-datepicker table {
+  font-size: 10pt;
+  margin: -0.143rem 0;
+}
+
+::ng-deep .p-datepicker .p-datepicker-header {
+  padding: 0.2rem;
+}
+
+.custom-card-height {
+  height: 8.5rem;
+  .date-input{
+    padding: 15px;
+  }
+}
+#userSelect{
+  padding: 3px;
+ width: 100%;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mr-20 {
+  margin-right: 20px;
+}
+.disable-class{
+  display: none;
 }

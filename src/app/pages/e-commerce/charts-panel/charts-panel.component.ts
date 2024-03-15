@@ -5,13 +5,19 @@ import {
   OnInit,
   AfterViewInit,
   ChangeDetectorRef,
+  Input,
 } from "@angular/core";
 import * as Highcharts from "highcharts";
 import { NbSelectComponent } from "@nebular/theme";
 import { OrdersChartComponent } from "./charts/orders-chart.component";
 import { ProfitChartComponent } from "./charts/profit-chart.component";
+import { ToastrService } from "ngx-toastr";
 import { DataService } from "./data.service";
-import { interval, Subscription } from 'rxjs';
+import { mapData } from "../../../../assets/data/mapData";
+import * as _Highcharts from "highcharts/highmaps";
+import { Calendar } from "primeng/calendar";
+import HighchartsData from "@highcharts/map-collection/custom/world.topo.json";
+
 @Component({
   selector: "ngx-ecommerce-charts",
   styleUrls: ["./charts-panel.component.scss"],
@@ -20,502 +26,494 @@ import { interval, Subscription } from 'rxjs';
 export class ECommerceChartsPanelComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
+  @Input() latitude: number;
+  @Input() longitude: number;
+  chartConstructor = "mapChart";
+  Highcharts: typeof _Highcharts = _Highcharts;
+  chartOptions: Highcharts.Options = null;
   public dates: string[] = [];
+  public clientNames: string[] = [];
+  public selectedUsername: string | undefined;
+  date: Date | undefined;
+  public tabToggle: boolean = false;
+  selectedInterval: string = "weekly";
+  tabName: string;
   alive: boolean = true;
-  currentDate: string = new Date().toISOString().split("T")[0];
-  searchInput: string = "";
-  filteredUsernames: string[] = [];
-  filteredApiData = [];
-  uniqueUsernames: string[] = [];
-  clientList: string[] = [];
-  selectedInterval: string = "daily";
-  period: string = "week";
-  searchUsername: string = "";
-  fromDate: string = "";
-  toDate: string = "";
-  selectedUsername: any = "all";
-  selectedIntervalOption: string;
-  clientNames: string[] = [];
-  filteredData: any[] = [];
-  allDates: string[] = [];
-  selectedClient: string = "all";
+  selectedClient: string;
   selectedDate: string = "";
+  selectedDateForId: string = "";
   totalCount: number;
-  selectedUserScreenData: any;
-  screenLabels: string[] = [];
-  userList: { id: number; value: string }[] = [];
-  public screensList = [];
-  objUser: { id: number; value: string }[] = [];
-  userEventDates: string[] = [];
-  isAllClients: boolean = false;
-  showActionsTooltip = false;
-  tooltipActions: string[] = [];
-  tooltipTop = 0;
-  tooltipLeft = 0;
-  tooltipInterval$: Subscription;
-  selectedScreen: any = null;
-
+  userDropdownData: { id: string; value: string }[] = [];
+  defaultSelectedClient: string;
+  deviceCounts: { deviceType: string; count: number }[] = [];
+  mostViewedPages: any[] = [];
+  mostClickedActions: any[] = [];
+  totalDeviceCount: number = 0;
+  chartDisabled: boolean = false;
+  isDisableViewedPages: boolean = false;
+  ismapDisable: boolean = false;
+  isInterval: boolean = false;
+  isDisableClickedAction:boolean=false;
 
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
   @ViewChild("userSelect") userSelect: NbSelectComponent;
   @ViewChild("profitChart", { static: true }) profitChart: ProfitChartComponent;
+  @ViewChild("datePicker") datePicker: Calendar;
 
   apiData: any[] = [];
   constructor(
     private cdr: ChangeDetectorRef,
-    private dataService: DataService
+    public dataService: DataService,
+    private toastr: ToastrService
   ) {
     this.selectedUsername = "all";
   }
 
-  ngOnInit() {
-    this.selectedInterval = "weekly";
-    this.selectedUsername = "all";
-    this.isAllClients = true;
-    this.clientNames = this.getClientNames();
-    this.getData();
-    this.cdr.detectChanges();
-    this.populateClientNames();
-    this.onClientChange(this.selectedClient);
-    this.filteredUsernames = this.uniqueUsernames;
-    this.resetTooltip();
+  ngOnInit(): void {
+    this.getMapComponent(this.selectedClient);
+    this.renderPieChart();
+    this.renderBarChart();
+
+    this.dataService.getAllClients().subscribe((clients) => {
+      this.clientNames = clients;
+      if (this.clientNames && this.clientNames.length > 0) {
+        this.defaultSelectedClient = this.clientNames[0];
+        this.onDashboardClientChange(this.clientNames[0]);
+      }
+    });
   }
 
-  ngAfterViewInit() {
-    this.selectedUsername = "all";
-    this.cdr.detectChanges();
-  }
-
-  logCurrentWeekDates() {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    const dayOfWeek = startOfWeek.getDay();
-    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    startOfWeek.setDate(today.getDate() - diff);
-    const weekDates = [];
-
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startOfWeek);
-      currentDate.setDate(startOfWeek.getDate() + i);
-      const formattedDate = currentDate.toISOString().split("T")[0];
-      weekDates.push(formattedDate);
+  loadSelectedTabData(tabName) {
+    if (tabName === "dashboard") {
+      this.tabToggle = false;
+      setTimeout(() => {
+        this.renderPieChart();
+        this.renderBarChart();
+        this.getMapComponent(this.defaultSelectedClient);
+        this.getDeviceData(this.defaultSelectedClient);
+      }, 2000);
+      if (this.chartDisabled) {
+        this.enableChart();
+      }
+    } else if (tabName === "insights") {
+      this.tabToggle = true;
+      if (this.selectedUsername !== "" && this.selectedInterval === "weekly") {
+        this.getWeeklyData();
+      }
+      if (
+        this.selectedUsername != "" &&
+        this.selectedClient != "" &&
+        this.selectedInterval === "monthly"
+      ) {
+        this.selectedInterval = "weekly";
+        this.getWeeklyData();
+      }
     }
-
-    return weekDates;
   }
 
-  updateHighChart() {
-    let options: Highcharts.Options;
+  getDeviceData(selectedClient: string): void {
+    this.dataService.getUsersData(selectedClient).subscribe((data) => {
+      if (data && data.length > 0) {
+        const deviceCounts: { [key: string]: number } = data.reduce(
+          (counts, entry) => {
+            const deviceName = entry.DeviceName;
+            if (deviceName) {
+              counts[deviceName] = (counts[deviceName] || 0) + 1;
+            }
+            return counts;
+          },
+          {}
+        );
 
-    switch (this.selectedInterval) {
-      case "weekly":
-        options = this.getWeeklyOptions();
-        break;
-      case "monthly":
-        options = this.getMonthlyOptions();
-        break;
-      case "daily":
-        options = this.getDailyOptions();
-        break;
-      default:
-        return;
+        const deviceData = Object.entries(deviceCounts).map(
+          ([deviceName, count]: [string, number]) => ({
+            name: deviceName,
+            y: count,
+          })
+        );
+
+        this.totalDeviceCount = Object.values(deviceCounts).reduce(
+          (total, count) => total + count,
+          0
+        );
+
+        const pieChartOptions: Highcharts.Options = {
+          credits: { enabled: false },
+          chart: {
+            type: "pie",
+            backgroundColor: "transparent",
+          },
+          title: {
+            text: "Active User by Device",
+            style: {
+              color: "#ffffff",
+              fontSize: "0.9em",
+            },
+          },
+          tooltip: {
+            pointFormat: "{series.name}: <b>{point.y}</b>",
+          },
+          plotOptions: {
+            pie: {
+              innerSize: "80%",
+              borderWidth: 0,
+              depth: 10,
+              dataLabels: {
+                enabled: true,
+                color: "#ffffff",
+                style: {
+                  textOutline: "none",
+                },
+              },
+            },
+          },
+          series: [
+            {
+              type: "pie",
+              name: "Count",
+              data: deviceData.map((item) => [item.name, item.y]),
+            },
+          ],
+        };
+
+        Highcharts.chart("pieChartContainer", pieChartOptions);
+
+        const totalCountElement = document.getElementById("total-count");
+        if (totalCountElement) {
+          totalCountElement.innerText =
+            "Total Device Count: " + this.totalDeviceCount;
+        }
+      } else {
+        this.removeChart("pieChartContainer");
+      }
+    });
+  }
+
+  removeChart(containerId: string) {
+    const chartContainer = document.getElementById(containerId);
+    if (chartContainer) {
+      while (chartContainer.firstChild) {
+        chartContainer.removeChild(chartContainer.firstChild);
+      }
     }
+  }
 
-    if (Highcharts.charts && Highcharts.charts[0]) {
-      Highcharts.charts[0].update(options);
+  onInsightClientChange(selectedClient): void {
+    this.dataService.getUsersByClientName(selectedClient).subscribe((users) => {
+      this.dataService.userDropdownData = users.map((user) => ({
+        id: user._id,
+        value: user._id,
+      }));
+      this.onDashboardClientChange(selectedClient);
+
+      if (this.selectedClient != "" && this.selectedInterval == "weekly") {
+        this.getWeeklyData();
+      } else {
+        this.fetchMonthlyChartData();
+      }
+
+      if (this.selectedClient !== "") {
+        this.datePicker.writeValue(null);
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  onDashboardClientChange(selectedClient): void {
+    let selectedClientId = selectedClient;
+    console.log(selectedClient);
+    this.dataService
+      .getUsersByClientName(selectedClientId)
+      .subscribe((users) => {
+        this.dataService.userDropdownData = users.map((user) => ({
+          id: user._id,
+          value: user._id,
+        }));
+
+        const defaultUser = this.dataService.userDropdownData[0];
+        this.selectedUsername = defaultUser.id;
+        this.loadMostViewedPages(selectedClient);
+        this.loadMostClickedActions(selectedClient);
+        this.getDeviceData(selectedClient);
+        this.getMapComponent(this.defaultSelectedClient);
+        this.renderBarChart();
+        this.cdr.detectChanges();
+      });
+  }
+
+  loadMostClickedActions(selectedClient: string): void {
+    this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
+      if (data && data.length > 0){
+        this.isDisableClickedAction=false;
+        this.mostClickedActions = data;
+        this.renderBarChart();
+      }
+      else{
+        this.isDisableClickedAction=true;
+      }
+      
+    });
+  }
+
+  loadMostViewedPages(selectedClient: string): void {
+    this.dataService.getMostVisitedPages(selectedClient).subscribe((data) => {
+      this.mostViewedPages = data;
+
+      this.renderPieChart();
+    });
+  }
+
+  onUserChange(): void {
+    if (this.selectedUsername !== "") {
+      this.datePicker.writeValue(null);
+      if (this.selectedUsername != "" && this.selectedInterval == "daily") {
+        this.selectedInterval = "weekly";
+        this.getWeeklyData();
+      }
+      if (this.selectedUsername != "" && this.selectedInterval == "weekly") {
+        this.getWeeklyData();
+        this.disableChart();
+      }
+      if (this.selectedInterval == "monthly") {
+        this.fetchMonthlyChartData();
+      }
+    }
+  }
+
+  onIntervalChange(selectedInterval: string) {
+    const interval = selectedInterval;
+    if (!(this.isInterval === true)) {
+      if (interval === "monthly" && this.selectedUsername !== "") {
+        this.fetchMonthlyChartData();
+        this.enableChart();
+      }
+      if (interval === "weekly" && this.selectedUsername !== "") {
+        this.getWeeklyData();
+        this.disableChart();
+      }
+    }
+  }
+
+  getWeeklyData() {
+    if (!this.selectedUsername) {
+      return;
     } else {
-      Highcharts.chart("container", options);
+      this.dataService.getWeeklyDataForUser(this.selectedUsername).subscribe(
+        (weeklyData) => {
+          if (weeklyData && weeklyData.length > 0) {
+            const currentDate = new Date();
+            const currentWeekStart =
+              currentDate.getDate() - currentDate.getDay() + 1;
+            const currentWeekEnd = currentWeekStart + 6;
+
+            const currentWeekData = this.getCurrentWeekTotalData(
+              currentWeekStart,
+              currentWeekEnd
+            );
+
+            weeklyData.forEach((entry) => {
+              const entryDate = new Date(entry.date);
+              const dayIndex = entryDate.getDay();
+
+              if (dayIndex >= 0 && dayIndex < 7) {
+                currentWeekData[dayIndex].totalCount = entry.totalCount;
+              }
+            });
+
+            const dates = this.getDatesArrayForMonthlyAndDaily(
+              new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentWeekStart
+              ),
+              new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentWeekEnd
+              )
+            );
+
+            const seriesData = [
+              {
+                name: this.selectedUsername,
+                type: "line",
+                data: currentWeekData.map((entry) => entry.totalCount),
+              },
+            ];
+
+            this.renderChart(seriesData, dates);
+          } else {
+            this.toastr.error("No user data found for the current week");
+          }
+        },
+        (error) => {
+          this.toastr.error(error.error.error);
+        }
+      );
     }
   }
 
-  getWeeklyOptions(): Highcharts.Options {
-    const weekDates = this.logCurrentWeekDates();
-    const totalCounts = this.getTotalCountsForSelectedUser(
-      this.selectedUsername
-    );
-
-    return {
-      credits: {
-        enabled: false,
-      },
-
-      chart: { type: "line" },
-      title: { text: "Weekly Data" },
-      xAxis: {
-        categories: weekDates,
-        labels: { style: { color: "#000000" } },
-        type: "datetime",
-      },
-      yAxis: {
-        title: {
-          text: "Most Clicked Actions",
-        },
-        labels: {
-          format: "{text}",
-        },
-      },
-      series: [
-        { name: this.selectedUsername, type: "line", data: totalCounts },
-      ],
-    };
+  getCurrentWeekTotalData(start, end) {
+    const currentWeekData = [];
+    for (let i = start; i <= end; i++) {
+      currentWeekData.push({
+        totalCount: 0,
+      });
+    }
+    return currentWeekData;
   }
 
-  getMonthlyOptions(): Highcharts.Options {
-    const monthDates = this.logCurrentMonthDates();
-    const totalCounts = this.getTotalCountsForSelectedUserByMonth(
-      this.selectedUsername
-    );
+  fetchMonthlyChartData() {
+    if (!this.selectedUsername) {
+      return;
+    }
 
-    return {
-      credits: {
-        enabled: false,
-      },
-      chart: { type: "line" },
-      title: { text: "Monthly Data" },
-      xAxis: {
-        categories: monthDates,
-        labels: { style: { color: "#000000" } },
-        type: "datetime",
-      },
-      yAxis: {
-        title: {
-          text: "Most Clicked Actions",
-        },
-        labels: {
-          format: "{text}",
-        },
-      },
-      series: [
-        { name: this.selectedUsername, type: "line", data: totalCounts },
-      ],
-    };
+    this.dataService
+      .getMonthlyData(this.selectedUsername)
+      .subscribe((monthlyData) => {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        const currentMonthData = monthlyData.filter((entry) => {
+          const entryDate = new Date(entry.date);
+          return (
+            entryDate.getMonth() + 1 === currentMonth &&
+            entryDate.getFullYear() === currentYear
+          );
+        });
+
+        const startDate = new Date(currentYear, currentMonth - 1, 1);
+        const endDate = new Date(currentYear, currentMonth, 0);
+        const dates = this.getDatesArrayForMonthlyAndDaily(startDate, endDate);
+
+        const totalCounts = dates.map((date) => {
+          const matchingEntry = currentMonthData.find(
+            (entry) => entry.date === date
+          );
+          return matchingEntry ? matchingEntry.totalCount : 0;
+        });
+
+        const seriesData = [
+          {
+            name: this.selectedUsername,
+            type: "line",
+            data: totalCounts,
+          },
+        ];
+
+        this.renderChart(seriesData, dates);
+      });
   }
 
-  getDailyOptions(): Highcharts.Options {
-    const currentDateData = this.getCurrentDateData();
-    const totalCount = currentDateData
-      ? currentDateData.userEvents.find(
-          (event) => event.date === this.currentDate
-        )?.totalCount || 0
-      : 0;
+  getDatesArrayForMonthlyAndDaily(startDate, endDate) {
+    const datesArray = [];
+    let currentDate = startDate;
 
-    return {
-      credits: {
-        enabled: false,
-      },
-      chart: { type: "line" },
-      title: { text: "Daily Data" },
-      xAxis: {
-        categories: [this.currentDate],
-        labels: { style: { color: "#000000" } },
-        type: "datetime",
-      },
-      yAxis: {
-        title: {
-          text: "Most Clicked Actions",
-        },
-        labels: {
-          format: "{text}",
-        },
-      },
-      series: [
-        { name: this.selectedUsername, type: "line", data: [totalCount] },
-      ],
-    };
-  }
-
-  getCurrentDateData(): any {
-    return this.apiData.find(
-      (entry) =>
-        entry.userInfo[0].clientName === this.selectedClient &&
-        entry.userInfo[0].userName === this.selectedUsername &&
-        entry.userEvents.some((event) => event.date === this.currentDate)
-    );
-  }
-
-  logCurrentMonthDates() {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-
-    const monthDates = [];
-    let currentDate = new Date(firstDayOfMonth);
-
-    while (currentDate < lastDayOfMonth) {
-      const formattedDate = currentDate.toISOString().split("T")[0];
-      monthDates.push(formattedDate);
+    while (currentDate <= endDate) {
+      datesArray.push(currentDate.toISOString().split("T")[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    return monthDates;
+    return datesArray;
   }
 
-  getTotalCountsForSelectedUserByMonth(selectedUser: string): number[] {
-    const userData = this.apiData.find(
-      (user) => user.userInfo[0]?.userName === selectedUser
-    );
-    if (!userData) return [];
+  getChartDataBYUserId(selectedDateForId): void {
+    if (!this.selectedUsername || !selectedDateForId) {
+      return;
+    }
 
-    const countsMap: Record<string, number> = {};
-    userData.userEvents.forEach((event) => {
-      const date: string = event.date;
-      const totalCount: number = event.totalCount || 0;
-      countsMap[date] = (countsMap[date] || 0) + totalCount;
-    });
-
-    const monthDates: string[] = this.logCurrentMonthDates();
-
-    const totalCounts: number[] = monthDates.map(
-      (date) => countsMap[date] || 0
-    );
-
-    return totalCounts;
-  }
-
-  getTotalCountsForSelectedUser(selectedUser: string): number[] {
-    const userEvents = this.apiData
-      .filter((user) => user.userInfo[0]?.userName === selectedUser)
-      .map((user) => user.userEvents)
-      .reduce((acc, val) => acc.concat(val), [])
-      .reduce((countsMap: Record<string, number>, event) => {
-        const date = event.date;
-        const totalCount = event.totalCount || 0;
-        countsMap[date] = (countsMap[date] || 0) + totalCount;
-        return countsMap;
-      }, {});
-
-    const weekDates = this.logCurrentWeekDates();
-    const totalCounts = weekDates.map((date) => userEvents[date] || 0);
-
-    return totalCounts;
-}
-
-
-  getTotalCountsForSelectedClient(
-    clientName: string,
-    weekStartDate: Date
-  ): number[] {
-    const filteredData = this.apiData.filter(
-      (entry) => entry.userInfo[0].clientName === clientName
-    );
-
-    const totalCountsForWeek: number[] = [];
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(weekStartDate);
-      currentDate.setDate(currentDate.getDate() + i);
-
-      let totalCountForDay = 0;
-      for (const userData of filteredData) {
-        const userEvents = userData.userEvents;
-        for (const event of userEvents) {
-          const eventDate = new Date(event.date);
-          if (
-            eventDate.getFullYear() === currentDate.getFullYear() &&
-            eventDate.getMonth() === currentDate.getMonth() &&
-            eventDate.getDate() === currentDate.getDate()
-          ) {
-            totalCountForDay += event.totalCount;
+    this.dataService
+      .getUserEvents(this.selectedUsername, selectedDateForId)
+      .subscribe(
+        (userData) => {
+          if (!userData) {
+            this.toastr.error("Invalid response from API");
+            return;
           }
+
+          if (userData.totalCount === 0) {
+            this.disableChart();
+            this.toastr.error("No data found for the specified date.");
+          } else {
+            this.enableChart();
+            const seriesData = [
+              { name: "Total Count", data: [userData.totalCount] },
+            ];
+            this.renderChart(seriesData, [selectedDateForId]);
+          }
+        },
+        (error) => {
+          if (error.status === 404) {
+          } else {
+            console.error("Error fetching user events", error);
+          }
+          this.disableChart();
+          this.toastr.error(
+            error.status === 404
+              ? "No data found for the specified date."
+              : "Error fetching user events"
+          );
         }
-      }
-      totalCountsForWeek.push(totalCountForDay);
-    }
-
-    return totalCountsForWeek;
-  }
-
-  onIntervalChange() {
-    if (
-      this.selectedInterval === "weekly" ||
-      this.selectedInterval == "monthly"
-    ) {
-      this.selectedInterval = "daily";
-    }
-  }
-
-  onChangeByIntervalSelection(selectedIntervalOption: string) {
-    const clientName = this.selectedClient;
-    const interval = this.selectedInterval;
-
-    if (selectedIntervalOption === "daily") {
-      this.selectedInterval = selectedIntervalOption;
-    } else {
-      this.selectedDate = "";
-    }
-
-    if (this.selectedUsername !== "all") {
-      this.selectedInterval = selectedIntervalOption;
-      this.updateHighChart();
-    } else {
-      const filteredData = this.apiData.filter(
-        (e) => e.userInfo[0].clientName == this.selectedClient
       );
-
-      filteredData.forEach((e, i) => {
-        let userName = e.userInfo[0].userName;
-        let objUser = { id: i, value: userName };
-        this.userList.push(objUser);
-      });
-
-      if (
-        this.selectedInterval !== "monthly" &&
-        this.selectedInterval !== "daily"
-      ) {
-        this.selectedInterval = "weekly";
-        this.updateHighChart();
-      }
-
-      if (
-        interval === "daily" ||
-        interval === "weekly" ||
-        interval === "monthly"
-      ) {
-        this.getAndDisplayEventsForClient(clientName, interval);
-      }
-    }
   }
 
-  renderWeeklyChartForSelectedUsername(username: string) {
-    const userData = this.apiData.find(
-      (data) => data.userInfo[0].userName === username
-    );
-
-    if (userData) {
-      const userEventsMap = new Map(
-        userData.userEvents.map((event) => [event.date, event.totalCount])
-      );
-      const dates = this.getCurrentWeekStartDate();
-      const seriesData: Highcharts.SeriesLineOptions[] = [];
-
-      dates.forEach((date) => {
-        const totalCount = userEventsMap.get(date) || 0;
-        seriesData.push({
-          name: username,
-          type: "line",
-          data: [totalCount],
-        });
-      });
-
-      this.renderChart(seriesData, dates);
-    }
+  disableChart(): void {
+    this.chartDisabled = true;
   }
 
-  getData() {
-    if (this.selectedInterval === "weekly") {
-      this.dataService.getDataForUser().subscribe((apiData) => {
-        this.apiData = apiData;
-        this.populateClientNames();
-        this.cdr.detectChanges();
-      });
-    }
+  enableChart(): void {
+    this.chartDisabled = false;
+    setTimeout(() => {
+      this.renderPieChart();
+      this.renderBarChart();
+      this.getMapComponent(this.selectedClient);
+      this.getDeviceData(this.defaultSelectedClient);
+    }, 2000);
   }
 
-  onDateSelected(username: string, selectedDate: string) {
-    this.selectedDate = selectedDate;
-    this.selectedUserScreenData = this.getScreenDataForSelectedUserAndDate();
+  onDateChange(selectedDate: Date): void {
+    this.selectedDate = this.formatDate(selectedDate);
+    this.getChartDataBYUserId(this.selectedDate);
 
-    const userData = this.apiData.find(
-      (user) => user.userInfo[0].userName === username
-    );
-
-    if (userData) {
-      const userEvents = userData.userEvents.find(
-        (event) => event.date === selectedDate
-      );
-      if (userEvents) {
-        const totalCount = userEvents.totalCount;
-        this.updateHighchart(totalCount);
+    if (this.selectedUsername !== "" && this.selectedDate !== "") {
+      // this.getChartDataBYUserId(this.selectedDate);
+      if (this.selectedDate != "") {
+        this.selectedInterval = "daily";
       }
     }
-
-    this.onIntervalChange();
-    this.resetTooltip();
   }
 
-isSelected(screen: any): boolean {
-  return this.selectedScreen === screen;
-}
-
-setSelected(screen: any) {
-  this.selectedScreen = screen;
-}
-
-
-resetTooltip() {
-  this.showActionsTooltip = false;
-  this.tooltipActions = [];
-  this.selectedScreen = null;
-}
-
-toggleTooltip(event: MouseEvent, actions: any[]) {
-  this.selectedScreen = null;
-  if (this.tooltipInterval$) {
-    this.tooltipInterval$.unsubscribe();
-  }
-  this.showActionsTooltip = true;
-  this.tooltipActions = []; 
-  this.tooltipTop = (event.target as HTMLElement).offsetTop + (event.target as HTMLElement).offsetHeight;
-  this.tooltipLeft = (event.target as HTMLElement).offsetLeft + (event.target as HTMLElement).offsetWidth / 2;
-
-  let index = 0;
-
-  this.tooltipInterval$ = interval(500).subscribe(() => {
-    
-    this.tooltipActions.push(`${actions[index].key}: ${actions[index].value}`);
-  
-    index++;
-
-    if (index === actions.length) {
-      this.tooltipInterval$.unsubscribe();
-    }
-  });
-}
-
-  updateHighchart(totalCount: number) {
-    const seriesData = [
-      {
-        name: this.selectedUsername,
-        type: "line",
-        data: [totalCount],
-      },
-    ];
-
-    const dates = [this.selectedDate];
-    this.renderChart(seriesData, dates);
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   renderChart(seriesData, dates) {
-    const options: Highcharts.Options = {
-      credits: {
-        enabled: false,
-      },
-      chart: {
-        type: "line",
-      },
+    const options = {
+      credits: { enabled: false },
+      chart: { type: "line", backgroundColor: "transparent" },
+
       title: {
         text: "Insight",
-        style: {
-          color: "#000",
-          fontSize: "14px",
-          fontWeight: "bold",
-        },
+
+        style: { color: "#fff", fontSize: "14px", fontWeight: "bold" },
       },
-      xAxis: {
-        categories: dates,
-        labels: {
-          style: {
-            color: "#000000",
-          },
-        },
-      },
+      xAxis: { categories: dates, labels: { style: { color: "#ffffff" } } },
       yAxis: {
         title: {
           text: "Most Clicked Actions",
+          style: {
+            color: "#ffffff",
+          },
         },
-        labels: {
-          format: "{text}",
+        labels: { format: "{text}" },
+        gridLineColor: "transparent",
+        gridLineWidth: 0,
+      },
+      legend: {
+        itemStyle: {
+          color: "#ffffff",
         },
       },
       series: seriesData,
@@ -524,388 +522,242 @@ toggleTooltip(event: MouseEvent, actions: any[]) {
     Highcharts.chart("container", options);
   }
 
-  getScreenDataForSelectedUserAndDate(): any {
-    this.screensList = [];
-    if (this.selectedUsername.value) {
-      this.selectedUsername = this.selectedUsername.value;
-    }
-    this.apiData.forEach((e, i) => {
-      if (e.userInfo[0].userName.trim() == this.selectedUsername.trim()) {
-        e.userEvents.forEach((u, i) => {
-          if (u.date.trim() == this.selectedDate) {
-            for (const [key, value] of Object.entries(u)) {
-              if (key.trim() !== "date" && key.trim() !== "totalCount") {
-                let objscreen = { pageName: key, actions: [] };
-                if (typeof value == "object") {
-                  for (const [key, v] of Object.entries(value)) {
-                    let action = { key: key, value: v };
-                    objscreen.actions.push(action);
-                  }
-                }
+  renderPieChart() {
+      this.isDisableViewedPages = false;
+      this.dataService
+        .getMostVisitedPages(this.defaultSelectedClient)
+        .subscribe((data) => {
+          if (data && data.length > 0) {
+            this.mostViewedPages = data;
+            if (this.mostViewedPages.length > 0) {
+              const totalViews = this.mostViewedPages.reduce(
+                (total, item) => total + item.count,
+                0
+              );
+              const first5Data = this.mostViewedPages.slice(0, 4);
+              const colors = [
+                "#052288",
+                "#FFD500",
+                "#BBC1D2",
+                "#78787A",
+                "#1aadce",
+              ];
+              const options: Highcharts.Options = {
+                credits: { enabled: false },
+                chart: {
+                  type: "pie",
+                  height: 300,
+                  backgroundColor: "transparent",
+                },
+                title: {
+                  text: "Most Viewed Pages",
+                  style: {
+                    color: "white",
+                    fontSize: "0.9em",
+                  },
+                },
+                plotOptions: {
+                  pie: {
+                    colors: colors,
+                    borderWidth: 0,
+                    dataLabels: {
+                      enabled: true,
+                      format: "<b>{point.name}</b>: {point.percentage:.1f}%",
+                      style: {
+                        textOutline: "none",
+                        color: "white",
+                      },
+                    },
+                  },
+                },
+                series: [
+                  {
+                    type: "pie",
+                    data: first5Data.map(({ pageName, count }, index) => ({
+                      name: pageName,
+                      y: (count / totalViews) * 100,
+                      color: colors[index],
+                    })),
+                  },
+                ],
+                tooltip: {
+                  pointFormat: "<b>Most Viewed</b>: {point.percentage:.1f}%",
+                },
+              };
 
-                this.screensList.push(objscreen);
-              }
+              Highcharts.chart("pie-chart-container", options);
+            } else {
+              this.isDisableViewedPages = true;
             }
           }
         });
-      }
-    });
-
-    return this.screensList;
     
   }
 
-  extractUserEventDates() {
-    if (!this.selectedUsername) {
-      this.userEventDates = [];
-      return;
-    }
+  renderBarChart() {
 
-    const userData = this.apiData.find(
-      (data) => data.userInfo[0].userName === this.selectedUsername
-    );
-    this.userEventDates = userData
-      ? [...new Set(userData.userEvents.map((event) => event.date))].filter(
-          (date): date is string => typeof date === "string"
-        )
-      : [];
-  }
-
-  onUserSelected(selectedUsername: any) {
-    if (this.selectedUsername != "" && this.selectedDate != "") {
-      this.selectedDate = "";
-    }
-    if (
-      this.selectedInterval === "weekly" ||
-      this.selectedInterval === "daily" ||
-      this.selectedInterval === "monthly"
-    ) {
-      this.selectedUsername = selectedUsername;
-      this.filterUserData();
-
-      if (selectedUsername === "all") {
-        this.selectedDate = "";
-        this.getData();
-        if (selectedUsername == "all") {
-          this.updateSelectedUserData(selectedUsername);
-        }
-      } else {
-        this.updateSelectedUserData(selectedUsername);
-      }
-    } else {
-      this.cdr.detectChanges();
-    }
-  }
-
-  updateSelectedUserData(selectedUsername: any) {
-    this.selectedUsername = selectedUsername;
-    this.cdr.detectChanges();
-    this.onChangeByIntervalSelection(this.selectedInterval);
-    this.selectedUserScreenData = this.getScreenDataForSelectedUserAndDate();
-    this.extractUserEventDates();
-    this.selectedUserScreenData = null;
-
-    const userData = this.apiData.find(
-      (data) => data.userInfo[0].userName === this.selectedUsername
-    );
-
-    if (userData) {
-      const selectedDateEvents = userData.userEvents.filter(
-        (event) => event.date === this.selectedDate
+    if (this.mostClickedActions.length > 0) {
+      const totalViews = this.mostClickedActions.reduce(
+        (total, item) => total + item.count,
+        0
       );
-
-      if (selectedDateEvents.length > 0) {
-        this.selectedUserScreenData = selectedDateEvents[0];
-      }
-    }
-  }
-
-  filterUserData() {
-    this.filteredData = this.apiData.filter((entry) => {
-      return (
-        entry.userInfo[0].userName === this.selectedUsername &&
-        entry.userEvents.some((event) => {
-          return event.date >= this.fromDate && event.date <= this.toDate;
-        })
-      );
-    });
-
-    this.cdr.detectChanges();
-  }
-
-  getClientNames(): string[] {
-    const clientNamesSet = new Set<string>();
-
-    if (Array.isArray(this.apiData)) {
-      this.apiData.forEach((data) => {
-        data.userInfo.forEach((userInfo) => {
-          clientNamesSet.add(userInfo.clientName);
-        });
-      });
-    }
-
-    const clientNames = Array.from(clientNamesSet);
-
-    if (clientNames.length > 0 && this.isAllClients) {
-      this.selectedIntervalOption = clientNames[0];
-      this.onClientChange(clientNames[0]);
-      this.isAllClients = false;
-    }
-
-    return clientNames;
-  }
-
-  populateClientNames() {
-    this.clientNames = this.getClientNames();
-  }
-
-  onClientChange(newValue: string) {
-    this.userList = [];
-    const clientName = newValue;
-    if (this.selectedClient !== "") {
-      this.selectedDate = "";
-      if (this.selectedUsername !== "all") {
-        this.selectedUsername = "all";
-      } else {
-        this.selectedInterval = "weekly";
-      }
-    }
-
-    const filteredData = this.apiData.filter(
-      (e) => e.userInfo[0].clientName === newValue
-    );
-
-    this.userList = filteredData.map((e, i) => {
-      const userName = e.userInfo[0].userName;
-      return { id: i, value: userName };
-    });
-
-    if (
-      this.selectedInterval !== "monthly" &&
-      this.selectedInterval !== "weekly"
-    ) {
-      this.selectedInterval = "weekly";
-      this.updateHighChart();
-    } else {
-      this.getAndDisplayEventsForClient(clientName, this.selectedInterval);
-    }
-
-    if (this.selectedInterval === "monthly" && newValue) {
-      this.getAndDisplayEventsForClient(newValue, this.selectedInterval);
-    }
-
-    this.selectedClient = newValue;
-  }
-
-  getAndDisplayEventsForMonthly(clientName) {
-    const filteredUserEvents = this.filterUserEventsForCurrentMonth(clientName);
-    const dates = this.getCurrentMonthDates();
-
-    const seriesData = filteredUserEvents.map((user) => {
-      const dataPoints = dates.map((date) => user.dateWiseCounts[date] || 0);
-      return {
-        name: user.userName,
-        type: "line",
-        data: dataPoints,
+      const colors = ["#052288", "#FFD500", "#BBC1D2", "#78787A", "#1aadce"];
+      const first5Data = this.mostClickedActions.slice(0, 5);
+      const options: Highcharts.Options = {
+        credits: { enabled: false },
+        chart: {
+          type: "bar",
+          height: 300,
+          backgroundColor: "transparent",
+        },
+        title: {
+          text: "Most Clicked Actions",
+          style: {
+            color: "#ffffff",
+            fontSize: "0.9em",
+          },
+        },
+        xAxis: {
+          categories: first5Data.map(({ ButtonName }) => ButtonName),
+          labels: {
+            style: {
+              color: "#ffffff",
+            },
+          },
+        },
+        yAxis: {
+          title: {
+            text: "Total counts",
+            style: {
+              color: "#ffffff",
+            },
+          },
+          labels: {
+            style: {
+              color: "#ffffff",
+            },
+          },
+          gridLineColor: "transparent",
+          gridLineWidth: 0,
+        },
+        plotOptions: {
+          bar: {
+            colors: colors,
+            borderWidth: 0,
+          },
+        },
+        legend: {
+          itemStyle: {
+            color: "#ffffff",
+          },
+        },
+        series: [
+          {
+            type: "bar",
+            name: "Clicks",
+            data: first5Data.map(({ count }) => count),
+          },
+        ],
+        tooltip: {
+          pointFormat: "<b>Clicks</b>:{point.y}",
+        },
       };
-    });
 
-    this.renderChart(seriesData, dates);
-  }
-
-  getCurrentWeekStartDate() {
-    const currentDate = new Date();
-    const currentDay = currentDate.getDay();
-    const firstDayOfWeek = new Date(
-      currentDate.setDate(
-        currentDate.getDate() - currentDay + (currentDay === 0 ? -6 : 1)
-      )
-    );
-    const dates = [];
-
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(firstDayOfWeek);
-      date.setDate(date.getDate() + i);
-      dates.push(date.toISOString().slice(0, 10));
+      Highcharts.chart("bar-chart-container", options);
     }
-    return dates;
   }
 
-  getCurrentMonthDates() {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const dates = [];
-    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-      dates.push(`${year}-${month + 1}-${i.toString().padStart(2, "0")}`);
-    }
-    return dates;
-  }
+  getMapComponent(selectedClient) {
+    console.log("after selection of Selected client:", selectedClient);
+    if (selectedClient) {
+      this.ismapDisable = false;
+      this.dataService.getlocationData(selectedClient).subscribe((data) => {
+        if (data && data.length > 0) {
+          const modifiedArray = data.map((obj) => ({
+            name: obj.cityName,
+            lat: Number(obj.latitude),
+            lon: Number(obj.longitude),
+          }));
 
-  filterUserEventsForCurrentWeek(clientName) {
-    const currentWeekStartDate = this.getCurrentWeekStartDate();
-
-    const filteredData = [];
-
-    this.apiData.forEach((user) => {
-      const userInfo = user.userInfo.find(
-        (info) => info.clientName === clientName
-      );
-      if (!userInfo) return;
-
-      const userEvents = user.userEvents;
-      const dateWiseCounts = {};
-
-      currentWeekStartDate.forEach((date) => {
-        dateWiseCounts[date] = 0;
-      });
-
-      userEvents.forEach((event) => {
-        const eventDate = new Date(event.date).toISOString().slice(0, 10);
-        if (dateWiseCounts.hasOwnProperty(eventDate)) {
-          dateWiseCounts[eventDate] += event.totalCount;
-        }
-      });
-
-      filteredData.push({
-        userName: userInfo.userName.trim(),
-        dateWiseCounts: dateWiseCounts,
-      });
-    });
-
-    return filteredData;
-  }
-
-  filterUserEventsForCurrentMonth(clientName) {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const dates = [];
-
-    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-      const date = new Date(year, month, i);
-      dates.push(date.toISOString().slice(0, 10));
-    }
-
-    const filteredData = [];
-
-    this.apiData.forEach((user) => {
-      user.userInfo.forEach((userInfo) => {
-        if (userInfo.clientName === clientName) {
-          const userEvents = user.userEvents;
-
-          const dateWiseCounts = {};
-
-          dates.forEach((date) => {
-            dateWiseCounts[date] = 0;
-          });
-
-          userEvents.forEach((event) => {
-            const eventDate = new Date(event.date).toISOString().slice(0, 10);
-
-            if (dateWiseCounts.hasOwnProperty(eventDate)) {
-              dateWiseCounts[eventDate] += event.totalCount;
+          const stringifiedArray = modifiedArray.map((obj) => {
+            let newObj = {};
+            for (const key in obj) {
+              newObj[key] = obj[key];
             }
+            return newObj;
           });
+          if (stringifiedArray != undefined) {
+            this.chartOptions = {
+              credits: { enabled: false },
+              chart: {
+                type: "map",
+                map: HighchartsData,
+                backgroundColor: "transparent",
+              },
+              title: {
+                text: null,
+                style: {
+                  color: "#ffffff",
+                },
+              },
+              mapNavigation: {
+                enabled: true,
+                buttonOptions: {
+                  alignTo: "spacingBox",
+                },
+              },
+              legend: {
+                enabled: true,
+              },
+              colorAxis: {
+                visible: false,
+                minColor: "#C5C6C7",
+                maxColor: "#C5C6C7",
+              },
+              series: [
+                {
+                  name: "Random data",
+                  states: {
+                    hover: {
+                      color: "#6E6F71",
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                    format: "{point.name}",
+                  },
+                  allAreas: false,
+                  data: mapData,
+                } as Highcharts.SeriesMapOptions,
+                {
+                  type: "mappoint",
+                  name: "Canada cities",
+                  marker: {
+                    radius: 5,
+                    fillColor: "#FFFF00",
+                  },
 
-          filteredData.push({
-            userName: userInfo.userName.trim(),
-            dateWiseCounts: dateWiseCounts,
-          });
-        }
-      });
-    });
-
-    return filteredData;
-  }
-
-  getAndDisplayEventsForClient(clientName, interval) {
-    let seriesData = [];
-    let dates = [];
-    let filteredUserEvents = [];
-
-    if (interval === "daily") {
-      const {
-        dates: currentDate,
-        usernames,
-        totalCounts: userTotalCounts,
-      } = this.getDateAndTotalCountForUsernames(clientName);
-      dates = [currentDate];
-      seriesData = usernames.map((username, index) => ({
-        name: username,
-        type: "line",
-        data: [userTotalCounts[index]],
-      }));
-    } else if (interval === "weekly") {
-      filteredUserEvents = this.filterUserEventsForCurrentWeek(clientName);
-      dates = this.getCurrentWeekStartDate();
-    } else if (interval === "monthly") {
-      filteredUserEvents = this.filterUserEventsForCurrentMonth(clientName);
-      dates = this.getCurrentMonthDates();
-    } else {
-      console.error("Invalid interval provided.");
-      return;
-    }
-
-    if (interval === "weekly" || interval === "monthly") {
-      filteredUserEvents.forEach((user) => {
-        const dataPoints = dates.map((date) => user.dateWiseCounts[date] || 0);
-        seriesData.push({
-          name: user.userName,
-          type: "line",
-          data: dataPoints,
-        });
-      });
-    }
-
-    this.renderChart(seriesData, dates);
-  }
-
-  getDateAndTotalCountForUsernames(clientName) {
-    const currentDate = new Date().toISOString().split("T")[0];
-    const usernames = [];
-    const totalCounts = [];
-
-    this.apiData.forEach((entry) => {
-      if (
-        entry.userInfo &&
-        entry.userInfo.length > 0 &&
-        entry.userInfo[0].clientName === clientName
-      ) {
-        const username = entry.userInfo[0].userName;
-
-        if (!usernames.includes(username)) {
-          const totalCount = this.getTotalCountForUser(username, currentDate);
-          usernames.push(username);
-          totalCounts.push(totalCount);
-        }
-      }
-    });
-
-    return { dates: currentDate, usernames, totalCounts };
-  }
-
-  getTotalCountForUser(username, currentDate) {
-    let totalCount = 0;
-
-    this.apiData.forEach((entry) => {
-      if (
-        entry.userInfo &&
-        entry.userInfo.length > 0 &&
-        entry.userInfo[0].userName === username &&
-        entry.userInfo[0].clientName === this.selectedClient
-      ) {
-        entry.userEvents.forEach((event) => {
-          if (event.date === currentDate) {
-            totalCount += event.totalCount;
+                  data: stringifiedArray,
+                  dataLabels: {
+                    color: "#ffff",
+                    style: {
+                      textOutline: "none",
+                    },
+                  },
+                },
+              ],
+            };
           }
-        });
-      }
-    });
+        } else {
+          this.ismapDisable = true;
+        }
+      });
+    }
+  }
 
-    return totalCount;
+  ngAfterViewInit() {
+    this.selectedUsername = "all";
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy() {
