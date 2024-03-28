@@ -1,0 +1,44 @@
+@import "./_mixins.scss";
+
+aside {
+  @include sideBarBaseStyle;
+
+  h1 {
+    font-size: 2.25rem;
+    text-align: center;
+    // margin-bottom: 2.25rem;
+    font-weight: 600;
+  }
+
+  a {
+    text-decoration: none;
+
+    .active {
+      color: #c3ccec;
+      fill: #c3ccec;
+    }
+
+    .inactive {
+      color: #4e4f56;
+      fill: #4e4f56;
+    }
+
+    svg {
+      width: 1.563rem;
+      height: 1.563rem;
+      margin-right: 1.5rem;
+    }
+  }
+
+  ul {
+    li {
+      font-size: 1.5rem;
+      margin-bottom: 2.563rem;
+      font-weight: 400;
+    }
+  }
+
+  .logo {
+    width: 50px;
+  }
+}

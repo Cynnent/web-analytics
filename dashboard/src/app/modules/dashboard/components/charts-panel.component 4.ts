@@ -17,7 +17,6 @@ import { mapData } from "../../../../assets/data/mapData";
 import * as _Highcharts from "highcharts/highmaps";
 import { Calendar } from "primeng/calendar";
 import HighchartsData from "@highcharts/map-collection/custom/world.topo.json";
-import { Subscription, interval } from "rxjs";
 
 @Component({
   selector: "ngx-ecommerce-charts",
@@ -36,10 +35,8 @@ export class ECommerceChartsPanelComponent
   public clientNames: string[] = [];
   public selectedUsername: string | undefined;
   date: Date | undefined;
-  userEventDates: { id: string; value: string }[] = [];
   public tabToggle: boolean = false;
   selectedInterval: string = "weekly";
-  screenData: { [key: string]: { [key: string]: number } } = {};
   tabName: string;
   alive: boolean = true;
   selectedClient: string;
@@ -52,19 +49,9 @@ export class ECommerceChartsPanelComponent
   mostViewedPages: any[] = [];
   mostClickedActions: any[] = [];
   totalDeviceCount: number = 0;
-  public screensList = [];
   chartDisabled: boolean = false;
-  isDisableViewedPages: boolean = false;
-  ismapDisable: boolean = false;
+  mapDisable: boolean = false;
   isInterval: boolean = false;
-  isDisableClickedAction: boolean = false;
-  showActionsTooltip = false;
-  tooltipActions: string[] = [];
-  tooltipTop = 0;
-  tooltipLeft = 0;
-  tooltipInterval$: Subscription;
-  selectedScreen: any = null;
-  isScreenOverview: boolean = true;
 
   @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
   @ViewChild("userSelect") userSelect: NbSelectComponent;
@@ -232,7 +219,7 @@ export class ECommerceChartsPanelComponent
 
   onDashboardClientChange(selectedClient): void {
     let selectedClientId = selectedClient;
-
+    console.log(selectedClient);
     this.dataService
       .getUsersByClientName(selectedClientId)
       .subscribe((users) => {
@@ -254,13 +241,9 @@ export class ECommerceChartsPanelComponent
 
   loadMostClickedActions(selectedClient: string): void {
     this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
-      if (data && data.length > 0) {
-        this.isDisableClickedAction = false;
-        this.mostClickedActions = data;
-        this.renderBarChart();
-      } else {
-        this.isDisableClickedAction = true;
-      }
+      this.mostClickedActions = data;
+
+      this.renderBarChart();
     });
   }
 
@@ -281,6 +264,7 @@ export class ECommerceChartsPanelComponent
       }
       if (this.selectedUsername != "" && this.selectedInterval == "weekly") {
         this.getWeeklyData();
+        this.disableChart();
       }
       if (this.selectedInterval == "monthly") {
         this.fetchMonthlyChartData();
@@ -294,17 +278,10 @@ export class ECommerceChartsPanelComponent
       if (interval === "monthly" && this.selectedUsername !== "") {
         this.fetchMonthlyChartData();
         this.enableChart();
-        this.isScreenOverview = true;
       }
       if (interval === "weekly" && this.selectedUsername !== "") {
         this.getWeeklyData();
-      }
-      if (this.selectedInterval == "weekly") {
-        this.datePicker.writeValue(null);
-        this.isScreenOverview = true;
-      }
-      if (this.selectedInterval == "daily") {
-        this.isScreenOverview = false;
+        this.disableChart();
       }
     }
   }
@@ -359,7 +336,6 @@ export class ECommerceChartsPanelComponent
             this.renderChart(seriesData, dates);
           } else {
             this.toastr.error("No user data found for the current week");
-            this.disableChart();
           }
         },
         (error) => {
@@ -491,49 +467,10 @@ export class ECommerceChartsPanelComponent
     this.getChartDataBYUserId(this.selectedDate);
 
     if (this.selectedUsername !== "" && this.selectedDate !== "") {
-      this.loadDatesForUser(this.selectedUsername);
+      // this.getChartDataBYUserId(this.selectedDate);
       if (this.selectedDate != "") {
         this.selectedInterval = "daily";
-        this.isScreenOverview = false;
       }
-    }
-  }
-
-  loadDatesForUser(userId: string): void {
-    this.dataService.getDatesByUserId(userId).subscribe((dates) => {
-      this.userEventDates = dates;
-      this.selectedDate = dates[0].id;
-      this.loadScreenContent();
-
-      this.cdr.detectChanges();
-    });
-
-  }
-
-  loadScreenContent(): void {
-    if (this.selectedUsername && this.selectedDate) {
-      this.dataService
-        .getUserEvents(this.selectedUsername, this.selectedDate)
-        .subscribe(
-          (userData) => {
-            this.screensList = [];
-            for (const [pageName, actions] of Object.entries(
-              userData.screens
-            )) {
-              let objscreen = { pageName: pageName, actions: [] };
-              for (const [actionKey, actionValue] of Object.entries(actions)) {
-                let action = { key: actionKey, value: actionValue };
-                objscreen.actions.push(action);
-              }
-              this.screensList.push(objscreen);
-            }
-          },
-          (error) => {
-            console.error("Error fetching user events", error);
-          },
-          () => {}
-        );
-    } else {
     }
   }
 
@@ -578,7 +515,6 @@ export class ECommerceChartsPanelComponent
   }
 
   renderPieChart() {
-    this.isDisableViewedPages = false;
     this.dataService
       .getMostVisitedPages(this.defaultSelectedClient)
       .subscribe((data) => {
@@ -642,49 +578,10 @@ export class ECommerceChartsPanelComponent
 
             Highcharts.chart("pie-chart-container", options);
           } else {
-            this.isDisableViewedPages = true;
+            this.removeChart("pie-chart-container");
           }
         }
       });
-  }
-
-  isSelected(screen: any): boolean {
-    return this.selectedScreen === screen;
-  }
-
-  setSelected(screen: any) {
-    this.selectedScreen = screen;
-  }
-
-  resetTooltip() {
-    this.showActionsTooltip = false;
-    this.tooltipActions = [];
-    this.selectedScreen = null;
-  }
-
-  toggleTooltip(event: MouseEvent, actions: any[]) {
-    this.selectedScreen = null;
-    if (this.tooltipInterval$) {
-      this.tooltipInterval$.unsubscribe();
-    }
-    this.showActionsTooltip = true;
-    this.tooltipActions = [];
-    this.tooltipTop =
-      (event.target as HTMLElement).offsetTop +
-      (event.target as HTMLElement).offsetHeight;
-    this.tooltipLeft =
-      (event.target as HTMLElement).offsetLeft +
-      (event.target as HTMLElement).offsetWidth / 2;
-    let index = 0;
-    this.tooltipInterval$ = interval(500).subscribe(() => {
-      this.tooltipActions.push(
-        `${actions[index].key}: ${actions[index].value}`
-      );
-      index++;
-      if (index === actions.length) {
-        this.tooltipInterval$.unsubscribe();
-      }
-    });
   }
 
   renderBarChart() {
@@ -760,225 +657,16 @@ export class ECommerceChartsPanelComponent
   }
 
   getMapComponent(selectedClient) {
-    const listOfCountryWithCode = {
-      afghanistan: "af",
-      albania: "al",
-      algeria: "dz",
-      andorra: "ad",
-      angola: "ao",
-      "antigua and barbuda": "ag",
-      argentina: "ar",
-      armenia: "am",
-      australia: "au",
-      austria: "at",
-      azerbaijan: "az",
-      bahamas: "bs",
-      bahrain: "bh",
-      bangladesh: "bd",
-      barbados: "bb",
-      belarus: "by",
-      belgium: "be",
-      belize: "bz",
-      benin: "bj",
-      bhutan: "bt",
-      bolivia: "bo",
-      "bosnia and herzegovina": "ba",
-      botswana: "bw",
-      brazil: "br",
-      brunei: "bn",
-      bulgaria: "bg",
-      "burkina faso": "bf",
-      burundi: "bi",
-      "cabo verde": "cv",
-      cambodia: "kh",
-      cameroon: "cm",
-      canada: "ca",
-      "central african republic": "cf",
-      chad: "td",
-      chile: "cl",
-      china: "cn",
-      colombia: "co",
-      comoros: "km",
-      congo: "cg",
-      "costa rica": "cr",
-      croatia: "hr",
-      cuba: "cu",
-      cyprus: "cy",
-      "czech republic": "cz",
-      denmark: "dk",
-      djibouti: "dj",
-      dominica: "dm",
-      "dominican republic": "do",
-      "east timor": "tl",
-      ecuador: "ec",
-      egypt: "eg",
-      "el salvador": "sv",
-      "equatorial guinea": "gq",
-      eritrea: "er",
-      estonia: "ee",
-      ethiopia: "et",
-      fiji: "fj",
-      finland: "fi",
-      france: "fr",
-      gabon: "ga",
-      gambia: "gm",
-      georgia: "ge",
-      germany: "de",
-      ghana: "gh",
-      greece: "gr",
-      grenada: "gd",
-      guatemala: "gt",
-      guinea: "gn",
-      "guinea-bissau": "gw",
-      guyana: "gy",
-      haiti: "ht",
-      honduras: "hn",
-      hungary: "hu",
-      iceland: "is",
-      india: "in",
-      indonesia: "id",
-      iran: "ir",
-      iraq: "iq",
-      ireland: "ie",
-      israel: "il",
-      italy: "it",
-      "ivory coast": "ci",
-      jamaica: "jm",
-      japan: "jp",
-      jordan: "jo",
-      kazakhstan: "kz",
-      kenya: "ke",
-      kiribati: "ki",
-      kosovo: "xk",
-      kuwait: "kw",
-      kyrgyzstan: "kg",
-      laos: "la",
-      latvia: "lv",
-      lebanon: "lb",
-      lesotho: "ls",
-      liberia: "lr",
-      libya: "ly",
-      liechtenstein: "li",
-      lithuania: "lt",
-      luxembourg: "lu",
-      macedonia: "mk",
-      madagascar: "mg",
-      malawi: "mw",
-      malaysia: "my",
-      maldives: "mv",
-      mali: "ml",
-      malta: "mt",
-      "marshall islands": "mh",
-      mauritania: "mr",
-      mauritius: "mu",
-      mexico: "mx",
-      micronesia: "fm",
-      moldova: "md",
-      monaco: "mc",
-      mongolia: "mn",
-      montenegro: "me",
-      morocco: "ma",
-      mozambique: "mz",
-      myanmar: "mm",
-      namibia: "na",
-      nauru: "nr",
-      nepal: "np",
-      netherlands: "nl",
-      "new zealand": "nz",
-      nicaragua: "ni",
-      niger: "ne",
-      nigeria: "ng",
-      "north korea": "kp",
-      norway: "no",
-      oman: "om",
-      pakistan: "pk",
-      palau: "pw",
-      panama: "pa",
-      "papua new guinea": "pg",
-      paraguay: "py",
-      peru: "pe",
-      philippines: "ph",
-      poland: "pl",
-      portugal: "pt",
-      qatar: "qa",
-      romania: "ro",
-      russia: "ru",
-      rwanda: "rw",
-      "saint kitts and nevis": "kn",
-      "saint lucia": "lc",
-      "saint vincent and the grenadines": "vc",
-      samoa: "ws",
-      "san marino": "sm",
-      "sao tome and principe": "st",
-      "saudi arabia": "sa",
-      senegal: "sn",
-      serbia: "rs",
-      seychelles: "sc",
-      "sierra leone": "sl",
-      singapore: "sg",
-      slovakia: "sk",
-      slovenia: "si",
-      "solomon islands": "sb",
-      somalia: "so",
-      "south africa": "za",
-      "south korea": "kr",
-      "south sudan": "ss",
-      spain: "es",
-      "sri lanka": "lk",
-      sudan: "sd",
-      suriname: "sr",
-      swaziland: "sz",
-      sweden: "se",
-      switzerland: "ch",
-      syria: "sy",
-      taiwan: "tw",
-      tajikistan: "tj",
-      tanzania: "tz",
-      thailand: "th",
-      togo: "tg",
-      tonga: "to",
-      "trinidad and tobago": "tt",
-      tunisia: "tn",
-      turkey: "tr",
-      turkmenistan: "tm",
-      tuvalu: "tv",
-      uganda: "ug",
-      ukraine: "ua",
-      "united arab emirates": "ae",
-      "united kingdom": "gb",
-      "united states": "us",
-      uruguay: "uy",
-      uzbekistan: "uz",
-      vanuatu: "vu",
-      "vatican city": "va",
-      venezuela: "ve",
-      vietnam: "vn",
-      yemen: "ye",
-      zambia: "zm",
-      zimbabwe: "zw",
-    };
-
+    console.log("after selection of Selected client:", selectedClient);
     if (selectedClient) {
-      this.ismapDisable = false;
+      this.mapDisable = false;
       this.dataService.getlocationData(selectedClient).subscribe((data) => {
         if (data && data.length > 0) {
-          const modifiedArray = data.map((obj) => {
-            const countryNames = obj.country;
-            const countryName = countryNames.toLowerCase().trim();
-            const countryCode =
-              listOfCountryWithCode[countryName] || "not found";
-            const countryObject = {
-              name: countryNames,
-              color: "#666b7b",
-              "hc-key": countryCode,
-            };
-            mapData.push(countryObject);
-            return {
-              name: obj.cityName,
-              lat: Number(obj.latitude),
-              lon: Number(obj.longitude),
-            };
-          });
+          const modifiedArray = data.map((obj) => ({
+            name: obj.cityName,
+            lat: Number(obj.latitude),
+            lon: Number(obj.longitude),
+          }));
 
           const stringifiedArray = modifiedArray.map((obj) => {
             let newObj = {};
@@ -1012,36 +700,45 @@ export class ECommerceChartsPanelComponent
               },
               colorAxis: {
                 visible: false,
-                minColor: "#BBC1D2",
-                maxColor: "#BBC1D2",
-              },
-              tooltip: {
-                formatter: function () {
-                  const countryName = this.point.name;
-                  return countryName;
-                },
+                minColor: "#C5C6C7",
+                maxColor: "#C5C6C7",
               },
               series: [
                 {
-                  allAreas: true,
+                  name: "Random data",
+                  states: {
+                    hover: {
+                      color: "#6E6F71",
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                    format: "{point.name}",
+                  },
+                  allAreas: false,
                   data: mapData,
                 } as Highcharts.SeriesMapOptions,
                 {
                   type: "mappoint",
+                  name: "Canada cities",
                   marker: {
-                    symbol:
-                      "url(https://github.com/Cynnent/web-analytics/blob/main/src/assets/images/location.png?raw=true)",
-                    width: 18,
-                    height: 22,
+                    radius: 5,
+                    fillColor: "#FFFF00",
                   },
 
                   data: stringifiedArray,
+                  dataLabels: {
+                    color: "#ffff",
+                    style: {
+                      textOutline: "none",
+                    },
+                  },
                 },
               ],
             };
           }
         } else {
-          this.ismapDisable = true;
+          this.mapDisable = true;
         }
       });
     }

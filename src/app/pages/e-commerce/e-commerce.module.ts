@@ -44,7 +44,7 @@ import { ECommerceLegendChartComponent } from './legend-chart/legend-chart.compo
 import { ECommerceUserActivityComponent } from './user-activity/user-activity.component';
 import { ECommerceProgressSectionComponent } from './progress-section/progress-section.component';
 import { SlideOutComponent } from './slide-out/slide-out.component';
-
+import { CalendarModule } from 'primeng/calendar';
 import { CountryOrdersComponent } from './country-orders/country-orders.component';
 import { CountryOrdersMapComponent } from './country-orders/map/country-orders-map.component';
 import { CountryOrdersMapService } from './country-orders/map/country-orders-map.service';
@@ -55,6 +55,9 @@ import { EarningCardBackComponent } from './earning-card/back-side/earning-card-
 import { EarningPieChartComponent } from './earning-card/back-side/earning-pie-chart.component';
 import { EarningCardFrontComponent } from './earning-card/front-side/earning-card-front.component';
 import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earning-live-update-chart.component';
+import { ToastrModule } from 'ngx-toastr';
+import { HighchartsChartModule } from 'highcharts-angular';
+// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   imports: [
@@ -67,9 +70,13 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
     NbSelectModule,
     NbListModule,
     ChartModule,
+    HighchartsChartModule,
     NbProgressBarModule,
     NgxEchartsModule,
     NgxChartsModule,
+    CalendarModule,
+    // BrowserAnimationsModule, 
+    ToastrModule.forRoot(),
     LeafletModule,
   ],
   declarations: [

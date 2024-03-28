@@ -8,68 +8,77 @@ import {
   Input,
 } from "@angular/core";
 import * as Highcharts from "highcharts";
-import { NbSelectComponent } from "@nebular/theme";
-import { OrdersChartComponent } from "./charts/orders-chart.component";
-import { ProfitChartComponent } from "./charts/profit-chart.component";
+import { SeriesOptionsType } from 'highcharts';
+// import { NbSelectComponent } from "@nebular/theme";
+// import { OrdersChartComponent } from "./charts/orders-chart.component";
+// import { ProfitChartComponent } from "./charts/profit-chart.component";
 import { ToastrService } from "ngx-toastr";
-import { DataService } from "./data.service";
+import { DataService } from "./../services/data.service";
 import { mapData } from "../../../../assets/data/mapData";
 import * as _Highcharts from "highcharts/highmaps";
 import { Calendar } from "primeng/calendar";
-import HighchartsData from "@highcharts/map-collection/custom/world.topo.json";
-import { Subscription, interval } from "rxjs";
+import HighchartsData from '@highcharts/map-collection/custom/world.topo.json';
+
+interface MyObject {
+  [key: string]: any;
+  name?: string; 
+  lat?: number;
+  lon?: number;
+}
+
+interface MapDataObject {
+    name: string;
+    color: string;
+    "hc-key": string;
+}
 
 @Component({
-  selector: "ngx-ecommerce-charts",
-  styleUrls: ["./charts-panel.component.scss"],
-  templateUrl: "./charts-panel.component.html",
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
 })
-export class ECommerceChartsPanelComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
-  @Input() latitude: number;
-  @Input() longitude: number;
+
+export class DashboardComponent {
+    @Input() latitude: number = 0;
+    @Input() longitude: number = 0;
   chartConstructor = "mapChart";
   Highcharts: typeof _Highcharts = _Highcharts;
-  chartOptions: Highcharts.Options = null;
+  chartOptions: Highcharts.Options | null = null;
   public dates: string[] = [];
   public clientNames: string[] = [];
   public selectedUsername: string | undefined;
   date: Date | undefined;
-  userEventDates: { id: string; value: string }[] = [];
-  public tabToggle: boolean = false;
+  // public activeTab: boolean = false;
   selectedInterval: string = "weekly";
-  screenData: { [key: string]: { [key: string]: number } } = {};
-  tabName: string;
+  // tabName: string;
   alive: boolean = true;
-  selectedClient: string;
+  // changed
+  selectedClient: string = ''
   selectedDate: string = "";
   selectedDateForId: string = "";
-  totalCount: number;
+  // totalCount: number;
   userDropdownData: { id: string; value: string }[] = [];
-  defaultSelectedClient: string;
+  // changded
+  text: string = '';
+  defaultSelectedClient: string = ''
   deviceCounts: { deviceType: string; count: number }[] = [];
   mostViewedPages: any[] = [];
   mostClickedActions: any[] = [];
   totalDeviceCount: number = 0;
-  public screensList = [];
   chartDisabled: boolean = false;
-  isDisableViewedPages: boolean = false;
-  ismapDisable: boolean = false;
   isInterval: boolean = false;
-  isDisableClickedAction: boolean = false;
-  showActionsTooltip = false;
-  tooltipActions: string[] = [];
-  tooltipTop = 0;
-  tooltipLeft = 0;
-  tooltipInterval$: Subscription;
-  selectedScreen: any = null;
-  isScreenOverview: boolean = true;
+  ismapDisable: boolean = false;
 
-  @ViewChild("ordersChart", { static: true }) ordersChart: OrdersChartComponent;
-  @ViewChild("userSelect") userSelect: NbSelectComponent;
-  @ViewChild("profitChart", { static: true }) profitChart: ProfitChartComponent;
-  @ViewChild("datePicker") datePicker: Calendar;
+  // my state
+  public activeTab = 'dashboard';
+  public header = 'Top Performing Pages';
+
+
+  // @ViewChild("userSelect") userSelect: NbSelectComponent;
+  @ViewChild("datePicker")
+  datePicker!: Calendar;
+
+
 
   apiData: any[] = [];
   constructor(
@@ -94,9 +103,8 @@ export class ECommerceChartsPanelComponent
     });
   }
 
-  loadSelectedTabData(tabName) {
-    if (tabName === "dashboard") {
-      this.tabToggle = false;
+  loadSelectedTabData() {
+    if (this.activeTab === "dashboard") {
       setTimeout(() => {
         this.renderPieChart();
         this.renderBarChart();
@@ -106,8 +114,8 @@ export class ECommerceChartsPanelComponent
       if (this.chartDisabled) {
         this.enableChart();
       }
-    } else if (tabName === "insights") {
-      this.tabToggle = true;
+    } 
+    else if (this.activeTab === "insights") {
       if (this.selectedUsername !== "" && this.selectedInterval === "weekly") {
         this.getWeeklyData();
       }
@@ -157,7 +165,7 @@ export class ECommerceChartsPanelComponent
           title: {
             text: "Active User by Device",
             style: {
-              color: "#ffffff",
+              color: "#211d1d",
               fontSize: "0.9em",
             },
           },
@@ -171,7 +179,7 @@ export class ECommerceChartsPanelComponent
               depth: 10,
               dataLabels: {
                 enabled: true,
-                color: "#ffffff",
+                color: "#211d1d",
                 style: {
                   textOutline: "none",
                 },
@@ -209,7 +217,7 @@ export class ECommerceChartsPanelComponent
     }
   }
 
-  onInsightClientChange(selectedClient): void {
+  onInsightClientChange(selectedClient: string): void {
     this.dataService.getUsersByClientName(selectedClient).subscribe((users) => {
       this.dataService.userDropdownData = users.map((user) => ({
         id: user._id,
@@ -230,9 +238,9 @@ export class ECommerceChartsPanelComponent
     });
   }
 
-  onDashboardClientChange(selectedClient): void {
+  onDashboardClientChange(selectedClient: string): void {
     let selectedClientId = selectedClient;
-
+    console.log(selectedClient);
     this.dataService
       .getUsersByClientName(selectedClientId)
       .subscribe((users) => {
@@ -254,13 +262,9 @@ export class ECommerceChartsPanelComponent
 
   loadMostClickedActions(selectedClient: string): void {
     this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
-      if (data && data.length > 0) {
-        this.isDisableClickedAction = false;
-        this.mostClickedActions = data;
-        this.renderBarChart();
-      } else {
-        this.isDisableClickedAction = true;
-      }
+      this.mostClickedActions = data;
+
+      this.renderBarChart();
     });
   }
 
@@ -281,6 +285,7 @@ export class ECommerceChartsPanelComponent
       }
       if (this.selectedUsername != "" && this.selectedInterval == "weekly") {
         this.getWeeklyData();
+        this.disableChart();
       }
       if (this.selectedInterval == "monthly") {
         this.fetchMonthlyChartData();
@@ -294,17 +299,10 @@ export class ECommerceChartsPanelComponent
       if (interval === "monthly" && this.selectedUsername !== "") {
         this.fetchMonthlyChartData();
         this.enableChart();
-        this.isScreenOverview = true;
       }
       if (interval === "weekly" && this.selectedUsername !== "") {
         this.getWeeklyData();
-      }
-      if (this.selectedInterval == "weekly") {
-        this.datePicker.writeValue(null);
-        this.isScreenOverview = true;
-      }
-      if (this.selectedInterval == "daily") {
-        this.isScreenOverview = false;
+        this.disableChart();
       }
     }
   }
@@ -359,7 +357,6 @@ export class ECommerceChartsPanelComponent
             this.renderChart(seriesData, dates);
           } else {
             this.toastr.error("No user data found for the current week");
-            this.disableChart();
           }
         },
         (error) => {
@@ -369,7 +366,7 @@ export class ECommerceChartsPanelComponent
     }
   }
 
-  getCurrentWeekTotalData(start, end) {
+  getCurrentWeekTotalData(start: number, end: number) {
     const currentWeekData = [];
     for (let i = start; i <= end; i++) {
       currentWeekData.push({
@@ -420,7 +417,7 @@ export class ECommerceChartsPanelComponent
       });
   }
 
-  getDatesArrayForMonthlyAndDaily(startDate, endDate) {
+  getDatesArrayForMonthlyAndDaily(startDate: Date, endDate: number | Date) {
     const datesArray = [];
     let currentDate = startDate;
 
@@ -432,7 +429,7 @@ export class ECommerceChartsPanelComponent
     return datesArray;
   }
 
-  getChartDataBYUserId(selectedDateForId): void {
+  getChartDataBYUserId(selectedDateForId: string): void {
     if (!this.selectedUsername || !selectedDateForId) {
       return;
     }
@@ -491,49 +488,10 @@ export class ECommerceChartsPanelComponent
     this.getChartDataBYUserId(this.selectedDate);
 
     if (this.selectedUsername !== "" && this.selectedDate !== "") {
-      this.loadDatesForUser(this.selectedUsername);
+      // this.getChartDataBYUserId(this.selectedDate);
       if (this.selectedDate != "") {
         this.selectedInterval = "daily";
-        this.isScreenOverview = false;
       }
-    }
-  }
-
-  loadDatesForUser(userId: string): void {
-    this.dataService.getDatesByUserId(userId).subscribe((dates) => {
-      this.userEventDates = dates;
-      this.selectedDate = dates[0].id;
-      this.loadScreenContent();
-
-      this.cdr.detectChanges();
-    });
-
-  }
-
-  loadScreenContent(): void {
-    if (this.selectedUsername && this.selectedDate) {
-      this.dataService
-        .getUserEvents(this.selectedUsername, this.selectedDate)
-        .subscribe(
-          (userData) => {
-            this.screensList = [];
-            for (const [pageName, actions] of Object.entries(
-              userData.screens
-            )) {
-              let objscreen = { pageName: pageName, actions: [] };
-              for (const [actionKey, actionValue] of Object.entries(actions)) {
-                let action = { key: actionKey, value: actionValue };
-                objscreen.actions.push(action);
-              }
-              this.screensList.push(objscreen);
-            }
-          },
-          (error) => {
-            console.error("Error fetching user events", error);
-          },
-          () => {}
-        );
-    } else {
     }
   }
 
@@ -544,7 +502,7 @@ export class ECommerceChartsPanelComponent
     return `${year}-${month}-${day}`;
   }
 
-  renderChart(seriesData, dates) {
+  renderChart(seriesData: { name: string | undefined; type: string; data: any[]; }[] | { name: string; data: number[]; }[], dates: any[]) {
     const options = {
       credits: { enabled: false },
       chart: { type: "line", backgroundColor: "transparent" },
@@ -578,7 +536,6 @@ export class ECommerceChartsPanelComponent
   }
 
   renderPieChart() {
-    this.isDisableViewedPages = false;
     this.dataService
       .getMostVisitedPages(this.defaultSelectedClient)
       .subscribe((data) => {
@@ -607,7 +564,7 @@ export class ECommerceChartsPanelComponent
               title: {
                 text: "Most Viewed Pages",
                 style: {
-                  color: "white",
+                  color: "#211d1d",
                   fontSize: "0.9em",
                 },
               },
@@ -620,7 +577,7 @@ export class ECommerceChartsPanelComponent
                     format: "<b>{point.name}</b>: {point.percentage:.1f}%",
                     style: {
                       textOutline: "none",
-                      color: "white",
+                      color: "#211d1d",
                     },
                   },
                 },
@@ -642,49 +599,10 @@ export class ECommerceChartsPanelComponent
 
             Highcharts.chart("pie-chart-container", options);
           } else {
-            this.isDisableViewedPages = true;
+            this.removeChart("pie-chart-container");
           }
         }
       });
-  }
-
-  isSelected(screen: any): boolean {
-    return this.selectedScreen === screen;
-  }
-
-  setSelected(screen: any) {
-    this.selectedScreen = screen;
-  }
-
-  resetTooltip() {
-    this.showActionsTooltip = false;
-    this.tooltipActions = [];
-    this.selectedScreen = null;
-  }
-
-  toggleTooltip(event: MouseEvent, actions: any[]) {
-    this.selectedScreen = null;
-    if (this.tooltipInterval$) {
-      this.tooltipInterval$.unsubscribe();
-    }
-    this.showActionsTooltip = true;
-    this.tooltipActions = [];
-    this.tooltipTop =
-      (event.target as HTMLElement).offsetTop +
-      (event.target as HTMLElement).offsetHeight;
-    this.tooltipLeft =
-      (event.target as HTMLElement).offsetLeft +
-      (event.target as HTMLElement).offsetWidth / 2;
-    let index = 0;
-    this.tooltipInterval$ = interval(500).subscribe(() => {
-      this.tooltipActions.push(
-        `${actions[index].key}: ${actions[index].value}`
-      );
-      index++;
-      if (index === actions.length) {
-        this.tooltipInterval$.unsubscribe();
-      }
-    });
   }
 
   renderBarChart() {
@@ -705,7 +623,7 @@ export class ECommerceChartsPanelComponent
         title: {
           text: "Most Clicked Actions",
           style: {
-            color: "#ffffff",
+            color: "#211d1d",
             fontSize: "0.9em",
           },
         },
@@ -713,7 +631,7 @@ export class ECommerceChartsPanelComponent
           categories: first5Data.map(({ ButtonName }) => ButtonName),
           labels: {
             style: {
-              color: "#ffffff",
+              color: "#211d1d",
             },
           },
         },
@@ -721,12 +639,12 @@ export class ECommerceChartsPanelComponent
           title: {
             text: "Total counts",
             style: {
-              color: "#ffffff",
+              color: "#211d1d",
             },
           },
           labels: {
             style: {
-              color: "#ffffff",
+              color: "#211d1d",
             },
           },
           gridLineColor: "transparent",
@@ -740,7 +658,7 @@ export class ECommerceChartsPanelComponent
         },
         legend: {
           itemStyle: {
-            color: "#ffffff",
+            color: "#211d1d",
           },
         },
         series: [
@@ -759,8 +677,8 @@ export class ECommerceChartsPanelComponent
     }
   }
 
-  getMapComponent(selectedClient) {
-    const listOfCountryWithCode = {
+getMapComponent(selectedClient: any) {
+    const listOfCountryWithCode: {[key: string]: string} = {
       afghanistan: "af",
       albania: "al",
       algeria: "dz",
@@ -957,7 +875,7 @@ export class ECommerceChartsPanelComponent
       zambia: "zm",
       zimbabwe: "zw",
     };
-
+ 
     if (selectedClient) {
       this.ismapDisable = false;
       this.dataService.getlocationData(selectedClient).subscribe((data) => {
@@ -965,23 +883,24 @@ export class ECommerceChartsPanelComponent
           const modifiedArray = data.map((obj) => {
             const countryNames = obj.country;
             const countryName = countryNames.toLowerCase().trim();
-            const countryCode =
-              listOfCountryWithCode[countryName] || "not found";
+            const countryCode = listOfCountryWithCode[countryName] || "not found";
             const countryObject = {
               name: countryNames,
               color: "#666b7b",
               "hc-key": countryCode,
             };
-            mapData.push(countryObject);
+            // changed here
+            const countryArray = [countryObject.name, countryObject.color, countryObject["hc-key"]];
+            mapData.push(countryArray);
             return {
               name: obj.cityName,
               lat: Number(obj.latitude),
               lon: Number(obj.longitude),
             };
           });
-
-          const stringifiedArray = modifiedArray.map((obj) => {
-            let newObj = {};
+ 
+          const stringifiedArray = modifiedArray.map((obj: MyObject) => {
+            let newObj: MyObject = {};
             for (const key in obj) {
               newObj[key] = obj[key];
             }
@@ -996,7 +915,7 @@ export class ECommerceChartsPanelComponent
                 backgroundColor: "transparent",
               },
               title: {
-                text: null,
+                text: '',
                 style: {
                   color: "#ffffff",
                 },
@@ -1034,7 +953,7 @@ export class ECommerceChartsPanelComponent
                     width: 18,
                     height: 22,
                   },
-
+ 
                   data: stringifiedArray,
                 },
               ],
@@ -1054,5 +973,9 @@ export class ECommerceChartsPanelComponent
 
   ngOnDestroy() {
     this.alive = false;
+  }
+
+  changeActiveTab(clickedTab: string) {
+    this.activeTab = clickedTab;
   }
 }

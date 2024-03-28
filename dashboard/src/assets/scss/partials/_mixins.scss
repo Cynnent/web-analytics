@@ -1,0 +1,37 @@
+@mixin sideBarBaseStyle() {
+  position: sticky;
+  top: 0;
+  font-family: var(--primary-font);
+  min-width: 17.75rem;
+  height: 100vh;
+  background: linear-gradient(178deg, #052288 0%, #03134e 100%) 0% 0%;
+  color: #ffffff;
+  padding: 2.938rem 2.75rem;
+}
+
+@mixin headerBaseStyle() {
+  font-family: var(--primary-font);
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.938rem 2rem;
+  width: 100%;
+  height: 6.375rem;
+  box-shadow: 0px 0px 9px #00000014;
+  z-index: 100;
+}
+
+@mixin dashboardBaseStyle() {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 0.188rem 0.625rem #00000014;
+}
+
+@mixin widgetCardBaseStyle() {
+  padding: 1.188rem 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.188rem 0.625rem #00000030;
+}

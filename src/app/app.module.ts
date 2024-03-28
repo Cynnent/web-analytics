@@ -12,6 +12,7 @@ import { ThemeModule } from './@theme/theme.module';
 import { FormsModule ,  ReactiveFormsModule} from '@angular/forms';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+
 import {
   NbChatModule,
   NbDatepickerModule,
@@ -22,6 +23,7 @@ import {
   NbToastrModule,
   NbWindowModule,
 } from '@nebular/theme';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [AppComponent],
@@ -34,6 +36,7 @@ import {
     HttpClientModule,
     AppRoutingModule,
     NbSidebarModule.forRoot(),
+    ToastrModule.forRoot(),
     NbMenuModule.forRoot(),
     NbDatepickerModule.forRoot(),
     NbDialogModule.forRoot(),
