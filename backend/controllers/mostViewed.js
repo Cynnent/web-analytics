@@ -42,6 +42,7 @@ const mostViewedPage = async (req, res) => {
     }
     const getMostClickedScreen = (data) => {
       const screenCounts = {};
+      let totalCount = 0;
       data.forEach((item) => {
         if (item.userEvents) {
           item.userEvents.forEach((event) => {
@@ -52,22 +53,19 @@ const mostViewedPage = async (req, res) => {
                 }
                 Object.values(counts).forEach((count) => {
                   screenCounts[screen] += count;
+                  totalCount += count;
                 });
               });
             }
           });
         }
       });
-      const sortedScreens = Object.keys(screenCounts).sort(
-        (a, b) => screenCounts[b] - screenCounts[a]
-      );
-
-      return {
-        mostViewedPages: sortedScreens.map((screen) => ({
-          pageName: screen,
-          count: screenCounts[screen],
-        })),
-      };
+      const mostViewedPages = Object.keys(screenCounts).map(screen => ({
+        pageName: screen,
+        percentage: ((screenCounts[screen] / totalCount) * 100).toFixed(2)
+      }));
+      mostViewedPages.sort((a, b) => b.percentage - a.percentage);
+      return { mostViewedPages };
     };
 
     const result = getMostClickedScreen(users);

@@ -36,4 +36,21 @@ const getAllMapData = async (req, res) => {
   }
 };
 
-module.exports = { mapData, getAllMapData };
+const usersByCountry = async (req, res) => {
+  try {
+    const client = req.params.clientName;
+
+    const result = await MapData.aggregate([
+      { $match: { 'clientName': client } },
+      { $group: { _id: { country: '$country', city: '$cityName' }, users: { $sum: 1 } } },
+      { $project: { _id: 0, cityName: '$_id.city', users: 1, country: '$_id.country' } }
+    ]);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error processing user per city data:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+module.exports = { mapData, getAllMapData, usersByCountry };
