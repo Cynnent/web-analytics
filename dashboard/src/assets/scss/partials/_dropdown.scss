@@ -1,0 +1,66 @@
+.p-dropdown {
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: inset 0px 3px 6px #05228838;
+  border: 1px solid #a3a3a3;
+  border-radius: 6px;
+  padding: 0px 18px;
+  align-items: center;
+  justify-content: center;
+  .p-dropdown-trigger {
+    // padding-left: 91.65px;
+    // padding-right: 18.6px;
+    // padding-top: 15.3px;
+    // padding-bottom: 15.8px;
+    margin-left: 91.65px;
+    // margin-right: 18.6px;
+    margin-top: 15.3px;
+    margin-bottom: 15.85px;
+  }
+  // padding-top: 8px;
+  // padding-left: 18px;
+  // padding-bottom: 7px;
+  // padding-right: 130px;
+  // padding: 8px 18px 7px;
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
+  // .p-dropdown-trigger{
+  //     padding: 18.6px 95.1px 95.1px;
+  // }
+}
+
+.p-dropdown-items
+{
+    display: block;
+    justify-content: center;
+    text-align: center;
+    row-gap: 10px;
+    /* padding-left: 10px; */
+    font-style: manrope;
+    text-align: left;
+    font-style: Manrope;
+}
+
+.ng-trigger-overlayAnimation{
+    width: 100%;
+    .p-datepicker-group-container{
+        padding-left: 1px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+
+.p-calendar .p-component{
+    // margin-left: 18px; 
+    box-shadow: inset 0px 3px 6px rgba(5, 34, 136, 0.2196078431);
+    border: 1px solid #A3A3A3;
+    border-radius: 6px;
+    /* opacity: 0.32; */
+    padding: 13px 30px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    // height: 64px;
+}

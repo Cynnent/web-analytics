@@ -37,7 +37,7 @@ h3 {
 
 .center-label {
   position: absolute;
-  top: 50%;
+  top: 59%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 18px;
@@ -60,4 +60,113 @@ h3 {
   svg {
     width: 100% !important;
   }
+}
+
+.card {
+  // border: 1px solid #ccc;
+  // border-radius: 4px;
+  // padding: 0 1.728rem;
+  display: flex;
+  gap: 29px;
+
+  .card-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+.card-body {
+  .p-element {
+    // display: flex;
+    // width: 100%;
+    // height: 39px;
+  }
+}
+
+p-card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 19px 24px;
+  .header {
+    height: 49px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    opacity: 1;
+    background: #052288;
+    margin-right: 15px;
+    .icons {
+      margin-right: 7px;
+      margin-top: 2px;
+    }
+  }
+  .icon-header {
+    // padding-right: 274px;
+    display: flex;
+    font-weight: bold;
+    font-size: 24px;
+    align-items: center;
+  }
+  // .menu-icon{
+  //   padding-left: 430px;
+  //   padding-top: 18px;
+  // }
+}
+
+.card-body select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.card-body select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.cards-grid {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 2.43rem 0 0 1.728rem;
+  padding: 12px;
+  margin: 0 auto;
+  max-width: 100%;
+  .text-right {
+    padding-right: 72px;
+  }
+}
+
+// .dropdowns {
+//   margin: 2.43rem 0 0 1.728rem;
+//   padding: 12px;
+// }
+.dashboard-dropdown {
+  float: right;
+  margin-top: -3.5rem;
+  margin-right: 1.5rem;
+}
+.p-dropdown-label {
+  font-family: var(--primary-font);
+  font-weight: bold;
+}
+
+.high-chart {
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: inset 0px 0px 3px #00000029, 9px 7px 9px #ccc1c11f;
+  border-radius: 10px;
+  opacity: 1;
+}
+.p-dropdown-item {
+  padding: 10px;
 }

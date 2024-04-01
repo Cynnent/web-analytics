@@ -6,30 +6,24 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Input,
-} from "@angular/core";
-import * as Highcharts from "highcharts";
-import { SeriesOptionsType } from 'highcharts';
-// import { NbSelectComponent } from "@nebular/theme";
-// import { OrdersChartComponent } from "./charts/orders-chart.component";
-// import { ProfitChartComponent } from "./charts/profit-chart.component";
-import { ToastrService } from "ngx-toastr";
-import { DataService } from "./../services/data.service";
-import { mapData } from "../../../../assets/data/mapData";
-import * as _Highcharts from "highcharts/highmaps";
-import { Calendar } from "primeng/calendar";
+} from '@angular/core';
+import * as Highcharts from 'highcharts';
+import { NbSelectComponent } from '@nebular/theme';
+import { ToastrService } from 'ngx-toastr';
+import { DataService } from '../services/data.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { mapData } from '../../../../assets/data/mapData';
+import { listOfCountryWithCode } from '../../../../assets/data/countryCodeMapping';
+import * as _Highcharts from 'highcharts/highmaps';
+import { Calendar } from 'primeng/calendar';
 import HighchartsData from '@highcharts/map-collection/custom/world.topo.json';
+import { SelectItem } from 'primeng/api';
 
 interface MyObject {
   [key: string]: any;
-  name?: string; 
+  name?: string;
   lat?: number;
   lon?: number;
-}
-
-interface MapDataObject {
-    name: string;
-    color: string;
-    "hc-key": string;
 }
 
 @Component({
@@ -37,174 +31,162 @@ interface MapDataObject {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-
-export class DashboardComponent {
-    @Input() latitude: number = 0;
-    @Input() longitude: number = 0;
-  chartConstructor = "mapChart";
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() latitude: number = 0;
+  @Input() longitude: number = 0;
+  chartConstructor = 'mapChart';
   Highcharts: typeof _Highcharts = _Highcharts;
   chartOptions: Highcharts.Options | null = null;
   public dates: string[] = [];
   public clientNames: string[] = [];
-  public selectedUsername: string | undefined;
+  public selectedUsername: string;
+  public screensList = [];
+  public tabToggle: boolean = false;
+  public activeTab = 'dashboard';
+  public header = 'Top Performing Pages';
+  apiData: any[] = [];
   date: Date | undefined;
-  // public activeTab: boolean = false;
-  selectedInterval: string = "weekly";
-  // tabName: string;
+  isLoading: boolean = true;
+  userEventDates: { id: string; value: string }[] = [];
+  screenData: { [key: string]: { [key: string]: number } } = {};
   alive: boolean = true;
-  // changed
-  selectedClient: string = ''
-  selectedDate: string = "";
-  selectedDateForId: string = "";
-  // totalCount: number;
+  selectedClient: string = '';
+  selectedDate: string = '';
+  selectedDateForId: string = '';
   userDropdownData: { id: string; value: string }[] = [];
-  // changded
-  text: string = '';
-  defaultSelectedClient: string = ''
+  defaultSelectedClient: string = '';
   deviceCounts: { deviceType: string; count: number }[] = [];
   mostViewedPages: any[] = [];
   mostClickedActions: any[] = [];
+  selectedInterval: string = 'weekly';
   totalDeviceCount: number = 0;
   chartDisabled: boolean = false;
-  isInterval: boolean = false;
+  isDisableViewedPages: boolean = false;
   ismapDisable: boolean = false;
+  isInterval: boolean = false;
+  isDisableClickedAction: boolean = false;
+  showActionsTooltip = false;
+  tooltipActions: string[] = [];
+  tooltipTop = 0;
+  tooltipLeft = 0;
+  selectedScreen: any = null;
+  isScreenOverview: boolean = true;
 
-  // my state
-  public activeTab = 'dashboard';
-  public header = 'Top Performing Pages';
+  intervalOptions: SelectItem[] = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+  ];
 
+  @ViewChild('userSelect') userSelect!: NbSelectComponent;
+  @ViewChild('datePicker') datePicker!: Calendar;
 
-  // @ViewChild("userSelect") userSelect: NbSelectComponent;
-  @ViewChild("datePicker")
-  datePicker!: Calendar;
-
-
-
-  apiData: any[] = [];
   constructor(
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private spinner: NgxSpinnerService
   ) {
-    this.selectedUsername = "all";
+    this.selectedUsername = 'all';
   }
 
   ngOnInit(): void {
-    this.getMapComponent(this.selectedClient);
-    this.renderPieChart();
-    this.renderBarChart();
+    this.spinner.show();
+    this.selectedInterval = 'weekly';
 
     this.dataService.getAllClients().subscribe((clients) => {
       this.clientNames = clients;
       if (this.clientNames && this.clientNames.length > 0) {
         this.defaultSelectedClient = this.clientNames[0];
-        this.onDashboardClientChange(this.clientNames[0]);
+        if(this.activeTab=='dashboard')
+        {
+          this.onDashboardChange(this.clientNames[0]);
+        }
+        else{
+          this.onInsightClientChange(this.defaultSelectedClient);
+        }
+        
+        
       }
+
+      setTimeout(() => {
+        this.spinner.hide();
+      }, 1000);
     });
   }
 
   loadSelectedTabData() {
-    if (this.activeTab === "dashboard") {
+    if (this.activeTab === 'dashboard') {
       setTimeout(() => {
         this.renderPieChart();
         this.renderBarChart();
         this.getMapComponent(this.defaultSelectedClient);
+        this.loadMostUsedBrowsers(this.defaultSelectedClient);
         this.getDeviceData(this.defaultSelectedClient);
       }, 2000);
       if (this.chartDisabled) {
         this.enableChart();
       }
-    } 
-    else if (this.activeTab === "insights") {
-      if (this.selectedUsername !== "" && this.selectedInterval === "weekly") {
-        this.getWeeklyData();
-      }
-      if (
-        this.selectedUsername != "" &&
-        this.selectedClient != "" &&
-        this.selectedInterval === "monthly"
-      ) {
-        this.selectedInterval = "weekly";
-        this.getWeeklyData();
-      }
+    } else if (
+      this.activeTab === 'insights' &&
+      this.selectedInterval === 'weekly'
+    ) {
+      this.onInsightClientChange(this.defaultSelectedClient)
+      this.getWeeklyData();
     }
   }
 
   getDeviceData(selectedClient: string): void {
     this.dataService.getUsersData(selectedClient).subscribe((data) => {
-      if (data && data.length > 0) {
-        const deviceCounts: { [key: string]: number } = data.reduce(
-          (counts, entry) => {
-            const deviceName = entry.DeviceName;
-            if (deviceName) {
-              counts[deviceName] = (counts[deviceName] || 0) + 1;
-            }
-            return counts;
-          },
-          {}
-        );
-
-        const deviceData = Object.entries(deviceCounts).map(
-          ([deviceName, count]: [string, number]) => ({
-            name: deviceName,
-            y: count,
-          })
-        );
-
-        this.totalDeviceCount = Object.values(deviceCounts).reduce(
-          (total, count) => total + count,
-          0
-        );
-
-        const pieChartOptions: Highcharts.Options = {
-          credits: { enabled: false },
-          chart: {
-            type: "pie",
-            backgroundColor: "transparent",
-          },
-          title: {
-            text: "Active User by Device",
-            style: {
-              color: "#211d1d",
-              fontSize: "0.9em",
-            },
-          },
-          tooltip: {
-            pointFormat: "{series.name}: <b>{point.y}</b>",
-          },
-          plotOptions: {
-            pie: {
-              innerSize: "80%",
-              borderWidth: 0,
-              depth: 10,
-              dataLabels: {
-                enabled: true,
-                color: "#211d1d",
-                style: {
-                  textOutline: "none",
-                },
-              },
-            },
-          },
-          series: [
-            {
-              type: "pie",
-              name: "Count",
-              data: deviceData.map((item) => [item.name, item.y]),
-            },
-          ],
-        };
-
-        Highcharts.chart("pieChartContainer", pieChartOptions);
-
-        const totalCountElement = document.getElementById("total-count");
-        if (totalCountElement) {
-          totalCountElement.innerText =
-            "Total Device Count: " + this.totalDeviceCount;
-        }
-      } else {
-        this.removeChart("pieChartContainer");
+      if (!data || data.length === 0) {
+        this.removeChart('pieChartContainer');
+        return;
       }
+      const deviceCounts: { [key: string]: number } = data.reduce(
+        (counts, entry) => {
+          const deviceName = entry.DeviceName;
+          if (deviceName) counts[deviceName] = (counts[deviceName] || 0) + 1;
+          return counts;
+        },
+        {}
+      );
+
+      const deviceData = Object.entries(deviceCounts).map(
+        ([deviceName, count]) => ({ name: deviceName, y: count })
+      );
+
+      this.totalDeviceCount = Object.values(deviceCounts).reduce(
+        (total, count) => total + count,
+        0
+      );
+
+      const pieChartOptions: Highcharts.Options = {
+        credits: { enabled: false },
+        chart: { type: 'pie', backgroundColor: 'transparent' },
+        title: { text: '' },
+        tooltip: { pointFormat: '{series.name}: <b>{point.y}</b>' },
+        plotOptions: {
+          pie: {
+            innerSize: '80%',
+            borderWidth: 0,
+            depth: 10,
+            dataLabels: {
+              enabled: true,
+              color: '#000000',
+              style: { textOutline: 'none' },
+            },
+          },
+        },
+        colors: ['#052288', '#ffc107', '#BBC1D2'],
+        series: [{ type: 'pie', name: 'Count', data: deviceData }],
+      };
+
+      Highcharts.chart('pieChartContainer', pieChartOptions);
+
+      const totalCountElement = document.getElementById('total-count');
+      if (totalCountElement)
+        totalCountElement.innerText =
+          'Total Device Count: ' + this.totalDeviceCount;
     });
   }
 
@@ -217,54 +199,95 @@ export class DashboardComponent {
     }
   }
 
-  onInsightClientChange(selectedClient: string): void {
-    this.dataService.getUsersByClientName(selectedClient).subscribe((users) => {
-      this.dataService.userDropdownData = users.map((user) => ({
-        id: user._id,
-        value: user._id,
-      }));
-      this.onDashboardClientChange(selectedClient);
-
-      if (this.selectedClient != "" && this.selectedInterval == "weekly") {
-        this.getWeeklyData();
-      } else {
-        this.fetchMonthlyChartData();
-      }
-
-      if (this.selectedClient !== "") {
-        this.datePicker.writeValue(null);
-      }
-      this.cdr.detectChanges();
-    });
-  }
-
-  onDashboardClientChange(selectedClient: string): void {
-    let selectedClientId = selectedClient;
-    console.log(selectedClient);
-    this.dataService
-      .getUsersByClientName(selectedClientId)
-      .subscribe((users) => {
+  onInsightClientChange(defaultSelectedClient: any): void {
+    console.log(this.activeTab)
+    
+    
+      this.dataService.getUsersByClientName(defaultSelectedClient).subscribe((users) => {
         this.dataService.userDropdownData = users.map((user) => ({
           id: user._id,
           value: user._id,
         }));
+        this.selectedUsername = '';
+        this.onDashboardClientChange(defaultSelectedClient);
 
-        const defaultUser = this.dataService.userDropdownData[0];
-        this.selectedUsername = defaultUser.id;
-        this.loadMostViewedPages(selectedClient);
-        this.loadMostClickedActions(selectedClient);
-        this.getDeviceData(selectedClient);
-        this.getMapComponent(this.defaultSelectedClient);
-        this.renderBarChart();
+        if(this.defaultSelectedClient!='' && this.selectedInterval=='daily')
+        {
+          this.selectedInterval='weekly';
+          this.fetchMonthlyChartData()
+        }
+        if (this.selectedClient != '' && this.selectedInterval == 'monthly') {
+          this.fetchMonthlyChartData();
+        }
+  
+        if (this.selectedClient !== '' && this.selectedInterval == 'daily') {
+          this.datePicker.writeValue(null);
+          this.isScreenOverview = true;
+          this.selectedInterval = 'weekly';
+        }
         this.cdr.detectChanges();
       });
+    
+    
+  }
+
+  onDashboardChange(selectedClient: any): void {
+    if (!this.selectedUsername || this.selectedUsername) {
+      this.dataService
+        .getUsersByClientName(selectedClient)
+        .subscribe((users) => {
+          this.renderPieChart();
+          this.loadMostViewedPages(selectedClient);
+          this.loadMostClickedActions(selectedClient);
+          this.getDeviceData(selectedClient);
+          this.loadMostUsedBrowsers(selectedClient);
+          this.getMapComponent(this.defaultSelectedClient);
+          this.renderBarChart();
+        });
+    }
+  }
+
+  onDashboardClientChange(selectedClient: any): void {
+    if (
+      selectedClient &&
+      this.selectedUsername &&
+      this.selectedInterval === 'weekly'
+    ) {
+      this.getWeeklyData();
+    }
+
+    if (!this.selectedUsername || this.selectedUsername) {
+      this.dataService
+        .getUsersByClientName(selectedClient)
+        .subscribe((users) => {
+          this.dataService.userDropdownData = users.map((user) => ({
+            id: user._id,
+            value: user._id,
+          }));
+          this.selectedUsername = this.dataService.userDropdownData[0]?.id;
+
+          if (
+            selectedClient &&
+            this.selectedInterval === 'weekly' &&
+            this.selectedUsername
+          ) {
+            this.getWeeklyData();
+          } else {
+            this.fetchMonthlyChartData();
+          }
+        });
+    }
   }
 
   loadMostClickedActions(selectedClient: string): void {
     this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
-      this.mostClickedActions = data;
-
-      this.renderBarChart();
+      if (data && data.length > 0) {
+        this.isDisableClickedAction = false;
+        this.mostClickedActions = data;
+        this.renderBarChart();
+      } else {
+        this.isDisableClickedAction = true;
+      }
     });
   }
 
@@ -277,17 +300,17 @@ export class DashboardComponent {
   }
 
   onUserChange(): void {
-    if (this.selectedUsername !== "") {
+    if (this.selectedUsername !== '') {
       this.datePicker.writeValue(null);
-      if (this.selectedUsername != "" && this.selectedInterval == "daily") {
-        this.selectedInterval = "weekly";
+      if (this.selectedUsername != '' && this.selectedInterval == 'daily') {
+        this.selectedInterval = 'weekly';
         this.getWeeklyData();
       }
-      if (this.selectedUsername != "" && this.selectedInterval == "weekly") {
+      if (this.selectedUsername != '' && this.selectedInterval == 'weekly') {
         this.getWeeklyData();
-        this.disableChart();
+        this.isScreenOverview = true;
       }
-      if (this.selectedInterval == "monthly") {
+      if (this.selectedInterval == 'monthly') {
         this.fetchMonthlyChartData();
       }
     }
@@ -296,13 +319,21 @@ export class DashboardComponent {
   onIntervalChange(selectedInterval: string) {
     const interval = selectedInterval;
     if (!(this.isInterval === true)) {
-      if (interval === "monthly" && this.selectedUsername !== "") {
+      if (interval === 'monthly' && this.selectedUsername !== '') {
         this.fetchMonthlyChartData();
         this.enableChart();
+        this.isScreenOverview = true;
       }
-      if (interval === "weekly" && this.selectedUsername !== "") {
+      if (interval === 'weekly' && this.selectedUsername !== '') {
         this.getWeeklyData();
         this.disableChart();
+      }
+      if (this.selectedInterval == 'weekly') {
+        this.datePicker.writeValue(null);
+        this.isScreenOverview = true;
+      }
+      if (this.selectedInterval == 'daily') {
+        this.isScreenOverview = false;
       }
     }
   }
@@ -311,62 +342,63 @@ export class DashboardComponent {
     if (!this.selectedUsername) {
       return;
     } else {
-      this.dataService.getWeeklyDataForUser(this.selectedUsername).subscribe(
-        (weeklyData) => {
-          if (weeklyData && weeklyData.length > 0) {
-            const currentDate = new Date();
-            const currentWeekStart =
-              currentDate.getDate() - currentDate.getDay() + 1;
-            const currentWeekEnd = currentWeekStart + 6;
+      if (this.selectedUsername == '' || this.selectedUsername != '') {
+        this.dataService.getWeeklyDataForUser(this.selectedUsername).subscribe(
+          (weeklyData) => {
+            if (weeklyData && weeklyData.length > 0) {
+              const currentDate = new Date();
+              const currentWeekStart =
+                currentDate.getDate() - currentDate.getDay() + 1;
+              const currentWeekEnd = currentWeekStart + 6;
 
-            const currentWeekData = this.getCurrentWeekTotalData(
-              currentWeekStart,
-              currentWeekEnd
-            );
-
-            weeklyData.forEach((entry) => {
-              const entryDate = new Date(entry.date);
-              const dayIndex = entryDate.getDay();
-
-              if (dayIndex >= 0 && dayIndex < 7) {
-                currentWeekData[dayIndex].totalCount = entry.totalCount;
-              }
-            });
-
-            const dates = this.getDatesArrayForMonthlyAndDaily(
-              new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
-                currentWeekStart
-              ),
-              new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
+              const currentWeekData = this.getCurrentWeekTotalData(
+                currentWeekStart,
                 currentWeekEnd
-              )
-            );
+              );
 
-            const seriesData = [
-              {
-                name: this.selectedUsername,
-                type: "line",
-                data: currentWeekData.map((entry) => entry.totalCount),
-              },
-            ];
+              weeklyData.forEach((entry) => {
+                const entryDate = new Date(entry.date);
+                const dayIndex = entryDate.getDay();
 
-            this.renderChart(seriesData, dates);
-          } else {
-            this.toastr.error("No user data found for the current week");
+                if (dayIndex >= 0 && dayIndex < 7) {
+                  currentWeekData[dayIndex].totalCount = entry.totalCount;
+                }
+              });
+
+              const dates = this.getDatesArrayForMonthlyAndDaily(
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth(),
+                  currentWeekStart
+                ),
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth(),
+                  currentWeekEnd
+                )
+              );
+
+              const seriesData = [
+                {
+                  name: this.selectedUsername,
+                  type: 'line',
+                  data: currentWeekData.map((entry) => entry.totalCount),
+                },
+              ];
+              this.chartDisabled = false;
+              this.renderChart(seriesData, dates);
+            }
+          },
+          (error) => {
+            this.toastr.error(error.error.error);
+            this.disableChart();
           }
-        },
-        (error) => {
-          this.toastr.error(error.error.error);
-        }
-      );
+        );
+      }
     }
   }
 
-  getCurrentWeekTotalData(start: number, end: number) {
+  getCurrentWeekTotalData(start: any, end: any) {
     const currentWeekData = [];
     for (let i = start; i <= end; i++) {
       currentWeekData.push({
@@ -408,7 +440,7 @@ export class DashboardComponent {
         const seriesData = [
           {
             name: this.selectedUsername,
-            type: "line",
+            type: 'line',
             data: totalCounts,
           },
         ];
@@ -417,19 +449,19 @@ export class DashboardComponent {
       });
   }
 
-  getDatesArrayForMonthlyAndDaily(startDate: Date, endDate: number | Date) {
+  getDatesArrayForMonthlyAndDaily(startDate: any, endDate: any) {
     const datesArray = [];
     let currentDate = startDate;
 
     while (currentDate <= endDate) {
-      datesArray.push(currentDate.toISOString().split("T")[0]);
+      datesArray.push(currentDate.toISOString().split('T')[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return datesArray;
   }
 
-  getChartDataBYUserId(selectedDateForId: string): void {
+  getChartDataBYUserId(selectedDateForId: any): void {
     if (!this.selectedUsername || !selectedDateForId) {
       return;
     }
@@ -439,17 +471,17 @@ export class DashboardComponent {
       .subscribe(
         (userData) => {
           if (!userData) {
-            this.toastr.error("Invalid response from API");
+            this.toastr.error('Invalid response from API');
             return;
           }
 
           if (userData.totalCount === 0) {
             this.disableChart();
-            this.toastr.error("No data found for the specified date.");
+            this.toastr.error('No data found for the specified date.');
           } else {
             this.enableChart();
             const seriesData = [
-              { name: "Total Count", data: [userData.totalCount] },
+              { name: 'Total Count', data: [userData.totalCount] },
             ];
             this.renderChart(seriesData, [selectedDateForId]);
           }
@@ -457,13 +489,13 @@ export class DashboardComponent {
         (error) => {
           if (error.status === 404) {
           } else {
-            console.error("Error fetching user events", error);
+            console.error('Error fetching user events', error);
           }
           this.disableChart();
           this.toastr.error(
             error.status === 404
-              ? "No data found for the specified date."
-              : "Error fetching user events"
+              ? 'No data found for the specified date.'
+              : 'Error fetching user events'
           );
         }
       );
@@ -487,52 +519,60 @@ export class DashboardComponent {
     this.selectedDate = this.formatDate(selectedDate);
     this.getChartDataBYUserId(this.selectedDate);
 
-    if (this.selectedUsername !== "" && this.selectedDate !== "") {
-      // this.getChartDataBYUserId(this.selectedDate);
-      if (this.selectedDate != "") {
-        this.selectedInterval = "daily";
+    if (this.selectedUsername !== '' && this.selectedDate !== '') {
+      this.loadDatesForUser(this.selectedUsername);
+      if (this.selectedDate != '') {
+        this.selectedInterval = 'daily';
+        this.isScreenOverview = false;
       }
     }
   }
 
+  loadDatesForUser(userId: string): void {
+    this.dataService.getDatesByUserId(userId).subscribe((dates) => {
+      this.userEventDates = dates;
+      this.cdr.detectChanges();
+    });
+  }
+
   formatDate(date: Date): string {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
-  renderChart(seriesData: { name: string | undefined; type: string; data: any[]; }[] | { name: string; data: number[]; }[], dates: any[]) {
+  renderChart(seriesData: any[], dates: string[]) {
     const options = {
       credits: { enabled: false },
-      chart: { type: "line", backgroundColor: "transparent" },
+      chart: { type: 'line', backgroundColor: 'transparent' },
 
       title: {
-        text: "Insight",
+        text: 'Insight',
 
-        style: { color: "#fff", fontSize: "14px", fontWeight: "bold" },
+        style: { color: '#fff', fontSize: '14px', fontWeight: 'bold' },
       },
-      xAxis: { categories: dates, labels: { style: { color: "#ffffff" } } },
+      xAxis: { categories: dates, labels: { style: { color: '#000000' } } },
       yAxis: {
         title: {
-          text: "Most Clicked Actions",
+          text: 'Most Clicked Actions',
           style: {
-            color: "#ffffff",
+            color: '#000000',
           },
         },
-        labels: { format: "{text}" },
-        gridLineColor: "transparent",
+        labels: { format: '{text}' },
+        gridLineColor: 'transparent',
         gridLineWidth: 0,
       },
       legend: {
         itemStyle: {
-          color: "#ffffff",
+          color: '#000000',
         },
       },
       series: seriesData,
     };
 
-    Highcharts.chart("container", options);
+    Highcharts.chart('container', options);
   }
 
   renderPieChart() {
@@ -540,442 +580,243 @@ export class DashboardComponent {
       .getMostVisitedPages(this.defaultSelectedClient)
       .subscribe((data) => {
         if (data && data.length > 0) {
-          this.mostViewedPages = data;
-          if (this.mostViewedPages.length > 0) {
-            const totalViews = this.mostViewedPages.reduce(
-              (total, item) => total + item.count,
-              0
-            );
-            const first5Data = this.mostViewedPages.slice(0, 4);
+          const filteredData = data.filter(
+            (item) => !isNaN(parseFloat(item.percentage))
+          );
+          if (filteredData.length > 0) {
+            const first5Data = filteredData.slice(0, 5);
             const colors = [
-              "#052288",
-              "#FFD500",
-              "#BBC1D2",
-              "#78787A",
-              "#1aadce",
+              '#052288',
+              '#FFD500',
+              '#BBC1D2',
+              '#78787A',
+              '#1aadce',
             ];
+
             const options: Highcharts.Options = {
               credits: { enabled: false },
               chart: {
-                type: "pie",
+                type: 'pie',
                 height: 300,
-                backgroundColor: "transparent",
+                backgroundColor: 'transparent',
               },
-              title: {
-                text: "Most Viewed Pages",
-                style: {
-                  color: "#211d1d",
-                  fontSize: "0.9em",
-                },
-              },
+              title: { text: '' },
               plotOptions: {
                 pie: {
                   colors: colors,
                   borderWidth: 0,
                   dataLabels: {
                     enabled: true,
-                    format: "<b>{point.name}</b>: {point.percentage:.1f}%",
-                    style: {
-                      textOutline: "none",
-                      color: "#211d1d",
-                    },
+                    format: '<b>{point.name}</b>: {point.percentage:.1f}%',
+                    style: { textOutline: 'none', color: '#000000' },
                   },
                 },
               },
               series: [
                 {
-                  type: "pie",
-                  data: first5Data.map(({ pageName, count }, index) => ({
+                  type: 'pie',
+                  data: first5Data.map(({ pageName, percentage }, index) => ({
                     name: pageName,
-                    y: (count / totalViews) * 100,
+                    y: parseFloat(percentage),
                     color: colors[index],
                   })),
                 },
               ],
               tooltip: {
-                pointFormat: "<b>Most Viewed</b>: {point.percentage:.1f}%",
+                pointFormat: '<b>Most Viewed</b>: {point.percentage:.1f}%',
               },
             };
 
-            Highcharts.chart("pie-chart-container", options);
+            Highcharts.chart('pie-chart-container', options);
           } else {
-            this.removeChart("pie-chart-container");
+            this.isDisableViewedPages = true;
           }
         }
       });
+  }
+
+  loadMostUsedBrowsers(selectedClient: string): void {
+    this.dataService.getMostUsedBrowsers(selectedClient).subscribe((data) => {
+      const options: Highcharts.Options = {
+        credits: { enabled: false },
+        chart: {
+          type: 'column',
+          height: 300,
+          backgroundColor: 'transparent',
+        },
+        title: {
+          text: 'Most Used Browsers',
+          style: { color: '#000000', fontSize: '0.9em' },
+        },
+        xAxis: {
+          categories: data.map(({ browserName }) => browserName),
+          labels: { style: { color: '#000000' } },
+        },
+        yAxis: {
+          title: { text: 'Counts', style: { color: '#000000' } },
+          labels: { style: { color: '#000000' } },
+          gridLineColor: 'transparent',
+          gridLineWidth: 0,
+        },
+        plotOptions: {
+          column: { color:'#052288',borderWidth: 0, pointWidth: 12, borderRadius: 5 },
+        },
+        legend: { itemStyle: { color: '#000000' } },
+        series: [
+          {
+            name: 'Counts',
+            type: 'column',
+            data: data.map(({ count }) => count),
+          },
+        ],
+        tooltip: { pointFormat: '<b>Counts</b>: {point.y}' },
+      };
+
+      Highcharts.chart('most-used-browsers-chart-container', options);
+    });
+  }
+
+  isSelected(screen: any): boolean {
+    return this.selectedScreen === screen;
+  }
+
+  setSelected(screen: any) {
+    this.selectedScreen = screen;
+  }
+
+  resetTooltip() {
+    this.showActionsTooltip = false;
+    this.tooltipActions = [];
+    this.selectedScreen = null;
   }
 
   renderBarChart() {
     if (this.mostClickedActions.length > 0) {
-      const totalViews = this.mostClickedActions.reduce(
-        (total, item) => total + item.count,
-        0
-      );
-      const colors = ["#052288", "#FFD500", "#BBC1D2", "#78787A", "#1aadce"];
       const first5Data = this.mostClickedActions.slice(0, 5);
+      const colors = ['#052288'];
+      const barFillColor = '#052288';
+
       const options: Highcharts.Options = {
         credits: { enabled: false },
         chart: {
-          type: "bar",
+          type: 'bar',
           height: 300,
-          backgroundColor: "transparent",
+          backgroundColor: 'transparent',
         },
-        title: {
-          text: "Most Clicked Actions",
-          style: {
-            color: "#211d1d",
-            fontSize: "0.9em",
-          },
-        },
+        title: { text: '' },
         xAxis: {
           categories: first5Data.map(({ ButtonName }) => ButtonName),
-          labels: {
-            style: {
-              color: "#211d1d",
-            },
-          },
+          labels: { style: { color: '#000000' } },
         },
         yAxis: {
-          title: {
-            text: "Total counts",
-            style: {
-              color: "#211d1d",
-            },
-          },
-          labels: {
-            style: {
-              color: "#211d1d",
-            },
-          },
-          gridLineColor: "transparent",
+          title: { text: 'Total counts', style: { color: '#000000' } },
+          labels: { style: { color: '#000000' } },
+          gridLineColor: 'transparent',
           gridLineWidth: 0,
         },
         plotOptions: {
-          bar: {
-            colors: colors,
-            borderWidth: 0,
-          },
+          bar: { color: barFillColor, borderWidth: 0 },
         },
-        legend: {
-          itemStyle: {
-            color: "#211d1d",
-          },
-        },
+        legend: { itemStyle: { color: '#000000' } },
         series: [
           {
-            type: "bar",
-            name: "Clicks",
+            type: 'bar',
+            name: 'Clicks',
             data: first5Data.map(({ count }) => count),
           },
         ],
-        tooltip: {
-          pointFormat: "<b>Clicks</b>:{point.y}",
-        },
+        tooltip: { pointFormat: '<b>Clicks</b>: {point.y}' },
       };
 
-      Highcharts.chart("bar-chart-container", options);
+      Highcharts.chart('bar-chart-container', options);
     }
   }
 
-getMapComponent(selectedClient: any) {
-    const listOfCountryWithCode: {[key: string]: string} = {
-      afghanistan: "af",
-      albania: "al",
-      algeria: "dz",
-      andorra: "ad",
-      angola: "ao",
-      "antigua and barbuda": "ag",
-      argentina: "ar",
-      armenia: "am",
-      australia: "au",
-      austria: "at",
-      azerbaijan: "az",
-      bahamas: "bs",
-      bahrain: "bh",
-      bangladesh: "bd",
-      barbados: "bb",
-      belarus: "by",
-      belgium: "be",
-      belize: "bz",
-      benin: "bj",
-      bhutan: "bt",
-      bolivia: "bo",
-      "bosnia and herzegovina": "ba",
-      botswana: "bw",
-      brazil: "br",
-      brunei: "bn",
-      bulgaria: "bg",
-      "burkina faso": "bf",
-      burundi: "bi",
-      "cabo verde": "cv",
-      cambodia: "kh",
-      cameroon: "cm",
-      canada: "ca",
-      "central african republic": "cf",
-      chad: "td",
-      chile: "cl",
-      china: "cn",
-      colombia: "co",
-      comoros: "km",
-      congo: "cg",
-      "costa rica": "cr",
-      croatia: "hr",
-      cuba: "cu",
-      cyprus: "cy",
-      "czech republic": "cz",
-      denmark: "dk",
-      djibouti: "dj",
-      dominica: "dm",
-      "dominican republic": "do",
-      "east timor": "tl",
-      ecuador: "ec",
-      egypt: "eg",
-      "el salvador": "sv",
-      "equatorial guinea": "gq",
-      eritrea: "er",
-      estonia: "ee",
-      ethiopia: "et",
-      fiji: "fj",
-      finland: "fi",
-      france: "fr",
-      gabon: "ga",
-      gambia: "gm",
-      georgia: "ge",
-      germany: "de",
-      ghana: "gh",
-      greece: "gr",
-      grenada: "gd",
-      guatemala: "gt",
-      guinea: "gn",
-      "guinea-bissau": "gw",
-      guyana: "gy",
-      haiti: "ht",
-      honduras: "hn",
-      hungary: "hu",
-      iceland: "is",
-      india: "in",
-      indonesia: "id",
-      iran: "ir",
-      iraq: "iq",
-      ireland: "ie",
-      israel: "il",
-      italy: "it",
-      "ivory coast": "ci",
-      jamaica: "jm",
-      japan: "jp",
-      jordan: "jo",
-      kazakhstan: "kz",
-      kenya: "ke",
-      kiribati: "ki",
-      kosovo: "xk",
-      kuwait: "kw",
-      kyrgyzstan: "kg",
-      laos: "la",
-      latvia: "lv",
-      lebanon: "lb",
-      lesotho: "ls",
-      liberia: "lr",
-      libya: "ly",
-      liechtenstein: "li",
-      lithuania: "lt",
-      luxembourg: "lu",
-      macedonia: "mk",
-      madagascar: "mg",
-      malawi: "mw",
-      malaysia: "my",
-      maldives: "mv",
-      mali: "ml",
-      malta: "mt",
-      "marshall islands": "mh",
-      mauritania: "mr",
-      mauritius: "mu",
-      mexico: "mx",
-      micronesia: "fm",
-      moldova: "md",
-      monaco: "mc",
-      mongolia: "mn",
-      montenegro: "me",
-      morocco: "ma",
-      mozambique: "mz",
-      myanmar: "mm",
-      namibia: "na",
-      nauru: "nr",
-      nepal: "np",
-      netherlands: "nl",
-      "new zealand": "nz",
-      nicaragua: "ni",
-      niger: "ne",
-      nigeria: "ng",
-      "north korea": "kp",
-      norway: "no",
-      oman: "om",
-      pakistan: "pk",
-      palau: "pw",
-      panama: "pa",
-      "papua new guinea": "pg",
-      paraguay: "py",
-      peru: "pe",
-      philippines: "ph",
-      poland: "pl",
-      portugal: "pt",
-      qatar: "qa",
-      romania: "ro",
-      russia: "ru",
-      rwanda: "rw",
-      "saint kitts and nevis": "kn",
-      "saint lucia": "lc",
-      "saint vincent and the grenadines": "vc",
-      samoa: "ws",
-      "san marino": "sm",
-      "sao tome and principe": "st",
-      "saudi arabia": "sa",
-      senegal: "sn",
-      serbia: "rs",
-      seychelles: "sc",
-      "sierra leone": "sl",
-      singapore: "sg",
-      slovakia: "sk",
-      slovenia: "si",
-      "solomon islands": "sb",
-      somalia: "so",
-      "south africa": "za",
-      "south korea": "kr",
-      "south sudan": "ss",
-      spain: "es",
-      "sri lanka": "lk",
-      sudan: "sd",
-      suriname: "sr",
-      swaziland: "sz",
-      sweden: "se",
-      switzerland: "ch",
-      syria: "sy",
-      taiwan: "tw",
-      tajikistan: "tj",
-      tanzania: "tz",
-      thailand: "th",
-      togo: "tg",
-      tonga: "to",
-      "trinidad and tobago": "tt",
-      tunisia: "tn",
-      turkey: "tr",
-      turkmenistan: "tm",
-      tuvalu: "tv",
-      uganda: "ug",
-      ukraine: "ua",
-      "united arab emirates": "ae",
-      "united kingdom": "gb",
-      "united states": "us",
-      uruguay: "uy",
-      uzbekistan: "uz",
-      vanuatu: "vu",
-      "vatican city": "va",
-      venezuela: "ve",
-      vietnam: "vn",
-      yemen: "ye",
-      zambia: "zm",
-      zimbabwe: "zw",
-    };
- 
-    if (selectedClient) {
-      this.ismapDisable = false;
-      this.dataService.getlocationData(selectedClient).subscribe((data) => {
-        if (data && data.length > 0) {
-          const modifiedArray = data.map((obj) => {
-            const countryNames = obj.country;
-            const countryName = countryNames.toLowerCase().trim();
-            const countryCode = listOfCountryWithCode[countryName] || "not found";
-            const countryObject = {
-              name: countryNames,
-              color: "#666b7b",
-              "hc-key": countryCode,
-            };
-            // changed here
-            const countryArray = [countryObject.name, countryObject.color, countryObject["hc-key"]];
-            mapData.push(countryArray);
-            return {
-              name: obj.cityName,
-              lat: Number(obj.latitude),
-              lon: Number(obj.longitude),
-            };
-          });
- 
-          const stringifiedArray = modifiedArray.map((obj: MyObject) => {
-            let newObj: MyObject = {};
-            for (const key in obj) {
-              newObj[key] = obj[key];
-            }
-            return newObj;
-          });
-          if (stringifiedArray != undefined) {
-            this.chartOptions = {
-              credits: { enabled: false },
-              chart: {
-                type: "map",
-                map: HighchartsData,
-                backgroundColor: "transparent",
-              },
-              title: {
-                text: '',
-                style: {
-                  color: "#ffffff",
-                },
-              },
-              mapNavigation: {
-                enabled: true,
-                buttonOptions: {
-                  alignTo: "spacingBox",
-                },
-              },
-              legend: {
-                enabled: true,
-              },
-              colorAxis: {
-                visible: false,
-                minColor: "#BBC1D2",
-                maxColor: "#BBC1D2",
-              },
-              tooltip: {
-                formatter: function () {
-                  const countryName = this.point.name;
-                  return countryName;
-                },
-              },
-              series: [
-                {
-                  allAreas: true,
-                  data: mapData,
-                } as Highcharts.SeriesMapOptions,
-                {
-                  type: "mappoint",
-                  marker: {
-                    symbol:
-                      "url(https://github.com/Cynnent/web-analytics/blob/main/src/assets/images/location.png?raw=true)",
-                    width: 18,
-                    height: 22,
-                  },
- 
-                  data: stringifiedArray,
-                },
-              ],
-            };
-          }
-        } else {
-          this.ismapDisable = true;
-        }
-      });
+  getMapComponent(selectedClient: any) {
+    if (!selectedClient) {
+      this.ismapDisable = true;
+      return;
     }
+
+    this.ismapDisable = false;
+
+    this.dataService
+      .getlocationData(selectedClient)
+      .subscribe((data: any[]) => {
+        if (!data || data.length === 0) {
+          this.ismapDisable = true;
+          return;
+        }
+
+        const mapData = data.map((obj) => {
+          const countryCode =
+            listOfCountryWithCode[obj.country.toLowerCase().trim()] ||
+            'not found';
+          return {
+            name: obj.country,
+            color: '#666b7b',
+            'hc-key': countryCode,
+          };
+        });
+
+        const stringifiedArray = data.map((obj) => ({
+          name: obj.cityName,
+          lat: Number(obj.latitude),
+          lon: Number(obj.longitude),
+        }));
+
+        this.chartOptions = {
+          credits: { enabled: false },
+          chart: {
+            type: 'map',
+            map: HighchartsData,
+            backgroundColor: 'transparent',
+          },
+          title: { text: '', style: { color: '#000000' } },
+          mapNavigation: {
+            enabled: true,
+            buttonOptions: { alignTo: 'spacingBox' },
+          },
+          legend: { enabled: true },
+          colorAxis: {
+            visible: false,
+            minColor: '#BBC1D2',
+            maxColor: '#BBC1D2',
+          },
+          tooltip: {
+            formatter: function () {
+              return this.point.name;
+            },
+          },
+          series: [
+            { type: 'map', allAreas: true, data: mapData },
+            {
+              type: 'mappoint',
+              marker: {
+                symbol:
+                  'url(https://github.com/Cynnent/web-analytics/blob/main/src/assets/images/location.png?raw=true)',
+                width: 18,
+                height: 22,
+              },
+              data: stringifiedArray,
+            },
+          ],
+        };
+      });
+  }
+
+  changeActiveTab(clickedTab: string) {
+    this.selectedInterval = 'weekly';
+    this.activeTab = clickedTab;
+    this.loadSelectedTabData();
   }
 
   ngAfterViewInit() {
-    this.selectedUsername = "all";
+    this.selectedUsername = 'all';
     this.cdr.detectChanges();
   }
 
   ngOnDestroy() {
     this.alive = false;
-  }
-
-  changeActiveTab(clickedTab: string) {
-    this.activeTab = clickedTab;
   }
 }
