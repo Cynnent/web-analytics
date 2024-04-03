@@ -40,11 +40,10 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   public dates: string[] = [];
   public clientNames: string[] = [];
   public selectedUsername: string;
-  public screensList = [];
-  public tabToggle: boolean = false;
   public activeTab = 'dashboard';
   public header = 'Top Performing Pages';
   apiData: any[] = [];
+  weeklyData: any = [];
   date: Date | undefined;
   isLoading: boolean = true;
   userEventDates: { id: string; value: string }[] = [];
@@ -65,12 +64,11 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   ismapDisable: boolean = false;
   isInterval: boolean = false;
   isDisableClickedAction: boolean = false;
-  showActionsTooltip = false;
-  tooltipActions: string[] = [];
-  tooltipTop = 0;
-  tooltipLeft = 0;
+  progressBars: any[] = [];
   selectedScreen: any = null;
   isScreenOverview: boolean = true;
+
+  userData: any;
 
   intervalOptions: SelectItem[] = [
     { label: 'Daily', value: 'daily' },
@@ -98,15 +96,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       this.clientNames = clients;
       if (this.clientNames && this.clientNames.length > 0) {
         this.defaultSelectedClient = this.clientNames[0];
-        if(this.activeTab=='dashboard')
-        {
+        if (this.activeTab == 'dashboard') {
           this.onDashboardChange(this.clientNames[0]);
-        }
-        else{
+          this.mostViwedCountry();
+        } else {
           this.onInsightClientChange(this.defaultSelectedClient);
         }
-        
-        
       }
 
       setTimeout(() => {
@@ -131,7 +126,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       this.activeTab === 'insights' &&
       this.selectedInterval === 'weekly'
     ) {
-      this.onInsightClientChange(this.defaultSelectedClient)
+      this.onInsightClientChange(this.defaultSelectedClient);
       this.getWeeklyData();
     }
   }
@@ -200,10 +195,11 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onInsightClientChange(defaultSelectedClient: any): void {
-    console.log(this.activeTab)
-    
-    
-      this.dataService.getUsersByClientName(defaultSelectedClient).subscribe((users) => {
+    console.log(this.activeTab);
+
+    this.dataService
+      .getUsersByClientName(defaultSelectedClient)
+      .subscribe((users) => {
         this.dataService.userDropdownData = users.map((user) => ({
           id: user._id,
           value: user._id,
@@ -211,15 +207,17 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         this.selectedUsername = '';
         this.onDashboardClientChange(defaultSelectedClient);
 
-        if(this.defaultSelectedClient!='' && this.selectedInterval=='daily')
-        {
-          this.selectedInterval='weekly';
-          this.fetchMonthlyChartData()
+        if (
+          this.defaultSelectedClient != '' &&
+          this.selectedInterval == 'daily'
+        ) {
+          this.selectedInterval = 'weekly';
+          this.fetchMonthlyChartData();
         }
         if (this.selectedClient != '' && this.selectedInterval == 'monthly') {
           this.fetchMonthlyChartData();
         }
-  
+
         if (this.selectedClient !== '' && this.selectedInterval == 'daily') {
           this.datePicker.writeValue(null);
           this.isScreenOverview = true;
@@ -227,8 +225,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         this.cdr.detectChanges();
       });
-    
-    
   }
 
   onDashboardChange(selectedClient: any): void {
@@ -480,6 +476,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
             this.toastr.error('No data found for the specified date.');
           } else {
             this.enableChart();
+            this.userData = userData;
             const seriesData = [
               { name: 'Total Count', data: [userData.totalCount] },
             ];
@@ -659,7 +656,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           gridLineWidth: 0,
         },
         plotOptions: {
-          column: { color:'#052288',borderWidth: 0, pointWidth: 12, borderRadius: 5 },
+          column: {
+            color: '#052288',
+            borderWidth: 0,
+            pointWidth: 12,
+            borderRadius: 5,
+          },
         },
         legend: { itemStyle: { color: '#000000' } },
         series: [
@@ -674,20 +676,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       Highcharts.chart('most-used-browsers-chart-container', options);
     });
-  }
-
-  isSelected(screen: any): boolean {
-    return this.selectedScreen === screen;
-  }
-
-  setSelected(screen: any) {
-    this.selectedScreen = screen;
-  }
-
-  resetTooltip() {
-    this.showActionsTooltip = false;
-    this.tooltipActions = [];
-    this.selectedScreen = null;
   }
 
   renderBarChart() {
@@ -730,6 +718,15 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       Highcharts.chart('bar-chart-container', options);
     }
+  }
+
+  mostViwedCountry(): void {
+    this.progressBars = [
+      { label: 'India', id: 'file1', value: 3000 },
+      { label: 'UK', id: 'file2', value: 1800 },
+      { label: 'US', id: 'file3', value: 1500 },
+    ];
+    console.log(this.progressBars); // Log the progressBars
   }
 
   getMapComponent(selectedClient: any) {
@@ -809,6 +806,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedInterval = 'weekly';
     this.activeTab = clickedTab;
     this.loadSelectedTabData();
+  }
+  getObjectEntries(obj: any): any[] {
+    return obj ? Object.entries(obj) : [];
   }
 
   ngAfterViewInit() {

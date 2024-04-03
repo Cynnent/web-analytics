@@ -62,23 +62,42 @@
         </div>
       </div>
 
-      <div class="col-md-12 p-0" *ngIf="selectedUsername">
-        <div class="col-md-12 text-right mb-20" *ngIf="intervalOptions">
-          <p-dropdown
-            [options]="intervalOptions"
-            [(ngModel)]="selectedInterval"
-            (onChange)="onIntervalChange(selectedInterval)"
-            optionLabel="label"
-            optionValue="value"
-          ></p-dropdown>
+      <div class="col-md-12 text-right mb-20" *ngIf="intervalOptions">
+        <p-dropdown
+          [options]="intervalOptions"
+          [(ngModel)]="selectedInterval"
+          (onChange)="onIntervalChange(selectedInterval)"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+      </div>
+      <div
+        class="col-12 col-lg-12"
+        [ngClass]="{ 'disable-class': chartDisabled === true }"
+      >
+        <div class="high-chart">
+          <div id="container"></div>
         </div>
-        <div
-          class="col-12 col-lg-12"
-          [ngClass]="{ 'disable-class': chartDisabled === true }"
-        >
-          <div class="high-chart" style="width: 96%; height: 450px">
-            <div id="container"></div>
-          </div>
+      </div>
+
+      <div *ngIf="userData" class="flow-graph">
+        <div class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container">
+          <ol>
+            <ng-container>
+              <li *ngFor="let screen of userData.screens | keyvalue">
+                <span id="screenName">{{ screen.key }}</span>
+                <ul class="clikedbutton">
+                  <ng-container
+                    *ngFor="let entry of getObjectEntries(screen.value)"
+                  >
+                    <div class="actions-list">
+                      {{ entry[0] }}: {{ entry[1] }}
+                    </div>
+                  </ng-container>
+                </ul>
+              </li>
+            </ng-container>
+          </ol>
         </div>
       </div>
     </div>
@@ -101,7 +120,7 @@ dashboard -->
       <div class="col-12 lg:col-6">
         <div class="card-widget">
           <p-card-header>
-            <div style="display: flex">
+            <div class="card-header">
               <div class="header">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -180,7 +199,7 @@ dashboard -->
       <div class="col-12 lg:col-6">
         <div class="card-widget">
           <p-card-header>
-            <div style="display: flex">
+            <div class="card-header">
               <div class="header">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -246,7 +265,7 @@ dashboard -->
       <div class="col-12 lg:col-6">
         <div class="card-widget">
           <p-card-header>
-            <div style="display: flex">
+            <div class="card-header">
               <div class="header">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,19 +330,13 @@ dashboard -->
       <div class="col-12 lg:col-6">
         <div class="card-widget">
           <p-card-header>
-            <div style="display: flex">
+            <div class="card-header">
               <div class="header">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24.646"
-                  height="27.729"
-                  viewBox="0 0 24.646 27.729"
-                >
-                  <path
-                    id="user-check"
-                    d="M9.87,14.8a7.4,7.4,0,1,0-7.4-7.4A7.41,7.41,0,0,0,9.87,14.8Zm0-12.337A4.935,4.935,0,1,1,4.935,7.4,4.94,4.94,0,0,1,9.87,2.467Zm9.87,24.674v1.234a1.234,1.234,0,0,1-2.467,0V27.142a7.4,7.4,0,0,0-14.8,0v1.234a1.234,1.234,0,0,1-2.467,0V27.142a9.87,9.87,0,0,1,19.74,0Zm9.5-14.537-4.925,4.781a3.866,3.866,0,0,1-5.453-.012l-2.432-2.287a1.234,1.234,0,1,1,1.693-1.8L20.576,15.6a1.414,1.414,0,0,0,2,.026l4.937-4.794a1.234,1.234,0,0,1,1.719,1.77Z"
-                    fill="#ebeef9"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="30.094" height="50.832" viewBox="0 0 14.094 16.832">
+                  <g id="_01_align_center" transform="translate(-35.955 -0.174)">
+                    <path id="Path_824" data-name="Path 824" d="M43,17.006l-.489-.419c-.674-.564-6.559-5.647-6.559-9.364a7.048,7.048,0,0,1,14.1,0c0,3.718-5.885,8.8-6.556,9.367ZM43,1.7a5.53,5.53,0,0,0-5.524,5.524C37.478,9.558,41.1,13.289,43,15c1.9-1.708,5.524-5.441,5.524-7.774A5.53,5.53,0,0,0,43,1.7Z" transform="translate(0 0)" fill="#ebeef9"/>
+                    <path id="Path_825" data-name="Path 825" d="M152.991,120a2.794,2.794,0,1,1,2.794-2.794A2.794,2.794,0,0,1,152.991,120Zm0-4.191a1.4,1.4,0,1,0,1.4,1.4A1.4,1.4,0,0,0,152.991,115.814Z" transform="translate(-109.989 -109.989)" fill="#ebeef9"/>
+                  </g>
                 </svg>
               </div>
               <span class="icon-header">Active User by Device</span>
@@ -370,12 +383,7 @@ dashboard -->
           </p-card-header>
           <div
             id="most-used-browsers-chart-container"
-            style="
-              height: 400px;
-              margin: 0 auto;
-              display: flex;
-              align-items: center;
-            "
+            class="browser-view"
           ></div>
         </div>
       </div>
@@ -388,17 +396,18 @@ dashboard -->
       >
         <div class="card-widget" size="large">
           <p-card-header>
-            <div style="display: flex">
+            <div class="card-header">
               <div class="header">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24.646"
-                  height="27.729"
+                  width="60.832"
+                  height="60.832"
+                  class="map-card"
                   viewBox="0 0 24.646 27.729"
                 >
                   <path
                     id="globe"
-                    d="M16.5,0A16.5,16.5,0,1,0,33,16.5,16.5,16.5,0,0,0,16.5,0ZM28.39,9.625H23.961A27.055,27.055,0,0,0,20.082,3.24,13.793,13.793,0,0,1,28.39,9.625Zm-5.7,6.875a14.04,14.04,0,0,1-.654,4.125H10.967a14.04,14.04,0,0,1-.655-4.125,14.04,14.04,0,0,1,.655-4.125H22.033a14.04,14.04,0,0,1,.654,4.125ZM12.07,23.375H20.93a26.969,26.969,0,0,1-4.43,6.308,26.909,26.909,0,0,1-4.43-6.308Zm0-13.75A26.969,26.969,0,0,1,16.5,3.316a26.909,26.909,0,0,1,4.43,6.309Zm.855-6.385A27.055,27.055,0,0,0,9.039,9.625H4.61a13.793,13.793,0,0,1,8.315-6.386ZM3.384,12.375H8.113a16.522,16.522,0,0,0-.55,4.125,16.522,16.522,0,0,0,.55,4.125H3.384a13.739,13.739,0,0,1,0-8.25Zm1.227,11H9.039a27.055,27.055,0,0,0,3.886,6.386A13.793,13.793,0,0,1,4.61,23.375Zm15.471,6.386a27.055,27.055,0,0,0,3.879-6.386H28.39A13.793,13.793,0,0,1,20.082,29.761Zm9.534-9.136H24.888a16.522,16.522,0,0,0,.55-4.125,16.522,16.522,0,0,0-.55-4.125h4.726a13.739,13.739,0,0,1,0,8.25Z"
+                    d="M8.416,0a8.416,8.416,0,1,0,8.416,8.416A8.416,8.416,0,0,0,8.416,0ZM14.48,4.909H12.221a13.8,13.8,0,0,0-1.978-3.257A7.035,7.035,0,0,1,14.48,4.909ZM11.572,8.416a7.161,7.161,0,0,1-.334,2.1H5.594a7.161,7.161,0,0,1-.334-2.1,7.161,7.161,0,0,1,.334-2.1h5.644a7.161,7.161,0,0,1,.334,2.1ZM6.156,11.923h4.519a13.756,13.756,0,0,1-2.26,3.218,13.725,13.725,0,0,1-2.26-3.218Zm0-7.013a13.756,13.756,0,0,1,2.26-3.218,13.725,13.725,0,0,1,2.26,3.218Zm.436-3.257A13.8,13.8,0,0,0,4.611,4.909H2.352A7.035,7.035,0,0,1,6.593,1.652ZM1.726,6.312H4.138a8.427,8.427,0,0,0-.281,2.1,8.427,8.427,0,0,0,.281,2.1H1.726a7.008,7.008,0,0,1,0-4.208Zm.626,5.611H4.611A13.8,13.8,0,0,0,6.593,15.18,7.035,7.035,0,0,1,2.352,11.923Zm7.891,3.257a13.8,13.8,0,0,0,1.978-3.257H14.48A7.035,7.035,0,0,1,10.243,15.18Zm4.863-4.66H12.694a8.427,8.427,0,0,0,.281-2.1,8.427,8.427,0,0,0-.281-2.1H15.1a7.008,7.008,0,0,1,0,4.208Z"
                     fill="#ebeef9"
                   />
                 </svg>
@@ -445,13 +454,42 @@ dashboard -->
                 </g></svg
             ></span>
           </p-card-header>
-          <highcharts-chart
-            id="map-chart-container"
-            [Highcharts]="Highcharts"
-            [constructorType]="chartConstructor"
-            [options]="chartOptions"
-          >
-          </highcharts-chart>
+          <div class="grid">
+            <div class="md:col-7 sm:col-12">
+              <highcharts-chart
+                id="map-chart-container"
+                [Highcharts]="Highcharts"
+                [constructorType]="chartConstructor"
+                [options]="chartOptions"
+              >
+              </highcharts-chart>
+            </div>
+
+            <div class="md:col-5 sm:col-12">
+              <div class="flex align-items-center h-full">
+                <div class="chart-progress-bars">
+                  <div class="progress-container">
+                    <label>Countries</label>
+                    <progress max="6000" value="0"></progress>
+                    <span class="progress-value">Users</span>
+                  </div>
+                  <!-- Rest of the Progress Bars -->
+                  <div
+                    *ngFor="let progressBar of progressBars"
+                    class="progress-container"
+                  >
+                    <label>{{ progressBar.label }}</label>
+                    <progress
+                      [id]="progressBar.id"
+                      max="6000"
+                      [value]="progressBar.value"
+                    ></progress>
+                    <span class="progress-value">{{ progressBar.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

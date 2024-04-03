@@ -99,7 +99,6 @@ export class DataService {
     const endpoint = `https://webanalyticals.onrender.com/getAllMapData/${selectedClient}`;
     console.log('API Endpoint:', endpoint);
     return this.http.get<MapData[]>(endpoint).pipe(
-      // tap((data) => console.log('Map Data:', data)),
       catchError((error) => {
         console.error('Error in getlocationData:', error);
         throw error;

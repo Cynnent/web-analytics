@@ -48,6 +48,15 @@ h3 {
 .card-widget {
   @include widgetCardBaseStyle;
   position: relative;
+  .browser-view {
+    height: 400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+  }
+  .map-card{
+    margin: 10px 0px -8px 10px;
+  }
 }
 
 #pieChartContainer {
@@ -63,24 +72,28 @@ h3 {
 }
 
 .card {
-  // border: 1px solid #ccc;
-  // border-radius: 4px;
-  // padding: 0 1.728rem;
   display: flex;
   gap: 29px;
+
+  .card-body select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  .card-body select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
 
   .card-header {
     background-color: #f0f0f0;
     padding: 10px;
     border-bottom: 1px solid #ccc;
-  }
-}
-
-.card-body {
-  .p-element {
-    // display: flex;
-    // width: 100%;
-    // height: 39px;
   }
 }
 
@@ -104,35 +117,18 @@ p-card-header {
     }
   }
   .icon-header {
-    // padding-right: 274px;
     display: flex;
     font-weight: bold;
     font-size: 24px;
     align-items: center;
   }
-  // .menu-icon{
-  //   padding-left: 430px;
-  //   padding-top: 18px;
-  // }
-}
-
-.card-body select {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  outline: none;
-}
-
-.card-body select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .cards-grid {
   width: 100%;
+  .card-header {
+    display: flex;
+  }
 }
 
 .row {
@@ -142,15 +138,15 @@ p-card-header {
   padding: 12px;
   margin: 0 auto;
   max-width: 100%;
+  .high-chart {
+    width: 96%;
+    height: 450px;
+  }
   .text-right {
     padding-right: 72px;
   }
 }
 
-// .dropdowns {
-//   margin: 2.43rem 0 0 1.728rem;
-//   padding: 12px;
-// }
 .dashboard-dropdown {
   float: right;
   margin-top: -3.5rem;
@@ -169,4 +165,44 @@ p-card-header {
 }
 .p-dropdown-item {
   padding: 10px;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.bar-without-progress {
+  width: 100%;
+  height: 5px; 
+  background-color: #ccc;
+  position: relative;
+}
+
+.label-without-bar {
+  width: 70%;
+  text-align: right;
+}
+
+.progress-container {
+  position: relative;
+  margin-bottom: 10px; /* Add some margin between each progress bar */
+}
+
+progress {
+  width: 100%;
+  height: 5px; /* Reduced thickness of the progress bar */
+}
+
+.progress-value {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-left: 5px;
+  font-size: 1rem;
+}
+
+.chart-progress-bars {
+  max-width: 300px;
+  width: 100%;
 }
