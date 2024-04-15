@@ -32,6 +32,12 @@ export class DataService {
 
   constructor(private http: HttpClient) {}
 
+  widgetLink: string = '';
+
+  setLink(link: string) {
+    this.widgetLink = link;
+  }
+
   getUsersData(selectedClient: string): Observable<any[]> {
     const endpoint = `https://webanalyticals.onrender.com/getAllDeviceData/${selectedClient}`;
     return this.http.get<any[]>(endpoint);
@@ -56,6 +62,16 @@ export class DataService {
     return this.http.get<any[]>(endpoint).pipe(
       catchError((error) => {
         console.error('Error in getMonthlyData:', error);
+        throw error;
+      })
+    );
+  }
+  getAccesedCountryCount(selectedClient: string): Observable<MapData[]> {
+    const endpoint = `https://webanalyticals.onrender.com/accesedCountCountry/${selectedClient}`;
+    console.log('API Endpoint:', endpoint);
+    return this.http.get<MapData[]>(endpoint).pipe(
+      catchError((error) => {
+        console.error('Error in getAccesedCountryCount:', error);
         throw error;
       })
     );
@@ -132,6 +148,12 @@ export class DataService {
         this.mostClickedAction = data;
         return data;
       })
+    );
+  }
+
+  getTableData(): Observable<any> {
+    return this.http.get(
+      `https://webanalyticals.onrender.com/${this.widgetLink}/{selectedClient}`
     );
   }
 }

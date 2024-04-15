@@ -115,7 +115,7 @@
   --hue: 15;
 }
 
-@media (min-width: 1300px){
+@media (min-width: 1300px) {
   .flow-graph li {
     margin: 0.6rem 36px;
     float: left;
@@ -222,7 +222,7 @@
   }
   .flow-graph li:nth-child(8n + 5)::before,
   .flow-graph li:nth-child(8n + 7)::before,
-  .flow-graph li:nth-child(8n + 6)::before{
+  .flow-graph li:nth-child(8n + 6)::before {
     top: 94px;
     left: -70px;
     color: #bbc1d2;
@@ -261,11 +261,11 @@
     position: relative;
     margin-bottom: 35px;
   }
- 
+
   .flow-graph li:nth-child(4n + 3) {
     float: right;
   }
-  .flow-graph li:nth-child(4n + 1)::before{
+  .flow-graph li:nth-child(4n + 1)::before {
     top: 94px;
     left: 100%;
     color: #bbc1d2;
@@ -280,7 +280,7 @@
     border-left-color: inherit;
     color: #bbc1d2;
   }
-  .flow-graph li:nth-child(4n + 3)::before{
+  .flow-graph li:nth-child(4n + 3)::before {
     top: 94px;
     left: -70px;
     color: #bbc1d2;
@@ -305,7 +305,6 @@
   }
 }
 
-
 @media (max-width: 490px) {
   .flow-graph li {
     margin: 0.6rem 31px;
@@ -317,7 +316,7 @@
     box-shadow: 3px 7px 7px 0px #c9cede;
     border-radius: 5px;
   }
- 
+
   .flow-graph li:nth-child(2n + 1)::before {
     top: calc(100% + 1px);
     left: 50%;
@@ -330,7 +329,7 @@
   .flow-graph li:nth-child(2n + 1)::after {
     top: calc(100% + 35px);
     left: 50%;
-    transform: translateX(-50%)rotate(90deg);
+    transform: translateX(-50%) rotate(90deg);
     border: var(--unit) solid transparent;
     border-left-color: inherit;
     color: #bbc1d2;
@@ -347,7 +346,7 @@
   .flow-graph li:nth-child(2n + 3)::after {
     top: calc(100% + 35px);
     left: 50%;
-    transform: translateX(-50%)rotate(90deg);
+    transform: translateX(-50%) rotate(90deg);
     border: var(--unit) solid transparent;
     border-left-color: inherit;
     color: #bbc1d2;
@@ -363,18 +362,16 @@
   }
 }
 
-
-
 .clikedbutton {
   padding: 0px;
   color: #707070;
   overflow-y: auto;
   max-height: 160px;
+  height: calc(100vh - 160px);
 }
 
 .clikedbutton::-webkit-scrollbar {
   width: 4px;
-
 }
 
 .clikedbutton::-webkit-scrollbar-track {
@@ -384,7 +381,6 @@
 .clikedbutton::-webkit-scrollbar-thumb {
   background: #bbc1d2;
 }
-
 
 .actions-list {
   max-height: 200px;

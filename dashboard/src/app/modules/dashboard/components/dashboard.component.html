@@ -15,7 +15,7 @@
       (click)="changeActiveTab('dashboard'); loadSelectedTabData()"
       [ngClass]="[activeTab === 'dashboard' ? 'active' : 'inactive']"
     >
-      Dashboard
+     Top Performed
     </button>
     <button
       (click)="changeActiveTab('insights')"
@@ -38,9 +38,11 @@
           </p-dropdown>
         </div>
 
+        
+
         <div class="card-body">
           <p-dropdown
-            [options]="dataService.userDropdownData"
+            [options]="userDropdownData"
             [(ngModel)]="selectedUsername"
             (onChange)="onUserChange()"
             optionLabel="value"
@@ -55,6 +57,7 @@
             class="date-input field"
             #datePicker
             [(ngModel)]="selectedDate"
+            [showIcon]="true"
             (onSelect)="onDateChange($event)"
             placeholder=" Date"
             id="icondisplay"
@@ -62,26 +65,8 @@
         </div>
       </div>
 
-      <div class="col-md-12 text-right mb-20" *ngIf="intervalOptions">
-        <p-dropdown
-          [options]="intervalOptions"
-          [(ngModel)]="selectedInterval"
-          (onChange)="onIntervalChange(selectedInterval)"
-          optionLabel="label"
-          optionValue="value"
-        ></p-dropdown>
-      </div>
-      <div
-        class="col-12 col-lg-12"
-        [ngClass]="{ 'disable-class': chartDisabled === true }"
-      >
-        <div class="high-chart">
-          <div id="container"></div>
-        </div>
-      </div>
-
-      <div *ngIf="userData" class="flow-graph">
-        <div class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container">
+      <div *ngIf="userData" class="flow-graph" >
+        <div class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container" [ngClass]="{ 'disable-class-screen': isScreenOverview === true }">
           <ol>
             <ng-container>
               <li *ngFor="let screen of userData.screens | keyvalue">
@@ -99,13 +84,44 @@
             </ng-container>
           </ol>
         </div>
+
+        <div class="col-md-12 text-right mb-20" *ngIf="intervalOptions">
+          <p-dropdown
+            [options]="intervalOptions"
+            [(ngModel)]="selectedInterval"
+            (onChange)="onIntervalChange(selectedInterval)"
+            optionLabel="label"
+            optionValue="value"
+          ></p-dropdown>
+        </div>
+        {{!chartDisabled}}
+        <div
+          class="col-12 col-lg-12"
+          [ngClass]="{ 'hide': !chartDisabled }"
+        >
+
+        
+          <div class="high-chart">
+            <div id="container" ></div>
+            <div class="no-data" *ngIf="chartDisabled"><div class="no-data" >
+              <span><img src="./../../../../assets/img/error-icon.png"/> No data found</span>
+            </div></div>
+          </div>
+  
+          
+        </div>
+
       </div>
+
+      
+
+      
     </div>
   </div>
 
   <!-- 
 dashboard -->
-  <div *ngIf="activeTab == 'dashboard'" class="p-8">
+  <div *ngIf="activeTab == 'dashboard'" class="p-4">
     <div>
       <p-dropdown
         class="dashboard-dropdown"
@@ -116,7 +132,7 @@ dashboard -->
       </p-dropdown>
     </div>
 
-    <div class="cards-grid grid">
+    <div class="cards-grid grid m-0">
       <div class="col-12 lg:col-6">
         <div class="card-widget">
           <p-card-header>
@@ -197,7 +213,7 @@ dashboard -->
       </div>
 
       <div class="col-12 lg:col-6">
-        <div class="card-widget">
+        <div class="clicked-actions card-widget">
           <p-card-header>
             <div class="card-header">
               <div class="header">
@@ -263,7 +279,7 @@ dashboard -->
       </div>
 
       <div class="col-12 lg:col-6">
-        <div class="card-widget">
+        <div class="active-user-by-device card-widget">
           <p-card-header>
             <div class="card-header">
               <div class="header">
@@ -332,14 +348,21 @@ dashboard -->
           <p-card-header>
             <div class="card-header">
               <div class="header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30.094" height="50.832" viewBox="0 0 14.094 16.832">
-                  <g id="_01_align_center" transform="translate(-35.955 -0.174)">
-                    <path id="Path_824" data-name="Path 824" d="M43,17.006l-.489-.419c-.674-.564-6.559-5.647-6.559-9.364a7.048,7.048,0,0,1,14.1,0c0,3.718-5.885,8.8-6.556,9.367ZM43,1.7a5.53,5.53,0,0,0-5.524,5.524C37.478,9.558,41.1,13.289,43,15c1.9-1.708,5.524-5.441,5.524-7.774A5.53,5.53,0,0,0,43,1.7Z" transform="translate(0 0)" fill="#ebeef9"/>
-                    <path id="Path_825" data-name="Path 825" d="M152.991,120a2.794,2.794,0,1,1,2.794-2.794A2.794,2.794,0,0,1,152.991,120Zm0-4.191a1.4,1.4,0,1,0,1.4,1.4A1.4,1.4,0,0,0,152.991,115.814Z" transform="translate(-109.989 -109.989)" fill="#ebeef9"/>
-                  </g>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="60.832"
+                  height="60.832"
+                  class="map-card"
+                  viewBox="0 0 24.646 27.729"
+                >
+                  <path
+                    id="globe"
+                    d="M8.416,0a8.416,8.416,0,1,0,8.416,8.416A8.416,8.416,0,0,0,8.416,0ZM14.48,4.909H12.221a13.8,13.8,0,0,0-1.978-3.257A7.035,7.035,0,0,1,14.48,4.909ZM11.572,8.416a7.161,7.161,0,0,1-.334,2.1H5.594a7.161,7.161,0,0,1-.334-2.1,7.161,7.161,0,0,1,.334-2.1h5.644a7.161,7.161,0,0,1,.334,2.1ZM6.156,11.923h4.519a13.756,13.756,0,0,1-2.26,3.218,13.725,13.725,0,0,1-2.26-3.218Zm0-7.013a13.756,13.756,0,0,1,2.26-3.218,13.725,13.725,0,0,1,2.26,3.218Zm.436-3.257A13.8,13.8,0,0,0,4.611,4.909H2.352A7.035,7.035,0,0,1,6.593,1.652ZM1.726,6.312H4.138a8.427,8.427,0,0,0-.281,2.1,8.427,8.427,0,0,0,.281,2.1H1.726a7.008,7.008,0,0,1,0-4.208Zm.626,5.611H4.611A13.8,13.8,0,0,0,6.593,15.18,7.035,7.035,0,0,1,2.352,11.923Zm7.891,3.257a13.8,13.8,0,0,0,1.978-3.257H14.48A7.035,7.035,0,0,1,10.243,15.18Zm4.863-4.66H12.694a8.427,8.427,0,0,0,.281-2.1,8.427,8.427,0,0,0-.281-2.1H15.1a7.008,7.008,0,0,1,0,4.208Z"
+                    fill="#ebeef9"
+                  />
                 </svg>
               </div>
-              <span class="icon-header">Active User by Device</span>
+              <span class="icon-header">Most Used Browsers</span>
             </div>
             <span class="menu-icon"
               ><svg
@@ -398,19 +421,15 @@ dashboard -->
           <p-card-header>
             <div class="card-header">
               <div class="header">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="60.832"
-                  height="60.832"
-                  class="map-card"
-                  viewBox="0 0 24.646 27.729"
-                >
-                  <path
-                    id="globe"
-                    d="M8.416,0a8.416,8.416,0,1,0,8.416,8.416A8.416,8.416,0,0,0,8.416,0ZM14.48,4.909H12.221a13.8,13.8,0,0,0-1.978-3.257A7.035,7.035,0,0,1,14.48,4.909ZM11.572,8.416a7.161,7.161,0,0,1-.334,2.1H5.594a7.161,7.161,0,0,1-.334-2.1,7.161,7.161,0,0,1,.334-2.1h5.644a7.161,7.161,0,0,1,.334,2.1ZM6.156,11.923h4.519a13.756,13.756,0,0,1-2.26,3.218,13.725,13.725,0,0,1-2.26-3.218Zm0-7.013a13.756,13.756,0,0,1,2.26-3.218,13.725,13.725,0,0,1,2.26,3.218Zm.436-3.257A13.8,13.8,0,0,0,4.611,4.909H2.352A7.035,7.035,0,0,1,6.593,1.652ZM1.726,6.312H4.138a8.427,8.427,0,0,0-.281,2.1,8.427,8.427,0,0,0,.281,2.1H1.726a7.008,7.008,0,0,1,0-4.208Zm.626,5.611H4.611A13.8,13.8,0,0,0,6.593,15.18,7.035,7.035,0,0,1,2.352,11.923Zm7.891,3.257a13.8,13.8,0,0,0,1.978-3.257H14.48A7.035,7.035,0,0,1,10.243,15.18Zm4.863-4.66H12.694a8.427,8.427,0,0,0,.281-2.1,8.427,8.427,0,0,0-.281-2.1H15.1a7.008,7.008,0,0,1,0,4.208Z"
-                    fill="#ebeef9"
-                  />
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="30.094" height="50.832" viewBox="0 0 14.094 16.832">
+                  <g id="_01_align_center" transform="translate(-35.955 -0.174)">
+                    <path id="Path_824" data-name="Path 824" d="M43,17.006l-.489-.419c-.674-.564-6.559-5.647-6.559-9.364a7.048,7.048,0,0,1,14.1,0c0,3.718-5.885,8.8-6.556,9.367ZM43,1.7a5.53,5.53,0,0,0-5.524,5.524C37.478,9.558,41.1,13.289,43,15c1.9-1.708,5.524-5.441,5.524-7.774A5.53,5.53,0,0,0,43,1.7Z" transform="translate(0 0)" fill="#ebeef9"/>
+                    <path id="Path_825" data-name="Path 825" d="M152.991,120a2.794,2.794,0,1,1,2.794-2.794A2.794,2.794,0,0,1,152.991,120Zm0-4.191a1.4,1.4,0,1,0,1.4,1.4A1.4,1.4,0,0,0,152.991,115.814Z" transform="translate(-109.989 -109.989)" fill="#ebeef9"/>
+                  </g>
                 </svg>
+
+                
               </div>
               <span class="icon-header">Most Used Countries</span>
             </div>
@@ -470,7 +489,7 @@ dashboard -->
                 <div class="chart-progress-bars">
                   <div class="progress-container">
                     <label>Countries</label>
-                    <progress max="6000" value="0"></progress>
+                    <progress [max]="maxValue" value="0"></progress>
                     <span class="progress-value">Users</span>
                   </div>
                   <!-- Rest of the Progress Bars -->
@@ -481,7 +500,7 @@ dashboard -->
                     <label>{{ progressBar.label }}</label>
                     <progress
                       [id]="progressBar.id"
-                      max="6000"
+                      [max]="maxValue"
                       [value]="progressBar.value"
                     ></progress>
                     <span class="progress-value">{{ progressBar.value }}</span>

@@ -7,6 +7,6 @@ import { Component } from "@angular/core";
 })
 
 export class HeaderComponent {
-  public username: string = 'Sundhar';
+  public username: string = 'Murali';
   public userRole: string = 'Super Administrator';
 }

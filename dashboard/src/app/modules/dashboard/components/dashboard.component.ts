@@ -38,19 +38,20 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   Highcharts: typeof _Highcharts = _Highcharts;
   chartOptions: Highcharts.Options | null = null;
   public dates: string[] = [];
-  public clientNames: string[] = [];
+  public clientNames  = [];
   public selectedUsername: string;
   public activeTab = 'dashboard';
-  public header = 'Top Performing Pages';
+  public header = 'Dashboard';
   apiData: any[] = [];
   weeklyData: any = [];
   date: Date | undefined;
   isLoading: boolean = true;
+  noDataFound:boolean=false;
   userEventDates: { id: string; value: string }[] = [];
   screenData: { [key: string]: { [key: string]: number } } = {};
   alive: boolean = true;
   selectedClient: string = '';
-  selectedDate: string = '';
+  selectedDate: any = '';
   selectedDateForId: string = '';
   userDropdownData: { id: string; value: string }[] = [];
   defaultSelectedClient: string = '';
@@ -59,7 +60,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   mostClickedActions: any[] = [];
   selectedInterval: string = 'weekly';
   totalDeviceCount: number = 0;
-  chartDisabled: boolean = false;
+  chartDisabled: boolean=false;
   isDisableViewedPages: boolean = false;
   ismapDisable: boolean = false;
   isInterval: boolean = false;
@@ -67,14 +68,16 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   progressBars: any[] = [];
   selectedScreen: any = null;
   isScreenOverview: boolean = true;
+  maxValue:number=0;
 
-  userData: any;
+  userData: any=[];
 
   intervalOptions: SelectItem[] = [
     { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
   ];
+  
 
   @ViewChild('userSelect') userSelect!: NbSelectComponent;
   @ViewChild('datePicker') datePicker!: Calendar;
@@ -92,13 +95,32 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.spinner.show();
     this.selectedInterval = 'weekly';
 
-    this.dataService.getAllClients().subscribe((clients) => {
-      this.clientNames = clients;
+    this.dataService.getAllClients().subscribe((clients:any) => {
+
+
+      this.clientNames=clients
+      this.clientNames.splice(-2)
+      // if(clients)
+      //   {
+      //     this.clientNames = clients.find((c:any)=>{
+      //       return c.clientName == 'Appland' || c.clientName == 'web_analytics_gp'
+      //     })
+      //     // this.clientNames=[]
+      //   }
+      
+
+      // for(let c of clients)
+      //   {
+      //     if(c["clientName"] == 'Appland' || c["clientName"] == 'web_analytics_gp')
+      //       {
+      //         this.clientNames.push(c)
+      //       }
+      //   }
       if (this.clientNames && this.clientNames.length > 0) {
         this.defaultSelectedClient = this.clientNames[0];
         if (this.activeTab == 'dashboard') {
           this.onDashboardChange(this.clientNames[0]);
-          this.mostViwedCountry();
+          this.mostViwedCountry(this.defaultSelectedClient);
         } else {
           this.onInsightClientChange(this.defaultSelectedClient);
         }
@@ -111,23 +133,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadSelectedTabData() {
-    if (this.activeTab === 'dashboard') {
-      setTimeout(() => {
-        this.renderPieChart();
-        this.renderBarChart();
-        this.getMapComponent(this.defaultSelectedClient);
-        this.loadMostUsedBrowsers(this.defaultSelectedClient);
-        this.getDeviceData(this.defaultSelectedClient);
-      }, 2000);
-      if (this.chartDisabled) {
-        this.enableChart();
-      }
-    } else if (
+     if (
       this.activeTab === 'insights' &&
       this.selectedInterval === 'weekly'
     ) {
       this.onInsightClientChange(this.defaultSelectedClient);
-      this.getWeeklyData();
+      // this.getWeeklyData();
     }
   }
 
@@ -195,14 +206,17 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onInsightClientChange(defaultSelectedClient: any): void {
-    console.log(this.activeTab);
+    this.userData=[]
+    this.selectedDate=''
+    
+    
 
     this.dataService
       .getUsersByClientName(defaultSelectedClient)
       .subscribe((users) => {
-        this.dataService.userDropdownData = users.map((user) => ({
+        this.userDropdownData = users.map((user,index) => ({
           id: user._id,
-          value: user._id,
+          value: `User ${index + 1}`,
         }));
         this.selectedUsername = '';
         this.onDashboardClientChange(defaultSelectedClient);
@@ -223,8 +237,14 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           this.isScreenOverview = true;
           this.selectedInterval = 'weekly';
         }
-        this.cdr.detectChanges();
+
+        
       });
+
+      if(this.selectedClient!='' && this.selectedUsername!='' && this.selectedDate=='')
+        {
+          this.getWeeklyData();
+        }
   }
 
   onDashboardChange(selectedClient: any): void {
@@ -297,7 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onUserChange(): void {
     if (this.selectedUsername !== '') {
-      this.datePicker.writeValue(null);
+      // this.datePicker.writeValue(null);
       if (this.selectedUsername != '' && this.selectedInterval == 'daily') {
         this.selectedInterval = 'weekly';
         this.getWeeklyData();
@@ -317,12 +337,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!(this.isInterval === true)) {
       if (interval === 'monthly' && this.selectedUsername !== '') {
         this.fetchMonthlyChartData();
-        this.enableChart();
+        // this.enableChart();
         this.isScreenOverview = true;
       }
       if (interval === 'weekly' && this.selectedUsername !== '') {
         this.getWeeklyData();
-        this.disableChart();
+        // this.disableChart();
       }
       if (this.selectedInterval == 'weekly') {
         this.datePicker.writeValue(null);
@@ -335,6 +355,13 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getWeeklyData() {
+  //   this.chartDisabled = true;
+  // this.noDataFound = false; 
+// if(this.chartDisabled==false)
+//   {
+//     this.disableChart()
+//     this.noDataFound=true;
+//   }
     if (!this.selectedUsername) {
       return;
     } else {
@@ -381,13 +408,22 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
                   data: currentWeekData.map((entry) => entry.totalCount),
                 },
               ];
-              this.chartDisabled = false;
+             
+              this.chartDisabled = true;
               this.renderChart(seriesData, dates);
+              this.noDataFound=false;
             }
           },
           (error) => {
+            
+            // this.disableChart();
             this.toastr.error(error.error.error);
-            this.disableChart();
+            
+              
+                this.chartDisabled=false;
+                this.noDataFound=true;
+              
+            
           }
         );
       }
@@ -442,6 +478,10 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         ];
 
         this.renderChart(seriesData, dates);
+      },(error) => {
+        this.toastr.error(error.error.error);
+        
+        // this.disableChart();
       });
   }
 
@@ -472,10 +512,10 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           }
 
           if (userData.totalCount === 0) {
-            this.disableChart();
+            // this.disableChart();
             this.toastr.error('No data found for the specified date.');
           } else {
-            this.enableChart();
+            // this.enableChart();
             this.userData = userData;
             const seriesData = [
               { name: 'Total Count', data: [userData.totalCount] },
@@ -484,45 +524,72 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         },
         (error) => {
+          
           if (error.status === 404) {
           } else {
             console.error('Error fetching user events', error);
           }
-          this.disableChart();
+          // this.disableChart();
           this.toastr.error(
             error.status === 404
               ? 'No data found for the specified date.'
               : 'Error fetching user events'
           );
+          
+          
         }
       );
   }
 
-  disableChart(): void {
-    this.chartDisabled = true;
-  }
+  // disableChart(): void {
+    
+  //   // this.enableChart()
+  //   this.chartDisabled = true;
+  // }
 
-  enableChart(): void {
-    this.chartDisabled = false;
-    setTimeout(() => {
-      this.renderPieChart();
-      this.renderBarChart();
-      this.getMapComponent(this.selectedClient);
-      this.getDeviceData(this.defaultSelectedClient);
-    }, 2000);
-  }
+  // enableChart(): void {
+    
+  //   if(this.chartDisabled!=false && this.noDataFound==false)
+  //     {
+  //       this.chartDisabled=false;
+  //       this.noDataFound=true;
+        
+  //     }
+  //     if(this.chartDisabled=true)
+  //       {
+  //         this.chartDisabled=false;
+  //         this.noDataFound=true;
+  //       }
+       
+  //     // else{
+  //     //   this.chartDisabled = false;
+  //     // }
+    
+  // }
 
   onDateChange(selectedDate: Date): void {
-    this.selectedDate = this.formatDate(selectedDate);
-    this.getChartDataBYUserId(this.selectedDate);
+    this.selectedDate = selectedDate;
+    let selectedUserDate = this.formatDate(selectedDate);
+    this.getChartDataBYUserId(selectedUserDate);
 
     if (this.selectedUsername !== '' && this.selectedDate !== '') {
+      
       this.loadDatesForUser(this.selectedUsername);
       if (this.selectedDate != '') {
         this.selectedInterval = 'daily';
         this.isScreenOverview = false;
       }
     }
+  }
+
+  mostViwedCountry(selectedClient: any): void {
+    this.dataService.getAccesedCountryCount(selectedClient).subscribe((data: any[]) => {
+      const maxValue = Math.max(...data.map(item => item.value));
+      const result = maxValue * 2;
+      console.log(result);
+      this.maxValue = result;
+      this.progressBars = data;
+     })
   }
 
   loadDatesForUser(userId: string): void {
@@ -642,7 +709,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Most Used Browsers',
+          text: '',
           style: { color: '#000000', fontSize: '0.9em' },
         },
         xAxis: {
@@ -666,7 +733,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         legend: { itemStyle: { color: '#000000' } },
         series: [
           {
-            name: 'Counts',
+            name: 'Browsers',
             type: 'column',
             data: data.map(({ count }) => count),
           },
@@ -676,6 +743,46 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       Highcharts.chart('most-used-browsers-chart-container', options);
     });
+  }
+
+  // functions for widget tables
+
+  onMostViewedPagesClick() {
+
+    this.dataService.setLink('mostViewedPages');
+
+  }
+
+
+
+  onMostClickedActionsClick() {
+
+    this.dataService.setLink('mostClickedActions');
+
+  }
+
+
+
+  onActiveUserByDeviceClick() {
+
+    this.dataService.setLink('mostUsedDevices');
+
+  }
+
+
+
+  onMostUsedCountriesClick() {
+
+    this.dataService.setLink('usersByCountry');
+
+  }
+
+
+
+  onMostUsedBrowserClick() {
+
+    this.dataService.setLink('mostUsedBrowsers')
+
   }
 
   renderBarChart() {
@@ -720,14 +827,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  mostViwedCountry(): void {
-    this.progressBars = [
-      { label: 'India', id: 'file1', value: 3000 },
-      { label: 'UK', id: 'file2', value: 1800 },
-      { label: 'US', id: 'file3', value: 1500 },
-    ];
-    console.log(this.progressBars); // Log the progressBars
-  }
 
   getMapComponent(selectedClient: any) {
     if (!selectedClient) {

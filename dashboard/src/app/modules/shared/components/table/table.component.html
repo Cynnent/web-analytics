@@ -1,0 +1,126 @@
+<h3>Table</h3>
+<div class="dashboard-container">
+  <div class="p-5">
+    <p-table
+      class="primary-table"
+      #dt1
+      dataKey="id"
+      styleClass="p-datatable-striped"
+      [value]="data"
+      [cols]="cols"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [loading]="loading"
+      [paginator]="true"
+      currentPageReportTemplate="Showing {first} - {last} of {totalRecords} records"
+      [globalFilterFields]="[primaryField, secondaryField]"
+      *ngIf="tableType == 'primaryTable'"
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <span>
+            <input
+              class="p-2 border-round-md border-1"
+              pInputText
+              (input)="handleInputChange($event)"
+              type="text"
+              placeholder="Search"
+            />
+          </span>
+          <span>
+            <button (click)="dt1.exportCSV()">Export</button>
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let col of cols" style="min-width: 15rem">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ rowIndex + 1 }}</td>
+          <td>
+            <span class="ml-1 vertical-align-middle">{{
+              data[this.primaryField]
+            }}</span>
+          </td>
+          <td>
+            <span class="ml-1 vertical-align-middle">{{
+              data[this.secondaryField]
+            }}</span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">No customers found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-table
+      #dt1
+      dataKey="id"
+      class="primary-table"
+      [value]="data"
+      rowGroupMode="rowspan"
+      groupRowsBy="country"
+      [cols]="cols"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [scrollable]="true"
+      [globalFilterFields]="[primaryField, secondaryField, thirdField]"
+      currentPageReportTemplate="Showing {first} - {last} of {totalRecords} records"
+      *ngIf="tableType == 'secondaryTable'"
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <span>
+            <!-- <i class="pi pi-search"></i> -->
+            <input
+              class="p-2 border-round-md border-1"
+              pInputText
+              type="text"
+              placeholder="Search"
+            />
+          </span>
+          <span>
+            <button>Export</button>
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let col of cols">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template
+        pTemplate="body"
+        let-data
+        let-rowIndex="rowIndex"
+        let-rowgroup="rowgroup"
+        let-rowspan="rowspan"
+      >
+        <tr>
+          <td>{{ rowIndex }}</td>
+          <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
+            <span class="font-bold ml-2">{{ data[this.primaryField] }}</span>
+          </td>
+          <td>
+            {{ data.cityName }}
+          </td>
+          <td>
+            {{ data.users }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
