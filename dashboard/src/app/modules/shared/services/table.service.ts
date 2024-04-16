@@ -15,7 +15,7 @@
 
 //   getTableData(): Observable<any> {
 //     return this.http.get(
-//       `https://webanalyticals.onrender.com/${this.widgetLink}/{}`
+//       `https://webanalyticals.onrender.com/${this.widgetLink}/Appland`
 //     );
 //   }
 // }

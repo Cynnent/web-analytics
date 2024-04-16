@@ -29,6 +29,8 @@ export class DataService {
   public userDropdownData: { id: string; value: string }[] = [];
   public userEventDates: { id: string; value: string }[] = [];
   private apiUrl = 'https://webanalyticals.onrender.com/';
+  static widgetLink: string;
+  static getTableData: any;
 
   constructor(private http: HttpClient) {}
 
@@ -151,9 +153,9 @@ export class DataService {
     );
   }
 
-  getTableData(): Observable<any> {
+  getTableData(clientName: string): Observable<any> {
     return this.http.get(
-      `https://webanalyticals.onrender.com/${this.widgetLink}/{selectedClient}`
+      `https://webanalyticals.onrender.com/${this.widgetLink}/${clientName}`
     );
   }
 }

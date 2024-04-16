@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NbThemeModule } from '@nebular/theme';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
 
@@ -24,6 +25,7 @@ import { DashboardComponent } from './modules/dashboard/components/dashboard.com
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { TableComponent } from './modules/shared/components/table/table.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +33,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
     HeaderComponent,
     SidebarComponent,
     DashboardComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,
@@ -45,6 +48,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
     FormsModule,
     NbSelectModule,
     NbOptionModule,
+    TableModule,
     DropdownModule,
     NbThemeModule,
     RouterModule.forRoot(routes),

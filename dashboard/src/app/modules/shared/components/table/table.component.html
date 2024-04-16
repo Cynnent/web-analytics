@@ -1,12 +1,14 @@
 <h3>Table</h3>
 <div class="dashboard-container">
-  <div class="p-5">
+  
+  <div class="p-5" *ngIf="tableData != null">
+
     <p-table
       class="primary-table"
       #dt1
       dataKey="id"
       styleClass="p-datatable-striped"
-      [value]="data"
+      [value]="tableData"
       [cols]="cols"
       [rows]="10"
       [showCurrentPageReport]="true"
@@ -34,7 +36,7 @@
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th *ngFor="let col of cols" style="min-width: 15rem">
+          <th *ngFor="let col of cols" style="min-width: 15rem ; padding: 1.5rem;">
             {{ col.header }}
           </th>
         </tr>
@@ -65,7 +67,7 @@
       #dt1
       dataKey="id"
       class="primary-table"
-      [value]="data"
+      [value]="tableData"
       rowGroupMode="rowspan"
       groupRowsBy="country"
       [cols]="cols"

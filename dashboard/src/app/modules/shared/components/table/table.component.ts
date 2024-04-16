@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataService } from '../../../dashboard/services/data.service';
 import { Table } from 'primeng/table';
-
+import { SelectedClientService } from '../../shared.service';
 interface Column {
   field: string;
   header: string;
@@ -21,10 +21,13 @@ export class TableComponent implements OnInit {
   primaryHeader: string = '';
   primaryField: string = '';
   secondaryHeader: string = '';
+  selectedClient: string = '';
   secondaryField: string = '';
   thirdHeader: string = '';
   thirdField: string = '';
   tableType: string = 'primaryTable';
+  tableData: any=[];
+  selectedClientName: string = '';
 
   setHeaders(
     primaryHeader: string,
@@ -46,17 +49,26 @@ export class TableComponent implements OnInit {
     this.tableType = tabletype;
   }
 
-  constructor(private tableConfigService: DataService) {
-    if (this.tableConfigService.widgetLink === 'mostViewedPages') {
+  constructor(
+    public dataService: DataService,
+    private selectedClientService: SelectedClientService
+  ) {
+    console.log(this.dataService.widgetLink)
+    if (this.dataService.widgetLink === 'mostViewedPages') {
+      
       this.setHeaders('Page Name', 'pageName', 'Percentage', 'percentage');
       this.setTableType('primaryTable');
-    } else if (this.tableConfigService.widgetLink == 'mostClickedActions') {
+    } else if (this.dataService.widgetLink == 'mostClickedActions') {
       this.setHeaders('Button Name', 'ButtonName', 'Count', 'count');
       this.setTableType('primaryTable');
-    } else if (this.tableConfigService.widgetLink == 'mostUsedDevices') {
+    } else if (this.dataService.widgetLink == 'mostUsedDevices') {
       this.setHeaders('Device Name', 'DeviceName', 'Count', 'count');
       this.setTableType('primaryTable');
-    } else if (this.tableConfigService.widgetLink == 'usersByCountry') {
+    } else if (this.dataService.widgetLink == 'mostUsedBrowsers') {
+      this.setHeaders('Browser Name', 'browserName', 'Count', 'count');
+      this.setTableType('primaryTable');
+    }
+    else if (this.dataService.widgetLink == 'usersByCountry') {
       this.setHeaders(
         'Country',
         'country',
@@ -76,24 +88,72 @@ export class TableComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.tableConfigService.getTableData().subscribe((res) => {
-      this.data = res;
-      this.loading = false;
+    this.selectedClientService.selectedClient$.subscribe((clientName) => {
+      console.log('Selected client name:', clientName); // Add this line for debugging
+      if (clientName) {
+        this.selectedClientName = clientName;
+        this.fetchTableData();
+      } else {
+        console.warn('Selected client name is empty or undefined.');
+      }
     });
+  }
 
-    if (this.tableType === 'primaryTable') {
-      this.cols = [
-        { field: 'serialNumber', header: 'Sl.No' },
-        { field: this.primaryField, header: this.primaryHeader },
-        { field: this.secondaryField, header: this.secondaryHeader },
-      ];
-    } else if (this.tableType === 'secondaryTable') {
-      this.cols = [
-        { field: 'serialNumber', header: 'Sl.No' },
-        { field: this.primaryField, header: this.primaryHeader },
-        { field: this.secondaryField, header: this.secondaryHeader },
-        { field: this.thirdField, header: this.thirdHeader },
-      ];
+  fetchTableData() {
+    if (this.selectedClientName) {
+      console.log(this.selectedClientName)
+      this.dataService.getTableData(this.selectedClientName).subscribe(
+        (data) => {
+          this.tableData = data;
+          this.loading = false;
+          console.log('Table data:', this.tableData);
+          // Further processing of the received data
+        },
+        (error) => {
+          console.error('Error fetching table data:', error);
+        }
+      );
+console.log(this.tableType)
+      if (this.tableType === 'primaryTable') {
+        this.cols = [
+          { field: 'serialNumber', header: 'Sl.No' },
+          { field: this.primaryField, header: this.primaryHeader },
+          { field: this.secondaryField, header: this.secondaryHeader },
+        ];
+        console.log(this.cols)
+
+      } else if (this.tableType === 'secondaryTable') {
+        this.cols = [
+          { field: 'serialNumber', header: 'Sl.No' },
+          { field: this.primaryField, header: this.primaryHeader },
+          { field: this.secondaryField, header: this.secondaryHeader },
+          { field: this.thirdField, header: this.thirdHeader },
+        ];
+      }
     }
   }
+
+  // ngOnInit(): void {
+
+  //   console.log(this.selectedClient)
+  //   this.dataService.getTableData(this.selectedClient).subscribe((res:any) => {
+  //     this.data = res;
+  //     this.loading = false;
+  //   });
+
+  //   if (this.tableType === 'primaryTable') {
+  //     this.cols = [
+  //       { field: 'serialNumber', header: 'Sl.No' },
+  //       { field: this.primaryField, header: this.primaryHeader },
+  //       { field: this.secondaryField, header: this.secondaryHeader },
+  //     ];
+  //   } else if (this.tableType === 'secondaryTable') {
+  //     this.cols = [
+  //       { field: 'serialNumber', header: 'Sl.No' },
+  //       { field: this.primaryField, header: this.primaryHeader },
+  //       { field: this.secondaryField, header: this.secondaryHeader },
+  //       { field: this.thirdField, header: this.thirdHeader },
+  //     ];
+  //   }
+  // }
 }

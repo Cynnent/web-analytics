@@ -15,7 +15,7 @@
       (click)="changeActiveTab('dashboard'); loadSelectedTabData()"
       [ngClass]="[activeTab === 'dashboard' ? 'active' : 'inactive']"
     >
-     Top Performed
+      Overview
     </button>
     <button
       (click)="changeActiveTab('insights')"
@@ -26,47 +26,40 @@
   </span>
 
   <div class="row dropdowns col-12" *ngIf="activeTab === 'insights'">
-    <div class="col-12 col-lg-4">
-      <div class="card grid col-12">
-        <div class="card-body">
+    <div class="col-12">
+      <div class="grid col-12">
+        <div class="col-12 md:col-4">
           <p-dropdown
             [options]="clientNames"
             [(ngModel)]="defaultSelectedClient"
             (onChange)="onInsightClientChange(defaultSelectedClient)"
-            placeholder="Select a client"
+            placeholder=""
           >
           </p-dropdown>
         </div>
 
-        
-
-        <div class="card-body">
+        <div class="col-12 md:col-4">
           <p-dropdown
             [options]="userDropdownData"
             [(ngModel)]="selectedUsername"
             (onChange)="onUserChange()"
             optionLabel="value"
             optionValue="id"
-            placeholder="Select UserId"
+            placeholder=""
           >
           </p-dropdown>
         </div>
-
-        <div class="card custom-card-height">
-          <p-calendar
-            class="date-input field"
-            #datePicker
-            [(ngModel)]="selectedDate"
-            [showIcon]="true"
-            (onSelect)="onDateChange($event)"
-            placeholder=" Date"
-            id="icondisplay"
-          ></p-calendar>
-        </div>
       </div>
 
-      <div *ngIf="userData" class="flow-graph" >
-        <div class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container" [ngClass]="{ 'disable-class-screen': isScreenOverview === true }">
+      <!-- {{ userData.screens }} -->
+      <div *ngIf="userData" class="flow-graph mt-4 mb-4">
+        <h5 class="text-left" [ngClass]="{ hide: !userData.screens }">
+          User Journey Flow
+        </h5>
+        <div
+          class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container"
+          [ngClass]="{ 'disable-class-screen': isScreenOverview === true }"
+        >
           <ol>
             <ng-container>
               <li *ngFor="let screen of userData.screens | keyvalue">
@@ -85,37 +78,44 @@
           </ol>
         </div>
 
-        <div class="col-md-12 text-right mb-20" *ngIf="intervalOptions">
-          <p-dropdown
-            [options]="intervalOptions"
-            [(ngModel)]="selectedInterval"
-            (onChange)="onIntervalChange(selectedInterval)"
-            optionLabel="label"
-            optionValue="value"
-          ></p-dropdown>
-        </div>
-        {{!chartDisabled}}
         <div
-          class="col-12 col-lg-12"
-          [ngClass]="{ 'hide': !chartDisabled }"
+          class="col-12 md:lg-12"
+          [ngClass]="{ hide: !isChartDataAvailable }"
         >
-
-        
-          <div class="high-chart">
-            <div id="container" ></div>
-            <div class="no-data" *ngIf="chartDisabled"><div class="no-data" >
-              <span><img src="./../../../../assets/img/error-icon.png"/> No data found</span>
-            </div></div>
+          <div class="justify-content-between flex mb-2 text-left">
+            <div>
+              <label>Would you like to see user journey?</label>
+              <div>
+                <p-calendar
+                  class="date-input field"
+                  #datePicker
+                  [(ngModel)]="selectedDate"
+                  [showIcon]="true"
+                  (onSelect)="onDateChange($event)"
+                  id="icondisplay"
+                  placeholder="Select Date"
+                ></p-calendar>
+              </div>
+            </div>
+            <div>
+              <p-dropdown
+                [options]="intervalOptions"
+                [(ngModel)]="selectedInterval"
+                (onChange)="onIntervalChange(selectedInterval)"
+                optionLabel="label"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
           </div>
-  
-          
+          <div class="high-chart" [ngClass]="{ hide: !isChartDataAvailable }">
+            <div id="container"></div>
+          </div>
         </div>
 
+        <div class="no-data" *ngIf="!isChartDataAvailable">
+          <h3 class="mt-8">No data found</h3>
+        </div>
       </div>
-
-      
-
-      
     </div>
   </div>
 
@@ -169,43 +169,10 @@ dashboard -->
               <span class="icon-header">Most Viewed Pages</span>
             </div>
             <span class="menu-icon"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="4"
-                viewBox="0 0 18 4"
-              >
-                <g
-                  id="menu-dots-vertical"
-                  transform="translate(0 4) rotate(-90)"
-                >
-                  <circle
-                    id="Ellipse_16"
-                    data-name="Ellipse 16"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_17"
-                    data-name="Ellipse 17"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 7)"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_18"
-                    data-name="Ellipse 18"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 14)"
-                    fill="#707070"
-                  />
-                </g></svg
+              ><a
+                routerLink="/mostViewedPages"
+                (click)="onMostViewedPagesClick()"
+                ><img src="./../../../../assets/img/menu.svg" /></a
             ></span>
           </p-card-header>
           <div id="pie-chart-container"></div>
@@ -234,45 +201,9 @@ dashboard -->
 
               <span class="icon-header">Most Clicked Actions </span>
             </div>
-            <span class="menu-icon"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="4"
-                viewBox="0 0 18 4"
-              >
-                <g
-                  id="menu-dots-vertical"
-                  transform="translate(0 4) rotate(-90)"
-                >
-                  <circle
-                    id="Ellipse_16"
-                    data-name="Ellipse 16"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_17"
-                    data-name="Ellipse 17"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 7)"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_18"
-                    data-name="Ellipse 18"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 14)"
-                    fill="#707070"
-                  />
-                </g></svg
-            ></span>
+            <span class="menu-icon"><a routerLink="/mostClickedActions"
+              (click)="onMostClickedActionsClick()"><img src="./../../../../assets/img/menu.svg"/></a></span
+            >
           </p-card-header>
           <div id="bar-chart-container"></div>
         </div>
@@ -299,44 +230,12 @@ dashboard -->
               <span class="icon-header">Active User by Device</span>
             </div>
             <span class="menu-icon"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="4"
-                viewBox="0 0 18 4"
-              >
-                <g
-                  id="menu-dots-vertical"
-                  transform="translate(0 4) rotate(-90)"
-                >
-                  <circle
-                    id="Ellipse_16"
-                    data-name="Ellipse 16"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_17"
-                    data-name="Ellipse 17"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 7)"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_18"
-                    data-name="Ellipse 18"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 14)"
-                    fill="#707070"
-                  />
-                </g></svg
-            ></span>
+              ><a
+              routerLink="/mostActiveUser"
+              (click)="onActiveUserByDeviceClick()"
+              ><img src="./../../../../assets/img/menu.svg"
+            /></a></span
+            >
           </p-card-header>
           <div id="pieChartContainer"></div>
           <div id="total-count" class="center-label"></div>
@@ -365,44 +264,11 @@ dashboard -->
               <span class="icon-header">Most Used Browsers</span>
             </div>
             <span class="menu-icon"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="4"
-                viewBox="0 0 18 4"
-              >
-                <g
-                  id="menu-dots-vertical"
-                  transform="translate(0 4) rotate(-90)"
-                >
-                  <circle
-                    id="Ellipse_16"
-                    data-name="Ellipse 16"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_17"
-                    data-name="Ellipse 17"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 7)"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_18"
-                    data-name="Ellipse 18"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 14)"
-                    fill="#707070"
-                  />
-                </g></svg
-            ></span>
+              ><a
+              routerLink="/mostUsedBrowsers"
+              (click)="onMostUsedBrowserClick()"
+              ><img src="./../../../../assets/img/menu.svg"
+            /></a></span>
           </p-card-header>
           <div
             id="most-used-browsers-chart-container"
@@ -421,57 +287,40 @@ dashboard -->
           <p-card-header>
             <div class="card-header">
               <div class="header">
-
-                <svg xmlns="http://www.w3.org/2000/svg" width="30.094" height="50.832" viewBox="0 0 14.094 16.832">
-                  <g id="_01_align_center" transform="translate(-35.955 -0.174)">
-                    <path id="Path_824" data-name="Path 824" d="M43,17.006l-.489-.419c-.674-.564-6.559-5.647-6.559-9.364a7.048,7.048,0,0,1,14.1,0c0,3.718-5.885,8.8-6.556,9.367ZM43,1.7a5.53,5.53,0,0,0-5.524,5.524C37.478,9.558,41.1,13.289,43,15c1.9-1.708,5.524-5.441,5.524-7.774A5.53,5.53,0,0,0,43,1.7Z" transform="translate(0 0)" fill="#ebeef9"/>
-                    <path id="Path_825" data-name="Path 825" d="M152.991,120a2.794,2.794,0,1,1,2.794-2.794A2.794,2.794,0,0,1,152.991,120Zm0-4.191a1.4,1.4,0,1,0,1.4,1.4A1.4,1.4,0,0,0,152.991,115.814Z" transform="translate(-109.989 -109.989)" fill="#ebeef9"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30.094"
+                  height="50.832"
+                  viewBox="0 0 14.094 16.832"
+                >
+                  <g
+                    id="_01_align_center"
+                    transform="translate(-35.955 -0.174)"
+                  >
+                    <path
+                      id="Path_824"
+                      data-name="Path 824"
+                      d="M43,17.006l-.489-.419c-.674-.564-6.559-5.647-6.559-9.364a7.048,7.048,0,0,1,14.1,0c0,3.718-5.885,8.8-6.556,9.367ZM43,1.7a5.53,5.53,0,0,0-5.524,5.524C37.478,9.558,41.1,13.289,43,15c1.9-1.708,5.524-5.441,5.524-7.774A5.53,5.53,0,0,0,43,1.7Z"
+                      transform="translate(0 0)"
+                      fill="#ebeef9"
+                    />
+                    <path
+                      id="Path_825"
+                      data-name="Path 825"
+                      d="M152.991,120a2.794,2.794,0,1,1,2.794-2.794A2.794,2.794,0,0,1,152.991,120Zm0-4.191a1.4,1.4,0,1,0,1.4,1.4A1.4,1.4,0,0,0,152.991,115.814Z"
+                      transform="translate(-109.989 -109.989)"
+                      fill="#ebeef9"
+                    />
                   </g>
                 </svg>
-
-                
               </div>
               <span class="icon-header">Most Used Countries</span>
             </div>
-            <span class="menu-icon"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="4"
-                viewBox="0 0 18 4"
-              >
-                <g
-                  id="menu-dots-vertical"
-                  transform="translate(0 4) rotate(-90)"
-                >
-                  <circle
-                    id="Ellipse_16"
-                    data-name="Ellipse 16"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_17"
-                    data-name="Ellipse 17"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 7)"
-                    fill="#707070"
-                  />
-                  <circle
-                    id="Ellipse_18"
-                    data-name="Ellipse 18"
-                    cx="2"
-                    cy="2"
-                    r="2"
-                    transform="translate(0 14)"
-                    fill="#707070"
-                  />
-                </g></svg
-            ></span>
+            <span class="menu-icon"><a
+              routerLink="/mostUsedCountries"
+              (click)="onMostUsedCountriesClick()"
+              ><img src="./../../../../assets/img/menu.svg"
+            /></a></span>
           </p-card-header>
           <div class="grid">
             <div class="md:col-7 sm:col-12">

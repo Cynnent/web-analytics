@@ -18,6 +18,7 @@ import * as _Highcharts from 'highcharts/highmaps';
 import { Calendar } from 'primeng/calendar';
 import HighchartsData from '@highcharts/map-collection/custom/world.topo.json';
 import { SelectItem } from 'primeng/api';
+import { SelectedClientService } from '../../shared/shared.service';
 
 interface MyObject {
   [key: string]: any;
@@ -38,20 +39,20 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   Highcharts: typeof _Highcharts = _Highcharts;
   chartOptions: Highcharts.Options | null = null;
   public dates: string[] = [];
-  public clientNames  = [];
-  public selectedUsername: string;
+  public clientNames = [];
+  public selectedUsername: string='';
   public activeTab = 'dashboard';
   public header = 'Dashboard';
   apiData: any[] = [];
   weeklyData: any = [];
   date: Date | undefined;
   isLoading: boolean = true;
-  noDataFound:boolean=false;
+  noDataFound: boolean = false;
   userEventDates: { id: string; value: string }[] = [];
   screenData: { [key: string]: { [key: string]: number } } = {};
   alive: boolean = true;
   selectedClient: string = '';
-  selectedDate: any = '';
+  selectedDate: any;
   selectedDateForId: string = '';
   userDropdownData: { id: string; value: string }[] = [];
   defaultSelectedClient: string = '';
@@ -60,7 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   mostClickedActions: any[] = [];
   selectedInterval: string = 'weekly';
   totalDeviceCount: number = 0;
-  chartDisabled: boolean=false;
+  isChartDataAvailable: boolean = false;
   isDisableViewedPages: boolean = false;
   ismapDisable: boolean = false;
   isInterval: boolean = false;
@@ -68,38 +69,37 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   progressBars: any[] = [];
   selectedScreen: any = null;
   isScreenOverview: boolean = true;
-  maxValue:number=0;
+  maxValue: number = 0;
 
-  userData: any=[];
+  userData: any = [];
 
   intervalOptions: SelectItem[] = [
-    { label: 'Daily', value: 'daily' },
+    // { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
   ];
-  
 
   @ViewChild('userSelect') userSelect!: NbSelectComponent;
   @ViewChild('datePicker') datePicker!: Calendar;
+  data: any;
 
   constructor(
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
     private toastr: ToastrService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private selectedClientService: SelectedClientService
   ) {
-    this.selectedUsername = 'all';
+   
   }
 
   ngOnInit(): void {
     this.spinner.show();
     this.selectedInterval = 'weekly';
 
-    this.dataService.getAllClients().subscribe((clients:any) => {
-
-
-      this.clientNames=clients
-      this.clientNames.splice(-2)
+    this.dataService.getAllClients().subscribe((clients: any) => {
+      this.clientNames = clients;
+      this.clientNames.splice(-2);
       // if(clients)
       //   {
       //     this.clientNames = clients.find((c:any)=>{
@@ -107,7 +107,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       //     })
       //     // this.clientNames=[]
       //   }
-      
 
       // for(let c of clients)
       //   {
@@ -133,10 +132,18 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadSelectedTabData() {
-     if (
-      this.activeTab === 'insights' &&
-      this.selectedInterval === 'weekly'
-    ) {
+    if (this.activeTab === 'dashboard') {
+      setTimeout(() => {
+        this.renderPieChart();
+        this.renderBarChart();
+        this.getMapComponent(this.defaultSelectedClient);
+        this.mostViwedCountry(this.defaultSelectedClient);
+        this.loadMostUsedBrowsers(this.defaultSelectedClient);
+        this.getDeviceData(this.defaultSelectedClient);
+      }, 2000);
+     
+    }
+    else if (this.activeTab === 'insights' && this.selectedInterval === 'weekly') {
       this.onInsightClientChange(this.defaultSelectedClient);
       // this.getWeeklyData();
     }
@@ -206,15 +213,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onInsightClientChange(defaultSelectedClient: any): void {
-    this.userData=[]
-    this.selectedDate=''
-    
-    
+    this.userData = [];
 
     this.dataService
       .getUsersByClientName(defaultSelectedClient)
       .subscribe((users) => {
-        this.userDropdownData = users.map((user,index) => ({
+        this.userDropdownData = users.map((user, index) => ({
           id: user._id,
           value: `User ${index + 1}`,
         }));
@@ -237,17 +241,21 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           this.isScreenOverview = true;
           this.selectedInterval = 'weekly';
         }
-
-        
       });
 
-      if(this.selectedClient!='' && this.selectedUsername!='' && this.selectedDate=='')
-        {
-          this.getWeeklyData();
-        }
+    if (
+      this.selectedClient != '' &&
+      this.selectedUsername != '' &&
+      this.selectedDate == ''
+    ) {
+      this.getWeeklyData();
+    }
   }
 
   onDashboardChange(selectedClient: any): void {
+    console.log('Selected client:', selectedClient); // Debug output
+    this.defaultSelectedClient = selectedClient; // Update defaultSelectedClient
+    this.selectedClientService.setSelectedClient(selectedClient);
     if (!this.selectedUsername || this.selectedUsername) {
       this.dataService
         .getUsersByClientName(selectedClient)
@@ -258,12 +266,14 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           this.getDeviceData(selectedClient);
           this.loadMostUsedBrowsers(selectedClient);
           this.getMapComponent(this.defaultSelectedClient);
+          this.mostViwedCountry(this.defaultSelectedClient);
           this.renderBarChart();
         });
     }
   }
 
   onDashboardClientChange(selectedClient: any): void {
+   
     if (
       selectedClient &&
       this.selectedUsername &&
@@ -318,11 +328,10 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   onUserChange(): void {
     if (this.selectedUsername !== '') {
       // this.datePicker.writeValue(null);
-      if (this.selectedUsername != '' && this.selectedInterval == 'daily') {
-        this.selectedInterval = 'weekly';
+      if (this.selectedInterval == 'daily') {
         this.getWeeklyData();
       }
-      if (this.selectedUsername != '' && this.selectedInterval == 'weekly') {
+      if (this.selectedInterval == 'weekly') {
         this.getWeeklyData();
         this.isScreenOverview = true;
       }
@@ -355,13 +364,13 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getWeeklyData() {
-  //   this.chartDisabled = true;
-  // this.noDataFound = false; 
-// if(this.chartDisabled==false)
-//   {
-//     this.disableChart()
-//     this.noDataFound=true;
-//   }
+    //   this.isChartDataAvailable = true;
+    // this.noDataFound = false;
+    // if(this.isChartDataAvailable==false)
+    //   {
+    //     this.disableChart()
+    //     this.noDataFound=true;
+    //   }
     if (!this.selectedUsername) {
       return;
     } else {
@@ -408,22 +417,18 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
                   data: currentWeekData.map((entry) => entry.totalCount),
                 },
               ];
-             
-              this.chartDisabled = true;
+
+              this.isChartDataAvailable = true;
               this.renderChart(seriesData, dates);
-              this.noDataFound=false;
+              this.noDataFound = false;
             }
           },
           (error) => {
-            
             // this.disableChart();
             this.toastr.error(error.error.error);
-            
-              
-                this.chartDisabled=false;
-                this.noDataFound=true;
-              
-            
+
+            this.isChartDataAvailable = false;
+            this.noDataFound = true;
           }
         );
       }
@@ -445,9 +450,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    this.dataService
-      .getMonthlyData(this.selectedUsername)
-      .subscribe((monthlyData) => {
+    this.dataService.getMonthlyData(this.selectedUsername).subscribe(
+      (monthlyData) => {
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
         const currentMonthData = monthlyData.filter((entry) => {
@@ -477,12 +481,16 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           },
         ];
 
+        this.isChartDataAvailable = true;
         this.renderChart(seriesData, dates);
-      },(error) => {
+      },
+      (error) => {
+        this.isChartDataAvailable = false;
         this.toastr.error(error.error.error);
-        
+
         // this.disableChart();
-      });
+      }
+    );
   }
 
   getDatesArrayForMonthlyAndDaily(startDate: any, endDate: any) {
@@ -524,7 +532,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         },
         (error) => {
-          
           if (error.status === 404) {
           } else {
             console.error('Error fetching user events', error);
@@ -535,36 +542,34 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
               ? 'No data found for the specified date.'
               : 'Error fetching user events'
           );
-          
-          
         }
       );
   }
 
   // disableChart(): void {
-    
+
   //   // this.enableChart()
-  //   this.chartDisabled = true;
+  //   this.isChartDataAvailable = true;
   // }
 
   // enableChart(): void {
-    
-  //   if(this.chartDisabled!=false && this.noDataFound==false)
+
+  //   if(this.isChartDataAvailable!=false && this.noDataFound==false)
   //     {
-  //       this.chartDisabled=false;
+  //       this.isChartDataAvailable=false;
   //       this.noDataFound=true;
-        
+
   //     }
-  //     if(this.chartDisabled=true)
+  //     if(this.isChartDataAvailable=true)
   //       {
-  //         this.chartDisabled=false;
+  //         this.isChartDataAvailable=false;
   //         this.noDataFound=true;
   //       }
-       
+
   //     // else{
-  //     //   this.chartDisabled = false;
+  //     //   this.isChartDataAvailable = false;
   //     // }
-    
+
   // }
 
   onDateChange(selectedDate: Date): void {
@@ -573,7 +578,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.getChartDataBYUserId(selectedUserDate);
 
     if (this.selectedUsername !== '' && this.selectedDate !== '') {
-      
       this.loadDatesForUser(this.selectedUsername);
       if (this.selectedDate != '') {
         this.selectedInterval = 'daily';
@@ -583,13 +587,15 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   mostViwedCountry(selectedClient: any): void {
-    this.dataService.getAccesedCountryCount(selectedClient).subscribe((data: any[]) => {
-      const maxValue = Math.max(...data.map(item => item.value));
-      const result = maxValue * 2;
-      console.log(result);
-      this.maxValue = result;
-      this.progressBars = data;
-     })
+    this.dataService
+      .getAccesedCountryCount(selectedClient)
+      .subscribe((data: any[]) => {
+        const maxValue = Math.max(...data.map((item) => item.value));
+        const result = maxValue * 2;
+        console.log(result);
+        this.maxValue = result;
+        this.progressBars = data;
+      });
   }
 
   loadDatesForUser(userId: string): void {
@@ -748,41 +754,28 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   // functions for widget tables
 
   onMostViewedPagesClick() {
-
     this.dataService.setLink('mostViewedPages');
-
+    // this.dataService.getTableData(this.defaultSelectedClient).subscribe((res:any) => {
+    //   console.log(res)
+    //   this.data = res;
+    //   // this.loading = false;
+    // });
   }
-
-
 
   onMostClickedActionsClick() {
-
     this.dataService.setLink('mostClickedActions');
-
   }
-
-
 
   onActiveUserByDeviceClick() {
-
     this.dataService.setLink('mostUsedDevices');
-
   }
-
-
 
   onMostUsedCountriesClick() {
-
     this.dataService.setLink('usersByCountry');
-
   }
 
-
-
   onMostUsedBrowserClick() {
-
-    this.dataService.setLink('mostUsedBrowsers')
-
+    this.dataService.setLink('mostUsedBrowsers');
   }
 
   renderBarChart() {
@@ -826,7 +819,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       Highcharts.chart('bar-chart-container', options);
     }
   }
-
 
   getMapComponent(selectedClient: any) {
     if (!selectedClient) {
@@ -911,7 +903,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.selectedUsername = 'all';
+   
     this.cdr.detectChanges();
   }
 
