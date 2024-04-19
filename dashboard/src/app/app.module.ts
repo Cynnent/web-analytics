@@ -22,10 +22,13 @@ import { routes } from './app.routes';
 import { HeaderComponent } from './modules/core/header/header.component';
 import { SidebarComponent } from './modules/core/sidebar/sidebar.component';
 import { DashboardComponent } from './modules/dashboard/components/dashboard.component';
+
+// import {DashboardOverviewComponent} from './modules/dashboard/overview/dashboard-overview'
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { TableComponent } from './modules/shared/components/table/table.component';
+import { DashboardOverviewComponent } from './modules/dashboard/overview/dashboard-overview/dashboard-overview.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +36,7 @@ import { TableComponent } from './modules/shared/components/table/table.componen
     HeaderComponent,
     SidebarComponent,
     DashboardComponent,
+    DashboardOverviewComponent,
     TableComponent
   ],
   imports: [

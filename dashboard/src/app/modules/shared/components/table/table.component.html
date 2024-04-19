@@ -1,4 +1,4 @@
-<h3>Table</h3>
+<h3>{{ widgetHeading }}</h3>
 <div class="dashboard-container">
   
   <div class="p-5" *ngIf="tableData != null">
@@ -76,19 +76,19 @@
       [loading]="loading"
       [paginator]="true"
       [scrollable]="true"
-      [globalFilterFields]="[primaryField, secondaryField, thirdField]"
+      [globalFilterFields]="[primaryField, secondaryField, thirdField,'cityName','users']"
       currentPageReportTemplate="Showing {first} - {last} of {totalRecords} records"
       *ngIf="tableType == 'secondaryTable'"
     >
       <ng-template pTemplate="caption">
         <div class="flex justify-content-between align-items-center">
           <span>
-            <!-- <i class="pi pi-search"></i> -->
             <input
               class="p-2 border-round-md border-1"
               pInputText
               type="text"
               placeholder="Search"
+              (input)="handleInputChange($event)"
             />
           </span>
           <span>
