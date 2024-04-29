@@ -1,4 +1,13 @@
 <h3>{{ header }}</h3>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  [show]="isLoading"
+></ngx-spinner>
+
 <div class="dashboard-container">
   <!-- top buttons -->
   <span class="buttons-container">
@@ -6,7 +15,7 @@
       (click)="changeActiveTab('dashboard'); loadSelectedTabData()"
       [ngClass]="[activeTab === 'dashboard' ? 'active' : 'inactive']"
     >
-      Dashboard
+      Overview
     </button>
     <button
       (click)="changeActiveTab('insights')"
@@ -16,183 +25,103 @@
     </button>
   </span>
 
-  <div class="row dropdowns col-12" *ngIf="activeTab == 'insights'">
-    <div class="col-12 col-lg-4">
-      <nb-card>
-        <nb-card-header>Client</nb-card-header>
-        <nb-card-body>
-          <nb-select
-            placeholder="Select Client:"
-            id="clientSelect"
-            [(selected)]="defaultSelectedClient"
-            (selectedChange)="onInsightClientChange($event)"
+  <div class="row dropdowns col-12" *ngIf="activeTab === 'insights'">
+    <div class="col-12">
+      <div class="grid col-12">
+        <div class="col-12 md:col-4">
+          <p-dropdown
+            [options]="clientNames"
+            [(ngModel)]="defaultSelectedClient"
+            (onChange)="onInsightClientChange(defaultSelectedClient)"
+            placeholder=""
           >
-            <nb-option
-              class="client-option-list"
-              *ngFor="let client of clientNames"
-              [value]="client"
-            >
-              {{ client }}
-            </nb-option>
-          </nb-select>
-        </nb-card-body>
-      </nb-card>
-    </div>
+          </p-dropdown>
+        </div>
 
-    <div class="col-12 col-lg-4">
-      <nb-card>
-        <nb-card-header>Users</nb-card-header>
-        <nb-card-body>
-          <nb-select
-            placeholder="Select UserId"
-            id="userSelect"
-            [(selected)]="selectedUsername"
-            (selectedChange)="onUserChange()"
+        <div class="col-12 md:col-4">
+          <p-dropdown
+            [options]="userDropdownData"
+            [(ngModel)]="selectedUsername"
+            (onChange)="onUserChange()"
+            optionLabel="value"
+            optionValue="id"
+            placeholder=""
           >
-            <nb-option
-              *ngFor="let user of dataService.userDropdownData"
-              [value]="user.id"
-            >
-              {{ user.value }}
-            </nb-option>
-          </nb-select>
-        </nb-card-body>
-      </nb-card>
-    </div>
+          </p-dropdown>
+        </div>
+      </div>
 
-    <div class="date-calender col-12 col-lg-4">
-      <nb-card class="custom-card-height">
-        <nb-card-header>Date</nb-card-header>
-        <p-calendar
-          class="date-input field"
-          #datePicker
-          [(ngModel)]="selectedDate"
-          (onSelect)="onDateChange($event)"
-          placeholder="Select The Date"
-          [showClear]="false"
-          dateFormat="yy-mm-dd"
-          [showIcon]="true"
-          inputId="icondisplay"
-        ></p-calendar>
-      </nb-card>
-    </div>
-
-    <div class="col-md-12 p-0" *ngIf="selectedUsername">
-      <div class="col-md-12 text-right mb-20">
-        <nb-select
-          [(selected)]="selectedInterval"
-          (selectedChange)="onIntervalChange(selectedInterval)"
+      <!-- {{ userData.screens }} -->
+      <div *ngIf="userData" class="flow-graph mt-4 mb-4">
+        <h5 class="text-left" [ngClass]="{ hide: !userData.screens }">
+          User Journey Flow
+        </h5>
+        <div
+          class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container"
+          [ngClass]="{ 'disable-class-screen': isScreenOverview === true }"
         >
-          <nb-option value="daily">Daily</nb-option>
-          <nb-option value="weekly">Weekly</nb-option>
-          <nb-option value="monthly">Monthly</nb-option>
-        </nb-select>
-      </div>
-      <div
-        class="col-12 col-lg-12"
-        [ngClass]="{ 'disable-class': chartDisabled === true }"
-      >
-        <nb-card class="high-chart" size="large">
-          <div id="container" style="width: 100%; height: 450px"></div>
-        </nb-card>
-      </div>
-    </div>
-  </div>
-
-  <div class="row" *ngIf="tabToggle">
-    <div class="col-md-12 col-lg-12 col-xxxl-12">
-      <h4>Screens Overview</h4>
-      <div
-        class="row gap-1 main-container"
-        style="max-height: 500px; overflow-y: auto"
-      >
-        <ng-container *ngFor="let s of screensList">
-          <div class="card col-md-3 col-lg-3">
-            <h2>{{ s.pageName }}</h2>
-            <ul>
-              <li *ngFor="let e of s.actions">
-                <span>{{ e.key }}</span
-                ><strong>{{ e.value }}</strong>
+          <ol>
+            <ng-container>
+              <li *ngFor="let screen of userData.screens | keyvalue">
+                <span id="screenName">{{ screen.key }}</span>
+                <ul class="clikedbutton">
+                  <ng-container
+                    *ngFor="let entry of getObjectEntries(screen.value)"
+                  >
+                    <div class="actions-list">
+                      {{ entry[0] }}: {{ entry[1] }}
+                    </div>
+                  </ng-container>
+                </ul>
               </li>
-            </ul>
-          </div>
-        </ng-container>
-      </div>
-    </div>
-  </div>
+            </ng-container>
+          </ol>
+        </div>
 
-  <div class="flow-graph row" *ngIf="tabToggle">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-      <ol>
-        <ng-container *ngFor="let s of screensList; let i = index">
-          <li>
-            <button
-              class="btn"
-              [class.btn-primary]="isSelected(s)"
-              [class.btn-selected]="isSelected(s)"
-              (click)="toggleTooltip($event, s.actions); setSelected(s)"
-              title="View clicked buttons"
-            >
-              <span>{{ s.pageName + " page" }}</span>
-            </button>
-          </li>
-        </ng-container>
-      </ol>
+        <div
+          class="col-12 md:lg-12"
+          [ngClass]="{ hide: !isChartDataAvailable }"
+        >
+          <div class="justify-content-between flex mb-2 text-left">
+            <div>
+              <label>Would you like to see user journey?</label>
+              <div>
+                <p-calendar
+                  class="date-input field"
+                  #datePicker
+                  [(ngModel)]="selectedDate"
+                  [showIcon]="true"
+                  (onSelect)="onDateChange($event)"
+                  id="icondisplay"
+                  placeholder="Select Date"
+                ></p-calendar>
+              </div>
+            </div>
+            <div>
+              <p-dropdown
+                [options]="intervalOptions"
+                [(ngModel)]="selectedInterval"
+                (onChange)="onIntervalChange(selectedInterval)"
+                optionLabel="label"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+          <div class="high-chart" [ngClass]="{ hide: !isChartDataAvailable }">
+            <div id="container"></div>
+          </div>
+        </div>
+
+        <div class="no-data" *ngIf="!isChartDataAvailable">
+          <h3 class="mt-8">No data found</h3>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- 
 dashboard -->
-  <div *ngIf="activeTab == 'dashboard'" class="p-5">
-    <!-- <div style="float: right; margin-top: -3.5rem; margin-right: 1.5rem">
-      <div>
-        <nb-select
-          placeholder="Select Client:"
-          id="clientSelect"
-          [(selected)]="defaultSelectedClient"
-          (selectedChange)="onDashboardClientChange(defaultSelectedClient)"
-        >
-          <nb-option *ngFor="let client of clientNames" [value]="client">
-            {{ client }}
-          </nb-option>
-        </nb-select>
-      </div>
-    </div> -->
-    <div class="grid">
-      <div class="col-12 lg:col-6">
-        <div class="card-widget">
-          <div id="pie-chart-container"></div>
-        </div>
-      </div>
-
-      <div class="col-12 lg:col-6">
-        <div class="card-widget">
-          <div id="bar-chart-container"></div>
-        </div>
-      </div>
-
-      <div class="col-12 lg:col-6">
-        <div class="card-widget">
-          <div id="pieChartContainer"></div>
-          <div id="total-count" class="center-label"></div>
-        </div>
-      </div>
-
-      <div
-        class="col-12 lg:col-6"
-        *ngIf="chartOptions !== null"
-        [ngClass]="{ 'disable-class': ismapDisable === true }"
-      >
-        <div class="card-widget">
-          <highcharts-chart
-            id="map-chart-container"
-            [Highcharts]="Highcharts"
-            [constructorType]="chartConstructor"
-            [options]="chartOptions"
-          >
-          </highcharts-chart>
-        </div>
-      </div>
-    </div>
+  <div *ngIf="activeTab == 'dashboard'" class="p-4">
+    <app-dashboard-overview></app-dashboard-overview>
   </div>
 </div>

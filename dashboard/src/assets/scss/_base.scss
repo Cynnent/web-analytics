@@ -3,5 +3,7 @@
 @use "./partials/typography";
 @use "./partials/mixins";
 @use "./partials/dashboard";
+@use "./partials//dropdown";
 @use "./partials/sidebar";
 @use "./partials/header";
+@use "./partials/table";

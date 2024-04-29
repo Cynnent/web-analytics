@@ -18,6 +18,7 @@
     .active {
       background-color: #052288;
       color: #ffffff;
+      font-size: 16px;
       border: 1px solid #052288;
     }
 
@@ -37,7 +38,7 @@ h3 {
 
 .center-label {
   position: absolute;
-  top: 50%;
+  top: 59%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 18px;
@@ -47,7 +48,17 @@ h3 {
 
 .card-widget {
   @include widgetCardBaseStyle;
+  border: 1px solid #efefef;
   position: relative;
+  .browser-view {
+    height: 400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+  }
+  .map-card {
+    margin: 10px 0px -8px 10px;
+  }
 }
 
 #pieChartContainer {
@@ -60,4 +71,227 @@ h3 {
   svg {
     width: 100% !important;
   }
+}
+
+.custom-card-height {
+  .p-calendar {
+    .p-datepicker-trigger {
+      margin-left: -62.4px;
+    }
+  }
+}
+
+.card {
+  display: flex;
+  gap: 29px;
+
+  .card-body select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  .card-body select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .card-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+p-card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 19px 24px;
+  .header {
+    height: 49px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    opacity: 1;
+    background: #052288;
+    margin-right: 15px;
+    .icons {
+      margin-right: 7px;
+      margin-top: 2px;
+    }
+  }
+  .icon-header {
+    display: flex;
+    font-weight: bold;
+    font-size: 24px;
+    align-items: center;
+  }
+}
+
+.cards-grid {
+  width: 100%;
+  .card-header {
+    display: flex;
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 2.43rem 0 0 1.728rem;
+  padding: 12px;
+  margin: 0 auto;
+  max-width: 100%;
+  .high-chart {
+    width: 100%;
+    height: 450px;
+  }
+  .text-right {
+    padding-right: 16px;
+  }
+}
+
+.dashboard-dropdown {
+  float: right;
+  margin-top: -3.5rem;
+  margin-right: 1.5rem;
+}
+.p-dropdown-label {
+  font-family: var(--primary-font);
+  font-weight: bold;
+}
+.clicked-actions{
+  svg{
+    width:24px;
+  }
+}
+.active-user-by-device{
+  svg{
+    width: 60px;
+  }
+}
+
+.high-chart {
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: inset 0px 0px 3px #00000029, 9px 7px 9px #ccc1c11f;
+  border-radius: 10px;
+  opacity: 1;
+}
+.p-dropdown-item {
+  padding: 10px;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.bar-without-progress {
+  width: 100%;
+  height: 5px;
+  background-color: #ccc;
+  position: relative;
+}
+
+.label-without-bar {
+  width: 70%;
+  text-align: right;
+}
+
+.progress-container {
+  position: relative;
+  margin-bottom: 10px; /* Add some margin between each progress bar */
+}
+
+progress {
+  width: 100%;
+  height: 5px; /* Reduced thickness of the progress bar */
+}
+
+.progress-value {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-left: 5px;
+  font-size: 1rem;
+}
+
+.chart-progress-bars {
+  max-width: 300px;
+  width: 100%;
+}
+
+.visibility-hidden{
+  visibility: hidden;
+}
+.hide{
+  display: none;
+}
+
+.no-data {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.no-data-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-data-content {
+  span{
+    font-size: 4rem;
+  }
+  img {
+  width: 6rem;
+  height: 20px; /* Adjust size as needed */
+  margin-top: 10rem;
+  }
+}
+
+.disable-class-screen {
+  display: none;
+}
+
+.p-dropdown-items {
+  display: block;
+  justify-content: center;
+  text-align: center;
+  row-gap: 10px;
+  font-style: manrope;
+  text-align: left;
+  font-style: Manrope;
+}
+
+.ng-trigger-overlayAnimation {
+  width: 100%;
+  .p-datepicker-group-container {
+    padding-left: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.p-calendar .p-component {
+  box-shadow: inset 0px 3px 6px rgba(5, 34, 136, 0.2196078431);
+  border: 1px solid #a3a3a3;
+  border-radius: 6px;
+  padding: 13px 30px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+
+
+.disable-class-screen{
+  display: none;
 }
