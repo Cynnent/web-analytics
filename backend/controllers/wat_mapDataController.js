@@ -1,4 +1,4 @@
-const MapData = require("../models/mapData");
+const MapData = require("../models/wat_mapData");
 
 const mapData = async (req, res) => {
   const { _id, clientName, latitude, longitude, country, cityName } = req.body;

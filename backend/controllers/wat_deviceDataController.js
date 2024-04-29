@@ -1,4 +1,4 @@
-const DeviceData = require("../models/deviceData");
+const DeviceData = require("../models/wat_deviceData");
 
 const saveDeviceData = async (req, res) => {
   const { _id, clientName, DeviceName } = req.body;

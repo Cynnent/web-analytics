@@ -1,5 +1,5 @@
-const MostClickedActions = require("../models/mostClickedActions");
-const User = require("../models/userModel");
+const MostClickedActions = require("../models/wat_mostClickedActions");
+const User = require("../models/wat_userModel");
 
 const mostClickedActions = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+const User = require("../models/wat_userModel");
 
 const screenCount = async (req, res) => {
   const users = await User.find();
