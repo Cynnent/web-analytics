@@ -2,13 +2,16 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const { dbConnection } = require('./server');
 const cors = require('cors');
-const { updateData, user, getUsersData } = require('./controllers/updateController');
-const { screenCount, mostViewedPage } = require('./controllers/mostViewed');
-const { mostClickedActions } = require('./controllers/mostClicked');
-const { mapData, getAllMapData, usersByCountry } = require('./controllers/mapDataController');
-const { saveDeviceData, getAllUserDeviceData, mostUsedDevices } = require('./controllers/deviceDataController');
-const { clientData, getUsersByClientName } = require('./controllers/dashboardController');
-const { getUserEvents, dateFilter, getweeklyData, getmonthlyData } = require('./controllers/dateController');
+const { updateData, user, getUsersData } = require('./controllers/wat_updateController');
+const { screenCount, mostViewedPage } = require('./controllers/wat_mostViewed');
+const { mostClickedActions } = require('./controllers/wat_mostClicked');
+const { mapData, getAllMapData, usersByCountry } = require('./controllers/wat_mapDataController');
+const { saveDeviceData, getAllUserDeviceData, mostUsedDevices } = require('./controllers/wat_deviceDataController');
+const { clientData, getUsersByClientName } = require('./controllers/wat_dashboardController');
+const { getUserEvents, dateFilter, getweeklyData, getmonthlyData } = require('./controllers/wat_dateController');
+const { createQuestions, getQuestions } = require('./controllers/botControllers/bot_questionsController');
+const { createOffers, getOffers } = require('./controllers/botControllers/bot_offersController');
+const { createAnimations, getAnimations } = require('./controllers/botControllers/bot_animationsController');
 
 const app = express();
 const port = 3000;
@@ -48,7 +51,15 @@ app.get('/getUserEvents/:userId/:date', getUserEvents)
 app.get('/getWeeklyData/:userId', getweeklyData)
 app.get('/getMonthlyData/:userId', getmonthlyData)
 
-//Starting the server
+//Chat-Bot
+app.post('/chatBot/questions/:clientName', createQuestions);
+app.post('/chatBot/offers/:clientName',createOffers);
+app.post('/chatBot/animations/:clientName',createAnimations);
+
+app.get('/chatBot/getoffers/:clientName', getOffers);
+app.get('/chatBot/getQuestions/:clientName', getQuestions);
+app.get('/chatBot/getAnimations/:clientName', getAnimations);
+
 app.listen(port, () => {
   console.log(`Server is running on localhost:${port}`);
 });

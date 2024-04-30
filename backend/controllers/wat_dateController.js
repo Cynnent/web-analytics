@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+const User = require("../models/wat_userModel");
 
 const dateFilter = async (req, res) => {
   try {

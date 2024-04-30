@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("../models/userModel");
+const User = require("../models/wat_userModel");
 
 const updateData = async (req, res) => {
   const userId = req.params.userId;
