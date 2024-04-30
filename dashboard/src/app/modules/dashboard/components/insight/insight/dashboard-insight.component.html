@@ -23,6 +23,12 @@
     >
       Insights
     </button>
+    <button
+      (click)="changeActiveTab('commands')"
+      [ngClass]="[activeTab === 'commands' ? 'active' : 'inactive']"
+    >
+      Commands
+    </button>
   </span>
 
   <div class="row dropdowns col-12" *ngIf="activeTab === 'insights'">
@@ -123,5 +129,10 @@
 dashboard -->
   <div *ngIf="activeTab == 'dashboard'" class="p-4">
     <app-dashboard-overview></app-dashboard-overview>
+  </div>
+
+  <div *ngIf="activeTab === 'commands'" class="p-4">
+
+    <app-dashboard-commands></app-dashboard-commands>
   </div>
 </div>

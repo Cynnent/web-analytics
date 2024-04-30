@@ -2,8 +2,9 @@
 @use "./partials/variables";
 @use "./partials/typography";
 @use "./partials/mixins";
+@use "./partials/dashboardcommands";
 @use "./partials/dashboard";
-@use "./partials//dropdown";
+@use "./partials/dropdown";
 @use "./partials/sidebar";
 @use "./partials/header";
 @use "./partials/table";

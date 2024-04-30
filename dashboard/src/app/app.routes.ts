@@ -2,13 +2,14 @@ import { Routes } from '@angular/router';
 import { SidebarComponent } from './modules/core/sidebar/sidebar.component';
 import { HeaderComponent } from './modules/core/header/header.component';
 import { AppComponent } from './app.component';
-import { DashboardComponent } from './modules/dashboard/components/dashboard.component';
-import { TableComponent } from './modules/shared/components/table/table.component';
+
+import { InsightComponent } from './modules/dashboard/components/insight/insight/dashboard-insight.component';
+import { TableComponent } from './modules/dashboard/components/table/table.component';
 
 export const routes: Routes = [ 
   {
     path: '',
-    component: DashboardComponent,
+    component: InsightComponent,
   },
   {
     path: 'mostViewedPages',
