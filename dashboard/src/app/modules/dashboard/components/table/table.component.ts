@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DataService } from '../../../dashboard/services/data.service';
+import { DataService } from '../../../shared/services/data.service';
 import { Table } from 'primeng/table';
-import { SelectedClientService } from '../../shared.service';
+import { SelectedClientService } from '../../../shared/shared.service';
+
 interface Column {
   field: string;
   header: string;

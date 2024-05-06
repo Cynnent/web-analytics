@@ -1,41 +1,53 @@
-import { Component, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, ChangeDetectorRef, Input , OnDestroy, OnInit} from '@angular/core';
+
+import { Subscription } from 'rxjs';
+
 import * as Highcharts from 'highcharts';
-import { NgxSpinnerService } from 'ngx-spinner';
 import * as _Highcharts from 'highcharts/highmaps';
 import HighchartsData from '@highcharts/map-collection/custom/world.topo.json';
-import { DataService } from '../../services/data.service';
-import { listOfCountryWithCode } from '../../../../../assets/data/countryCodeMapping';
-import { SelectedClientService } from '../../../shared/shared.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+
+import { DataService } from '../../../../shared/services/data.service';
+import { SelectedClientService } from '../../../../shared/shared.service';
+import { listOfCountryWithCode } from '../../../../../../assets/data/countryCodeMapping';
+import { DeviceCount, MostClickedAction, MostViewedPage, ProgressBar } from '../../../../shared/interfaces/interfaces';
+import { WEEKLY_INTERVAL } from '../../../../shared/lang/lang';
+
 
 @Component({
   selector: 'app-dashboard-overview',
   templateUrl: './dashboard-overview.component.html',
   styleUrl: './dashboard-overview.component.css',
 })
-export class DashboardOverviewComponent {
+export class DashboardOverviewComponent implements OnDestroy , OnInit{
   @Input() latitude: number = 0;
   @Input() longitude: number = 0;
-  chartConstructor = 'mapChart';
-  Highcharts: typeof _Highcharts = _Highcharts;
-  chartOptions: Highcharts.Options | null = null;
-  public clientNames = [];
-  public selectedUsername: string = '';
-  public activeTab = 'dashboard';
-  alive: boolean = true;
-  selectedClient: string = '';
-  defaultSelectedClient: string = '';
-  deviceCounts: { deviceType: string; count: number }[] = [];
-  mostViewedPages: any[] = [];
-  mostClickedActions: any[] = [];
-  selectedInterval: string = 'weekly';
+
   totalDeviceCount: number = 0;
+  maxValue: number = 0;
+
+  mostViewedPages: MostViewedPage[] = [];
+  mostClickedActions: MostClickedAction[] = [];
+  clientNames: string[] = [];
+  deviceCounts: DeviceCount[] = [];
+  progressBars: ProgressBar[] = [];
+
   isDisableViewedPages: boolean = false;
   ismapDisable: boolean = false;
   isDisableClickedAction: boolean = false;
-  progressBars: any[] = [];
-  maxValue: number = 0;
-  userData: any = [];
 
+  selectedUsername: string = '';
+  selectedClient: string = '';
+  defaultSelectedClient: string = '';
+  activeTab = 'dashboard';
+  selectedInterval: string = WEEKLY_INTERVAL;
+
+  chartConstructor = 'mapChart';
+  Highcharts: typeof _Highcharts = _Highcharts;
+  chartOptions: Highcharts.Options | null = null;
+  
+  subscriptions: Subscription[] = [];
+  
   constructor(
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
@@ -45,9 +57,9 @@ export class DashboardOverviewComponent {
 
   ngOnInit(): void {
     this.spinner.show();
-    this.selectedInterval = 'weekly';
+    this.selectedInterval = WEEKLY_INTERVAL;
 
-    this.dataService.getAllClients().subscribe((clients: any) => {
+    const clientSubscription = this.dataService.getAllClients().subscribe((clients: string[]) => {
       this.clientNames = clients;
       this.clientNames.splice(-2);
       if (this.clientNames && this.clientNames.length > 0) {
@@ -62,8 +74,11 @@ export class DashboardOverviewComponent {
         this.spinner.hide();
       }, 1000);
     });
+
+    this.subscriptions.push(clientSubscription);
   }
 
+  // load all the widget when it changes the tab
   loadSelectedTabData() {
     if (this.activeTab === 'dashboard') {
       setTimeout(() => {
@@ -77,8 +92,9 @@ export class DashboardOverviewComponent {
     }
   }
 
+  // load Active User by Device
   getDeviceData(selectedClient: string): void {
-    this.dataService.getUsersData(selectedClient).subscribe((data) => {
+    const deviceSubscription= this.dataService.getUsersData(selectedClient).subscribe((data) => {
       if (!data || data.length === 0) {
         return;
       }
@@ -128,30 +144,30 @@ export class DashboardOverviewComponent {
         totalCountElement.innerText =
           'Total Device Count: ' + this.totalDeviceCount;
     });
+    this.subscriptions.push(deviceSubscription);
   }
 
-  onDashboardChange(selectedClient: any): void {
-    console.log('Selected client:', selectedClient); 
+  // change the widget based on the selected client
+  onDashboardChange(selectedClient: string): void {
     this.defaultSelectedClient = selectedClient; 
     this.selectedClientService.setSelectedClient(selectedClient);
     if (!this.selectedUsername || this.selectedUsername) {
-      this.dataService
-        .getUsersByClientName(selectedClient)
-        .subscribe((users) => {
-          this.renderPieChart();
-          this.loadMostViewedPages(selectedClient);
-          this.loadMostClickedActions(selectedClient);
-          this.getDeviceData(selectedClient);
-          this.loadMostUsedBrowsers(selectedClient);
-          this.getMapComponent(this.defaultSelectedClient);
-          this.mostViwedCountry(this.defaultSelectedClient);
-          this.renderBarChart();
-        });
+      const userSubscription = this.dataService.getUsersByClientName(selectedClient).subscribe(() => {
+        this.loadMostViewedPages(selectedClient);
+        this.loadMostClickedActions(selectedClient);
+        this.getDeviceData(selectedClient);
+        this.loadMostUsedBrowsers(selectedClient);
+        this.getMapComponent(this.defaultSelectedClient);
+        this.mostViwedCountry(this.defaultSelectedClient);
+      });
+
+      this.subscriptions.push(userSubscription);
     }
   }
 
+  // load Most Clicked Actions 
   loadMostClickedActions(selectedClient: string): void {
-    this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
+    const clickSubscription=this.dataService.getMostClickedActions(selectedClient).subscribe((data) => {
       if (data && data.length > 0) {
         this.isDisableClickedAction = false;
         this.mostClickedActions = data;
@@ -160,28 +176,33 @@ export class DashboardOverviewComponent {
         this.isDisableClickedAction = true;
       }
     });
+    this.subscriptions.push(clickSubscription);
   }
 
+  // load Most Viewed Pages
   loadMostViewedPages(selectedClient: string): void {
-    this.dataService.getMostVisitedPages(selectedClient).subscribe((data) => {
+    const viewSubscription=this.dataService.getMostVisitedPages(selectedClient).subscribe((data) => {
       this.mostViewedPages = data;
 
       this.renderPieChart();
     });
+    this.subscriptions.push(viewSubscription);
   }
 
-  mostViwedCountry(selectedClient: any): void {
-    this.dataService
+  // load Most Used Countries
+  mostViwedCountry(selectedClient: string): void {
+    const countrySubscription= this.dataService
       .getAccesedCountryCount(selectedClient)
       .subscribe((data: any[]) => {
         const maxValue = Math.max(...data.map((item) => item.value));
         const result = maxValue * 2;
-        console.log(result);
         this.maxValue = result;
         this.progressBars = data;
       });
+      this.subscriptions.push(countrySubscription);
   }
 
+  // Function to render the pie chart for Most Viewed Pages
   renderPieChart() {
     this.dataService
       .getMostVisitedPages(this.defaultSelectedClient)
@@ -242,8 +263,9 @@ export class DashboardOverviewComponent {
       });
   }
 
+  // load Most Used Browsers
   loadMostUsedBrowsers(selectedClient: string): void {
-    this.dataService.getMostUsedBrowsers(selectedClient).subscribe((data) => {
+    const browserSubscription= this.dataService.getMostUsedBrowsers(selectedClient).subscribe((data) => {
       const options: Highcharts.Options = {
         credits: { enabled: false },
         chart: {
@@ -286,6 +308,7 @@ export class DashboardOverviewComponent {
 
       Highcharts.chart('most-used-browsers-chart-container', options);
     });
+    this.subscriptions.push(browserSubscription);
   }
 
   // functions for widget tables
@@ -310,10 +333,11 @@ export class DashboardOverviewComponent {
     this.dataService.setLink('mostUsedBrowsers');
   }
 
+  // Function to render the pie chart forMost Clicked Actions
   renderBarChart() {
     if (this.mostClickedActions.length > 0) {
       const first5Data = this.mostClickedActions.slice(0, 5);
-      const colors = ['#052288'];
+      // const colors = ['#052288'];
       const barFillColor = '#052288';
 
       const options: Highcharts.Options = {
@@ -352,7 +376,8 @@ export class DashboardOverviewComponent {
     }
   }
 
-  getMapComponent(selectedClient: any) {
+  // load Map
+  getMapComponent(selectedClient: string) {
     if (!selectedClient) {
       this.ismapDisable = true;
       return;
@@ -360,7 +385,7 @@ export class DashboardOverviewComponent {
 
     this.ismapDisable = false;
 
-    this.dataService
+    const mapSubscription=this.dataService
       .getlocationData(selectedClient)
       .subscribe((data: any[]) => {
         if (!data || data.length === 0) {
@@ -423,22 +448,28 @@ export class DashboardOverviewComponent {
           ],
         };
       });
+      this.subscriptions.push(mapSubscription);
   }
 
+  // to change the tab when clicked
   changeActiveTab(clickedTab: string) {
-    this.selectedInterval = 'weekly';
+    this.selectedInterval = WEEKLY_INTERVAL;
     this.activeTab = clickedTab;
     this.loadSelectedTabData();
-  }
-  getObjectEntries(obj: any): any[] {
-    return obj ? Object.entries(obj) : [];
   }
 
   ngAfterViewInit() {
     this.cdr.detectChanges();
   }
 
-  ngOnDestroy() {
-    this.alive = false;
+  ngOnDestroy(): void {
+    this.unsubscribeAll();
+  }
+
+  unsubscribeAll(): void {
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+    this.subscriptions = [];
   }
 }
