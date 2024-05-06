@@ -12,6 +12,7 @@ const { getUserEvents, dateFilter, getweeklyData, getmonthlyData } = require('./
 const { createQuestions, getQuestions } = require('./controllers/botControllers/bot_questionsController');
 const { createOffers, getOffers } = require('./controllers/botControllers/bot_offersController');
 const { createAnimations, getAnimations } = require('./controllers/botControllers/bot_animationsController');
+const { submitData, getSubmittedData } = require('./controllers/botControllers/bot_submitDataController');
 
 const app = express();
 const port = 3000;
@@ -55,10 +56,12 @@ app.get('/getMonthlyData/:userId', getmonthlyData)
 app.post('/chatBot/questions/:clientName', createQuestions);
 app.post('/chatBot/offers/:clientName',createOffers);
 app.post('/chatBot/animations/:clientName',createAnimations);
+app.post('/chatBot/submitData/:clientName',submitData);
 
 app.get('/chatBot/getoffers/:clientName', getOffers);
 app.get('/chatBot/getQuestions/:clientName', getQuestions);
 app.get('/chatBot/getAnimations/:clientName', getAnimations);
+app.post('/chatBot/getBotData',getSubmittedData);
 
 app.listen(port, () => {
   console.log(`Server is running on localhost:${port}`);
