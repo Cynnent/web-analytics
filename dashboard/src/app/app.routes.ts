@@ -3,10 +3,10 @@ import { SidebarComponent } from './modules/core/sidebar/sidebar.component';
 import { HeaderComponent } from './modules/core/header/header.component';
 import { AppComponent } from './app.component';
 
-import { InsightComponent } from './modules/dashboard/components/insight/insight/dashboard-insight.component';
-import { TableComponent } from './modules/dashboard/components/table/table.component';
+import { InsightComponent } from './modules/dashboard/components/dashboard-insight/dashboard-insight.component';
+import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
 
-export const routes: Routes = [ 
+export const routes: Routes = [
   {
     path: '',
     component: InsightComponent,
@@ -30,5 +30,5 @@ export const routes: Routes = [
   {
     path: 'mostUsedBrowsers',
     component: TableComponent,
-  }
+  },
 ];

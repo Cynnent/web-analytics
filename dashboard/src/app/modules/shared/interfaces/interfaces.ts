@@ -50,3 +50,16 @@ export interface DeviceCount {
     name: string;
     code: string;
   }
+  export interface Offer {
+    offer: string;
+    link: string;
+    _id?: string;
+  }
+  export interface Question {
+    question: string;
+    _id: string;
+  }
+  export interface Animation {
+    animation: string;
+    _id?: string;
+  }

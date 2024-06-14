@@ -1,0 +1,17 @@
+export const WEEKLY_INTERVAL = 'weekly';
+export const DAILY_INTERVAL = 'daily';
+export const MONTHLY_INTERVAL = 'monthly';
+export const DASHBOARD_TAB = 'dashboard';
+export const DASHBOAR_HEADER = 'Dashboard';
+export const INSIGHT = 'insights';
+export const TOAST_ERROR = 'No data found for the specified date.';
+export const MOST_CLICKED_ACTION = 'Most Clicked Actions';
+export const MOST_VIEWED_PAGES_LINK = 'mostViewedPages';
+export const MOST_VIEWED_PAGES_HEADING = 'Most Viewed Pages';
+export const MOST_CLICKED_ACTIONS_LINK = 'mostClickedActions';
+export const MOST_USED_DEVICES_LINK = 'mostUsedDevices';
+export const ACTIVE_USER_BY_DEVICE = 'Active User by Device';
+export const MOST_USED_BROWSER_LINK = 'mostUsedBrowsers';
+export const MOST_USED_BROWSER_HEADING = 'mostUsedBrowsers';
+export const USER_BY_COUNTRY_LINK = 'usersByCountry';
+export const MOST_USED_COUNTRY_HEADING = 'Most Used Countries';

@@ -15,7 +15,8 @@ import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
 import { RouterModule } from '@angular/router';
 
 //services
-import { DataService } from './modules/shared/services/data.service';
+import { DataService } from './modules/shared/services/dashboard.service';
+import { DashboardCommandService } from './modules/shared/services/dashboardcommand.service';
 
 // Components
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -30,10 +31,10 @@ import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { InsightComponent } from './modules/dashboard/components/insight/insight/dashboard-insight.component';
-import { DashboardOverviewComponent } from './modules/dashboard/components/overview/dashboard-overview/dashboard-overview.component';
-import { DashboardCommandsComponent } from './modules/dashboard/components/commands/dashboard-commands/dashboard-commands.component';
-import { TableComponent } from './modules/dashboard/components/table/table.component';
+import { InsightComponent } from './modules/dashboard/components/dashboard-insight/dashboard-insight.component';
+import { DashboardOverviewComponent } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
+import { DashboardCommandsComponent } from './modules/dashboard/components/dashboard-commands/dashboard-commands.component';
+import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,7 +43,7 @@ import { TableComponent } from './modules/dashboard/components/table/table.compo
     DashboardOverviewComponent,
     DashboardCommandsComponent,
     InsightComponent,
-    TableComponent
+    TableComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,7 +67,7 @@ import { TableComponent } from './modules/dashboard/components/table/table.compo
     NbThemeModule,
     RouterModule.forRoot(routes),
   ],
-  providers: [DataService],
+  providers: [DataService, DashboardCommandService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
   bootstrap: [AppComponent],

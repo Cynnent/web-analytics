@@ -12,14 +12,14 @@ h3 {
     }
 
     .p-datatable-header {
-      background-color: #ffffff;
+      background-color: var(--primary-color);
       border: none;
       border-radius: 0.75rem 0.75rem 0 0;
       padding: 1rem 0;
 
       button {
-        background-color: #052288;
-        color: #ffffff;
+        background-color: var(--background-color);
+        color:var(--primary-color);
         padding: 8px 23px;
         border: none;
         border-radius: 7px;
@@ -52,7 +52,7 @@ h3 {
       > tr {
         > th {
           background-color: #ebeef9;
-          color: #091932;
+          color: var(--label-color);
           font-weight: 600;
           font-family: var(--primary-font);
         }
@@ -94,7 +94,7 @@ h3 {
             &.p-highlight {
               background: #707070 !important;
               border-color: #eff6ff;
-              color: #ffffff;
+              color: var(--primary-color);
               border-radius: 0.25rem;
               padding: 3px 10px;
               min-width: 0;

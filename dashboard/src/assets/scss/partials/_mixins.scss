@@ -5,13 +5,13 @@
   min-width: 17.75rem;
   height: 100vh;
   background: linear-gradient(178deg, #052288 0%, #03134e 100%) 0% 0%;
-  color: #ffffff;
+  color: var(--primary-color);
   padding: 2.938rem 2.75rem;
 }
 
 @mixin headerBaseStyle() {
   font-family: var(--primary-font);
-  background-color: #ffffff;
+  background-color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,13 +25,171 @@
 @mixin dashboardBaseStyle() {
   width: 100%;
   height: 100%;
-  background-color: #ffffff;
+  background-color: var(--primary-color);
   border-radius: 1rem;
   box-shadow: 0 0.188rem 0.625rem #00000014;
+  .active {
+    background-color: #091932;
+    color: var(--primary-color);
+    font-size: 16px;
+    border: 1px solid var(--background-color);
+  }
 }
 
 @mixin widgetCardBaseStyle() {
   padding: 1.188rem 1.5rem;
   border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  position: relative;
   // box-shadow: 0 0.188rem 0.625rem #00000030;
+}
+
+@mixin commandDropDownStyle() {
+  .p-element {
+    .p-overlay {
+      .p-dropdown-panel {
+        box-shadow: rgba(0, 0, 0, 0.16) 2px 3px 9px;
+        border-radius: 6px;
+        .p-dropdown-items .p-dropdown-item.p-highlight {
+          color: #050f1e;
+        }
+        .p-dropdown-items-wrapper {
+          .p-dropdown-items {
+            color: none !important;
+            .p-element {
+              .p-highlight {
+                background: none !important;
+                color: none !important;
+              }
+              .p-dropdown-item:hover {
+                background: #ebeef9 !important;
+                color: none !important;
+              }
+            }
+          }
+        }
+      }
+    }
+    .p-dropdown-header {
+      .p-dropdown-filter-container {
+        .p-inputtext {
+          min-height: 2.5rem;
+          padding-left: 41px;
+          border: 1px solid #bbc1d2;
+          border-radius: 6px;
+          box-shadow: none !important;
+        }
+      }
+    }
+    .p-dropdown {
+      border: 1px solid var(--secondary-color);
+      box-shadow: none !important;
+      border-radius: 6px;
+      padding: 0px 18px;
+      align-items: center;
+      justify-content: center;
+      width: 21rem;
+      max-width: 100%;
+      height: 2.5rem;
+    }
+    .p-multiselect-panel {
+      box-shadow: 2px 3px 9px #00000029;
+      border-radius: 6px;
+      //max-width: 20rem;
+      .p-multiselect-close {
+        display: none;
+      }
+      .p-multiselect-items-wrapper {
+        .p-multiselect-items {
+          .p-multiselect-item {
+            background: white;
+            color: #03134e;
+            .p-checkbox {
+              .p-highlight {
+                background: black;
+              }
+            }
+            .inputtext {
+              text-wrap: wrap;
+            }
+          }
+          p-multiselectitem li:hover {
+            background: #ebeef9;
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin searchBoxStyle() {
+  padding: 5px;
+
+  .p-inputtext {
+    min-height: 2.5rem;
+    padding-left: 41px;
+    border: 1px solid #bbc1d2;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  svg {
+    margin-top: -8px;
+  }
+}
+
+@mixin multiTextButtonStyle() {
+  border-radius: 6px;
+  left: auto;
+  width: 7.3rem;
+  // left: 10px;
+  background: #050f1e;
+}
+
+@mixin multiTextFotterButtonStyle($right-position) {
+  margin-top: 25px;
+  padding: 10px;
+  position: relative;
+  margin-right: $right-position;
+  margin-left: $right-position;
+}
+
+@mixin addOfferField() {
+  .add-link {
+    .delete-offer {
+      min-width: 30px;
+    }
+  }
+  .offer-textarea {
+    .p-inputtextarea {
+      border: 1px solid #8c92a4;
+    }
+    button {
+      right: 20px;
+      top: 10px;
+      background: none;
+      border: none;
+      padding-left: 120px;
+    }
+  }
+}
+
+@mixin multiTextDeleteButton() {
+  .p-button-icon-only {
+    border-radius: 50%;
+    width: 30px;
+    // top: 50px;
+    // left: -20px;
+    height: 30px;
+  }
+}
+
+@mixin commandAnimationInputText() {
+  .p-dropdown-trigger {
+    .p-icon-wrapper {
+      // right: 1.5rem;
+      // position: relative;
+      padding: 18px;
+      margin-right: 18px;
+    }
+  }
 }

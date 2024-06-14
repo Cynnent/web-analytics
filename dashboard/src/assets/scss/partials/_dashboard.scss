@@ -15,12 +15,6 @@
       border-radius: 1rem 0 0;
     }
 
-    .active {
-      background-color: #052288;
-      color: #ffffff;
-      font-size: 16px;
-      border: 1px solid #052288;
-    }
 
     .inactive {
       border: 1px solid transparent;
@@ -48,8 +42,7 @@ h3 {
 
 .card-widget {
   @include widgetCardBaseStyle;
-  border: 1px solid #efefef;
-  position: relative;
+  
   .browser-view {
     height: 400px;
     margin: 0 auto;
@@ -85,7 +78,7 @@ h3 {
   display: flex;
   gap: 29px;
 
-  .card-body select {
+  .card-body select { 
     width: 100%;
     padding: 8px;
     font-size: 16px;
@@ -119,7 +112,7 @@ p-card-header {
     justify-content: center;
     border-radius: 8px;
     opacity: 1;
-    background: #052288;
+    background: var(--background-color);
     margin-right: 15px;
     .icons {
       margin-right: 7px;
@@ -159,12 +152,14 @@ p-card-header {
 
 .dashboard-dropdown {
   float: right;
-  margin-top: -3.5rem;
+  margin-top: -0.5rem;
   margin-right: 1.5rem;
 }
 .p-dropdown-label {
   font-family: var(--primary-font);
   font-weight: bold;
+  padding: 5px;
+  margin-right: 5px;
 }
 .clicked-actions{
   svg{
@@ -178,7 +173,7 @@ p-card-header {
 }
 
 .high-chart {
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--primary-color) 0% 0% no-repeat padding-box;
   box-shadow: inset 0px 0px 3px #00000029, 9px 7px 9px #ccc1c11f;
   border-radius: 10px;
   opacity: 1;
@@ -282,7 +277,7 @@ progress {
 
 .p-calendar .p-component {
   box-shadow: inset 0px 3px 6px rgba(5, 34, 136, 0.2196078431);
-  border: 1px solid #a3a3a3;
+  border: 1px solid var(--secondary-color);
   border-radius: 6px;
   padding: 13px 30px;
   align-items: center;

@@ -1,0 +1,21 @@
+$icon-svg: "maplandmark", "cursor-finger", "eye", "cross", "burger", "check",
+  "cross", "globe_New", "globe", "home", "landmark", "link", "logo-icon", "logo",
+  "menu", "plus", "user-pic", "User";
+
+@each $icon in $icon-svg {
+  .icon-#{$icon} {
+    height: 1.5rem;
+    width: 1.5rem;
+    background-size: contain;
+    background-image: url("./../../img/#{$icon}.svg");
+    background-repeat: no-repeat;
+  }
+}
+
+.icon-eye {
+  width: 2rem;
+}
+.icon-cross,
+.icon-check {
+  height: 0.7rem;
+}

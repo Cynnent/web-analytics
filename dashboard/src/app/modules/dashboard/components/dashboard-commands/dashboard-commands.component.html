@@ -1,0 +1,305 @@
+<div class="col-12">
+  <div class="grid gap-6 col-12">
+    <div class="dropdown-container">
+      <label class="label relative" for="selectClient">Choose client</label>
+      <div class="dashboard-commands p-2">
+        <p-dropdown
+          [options]="clientNames"
+          [(ngModel)]="defaultSelectedClient"
+          (onChange)="clientChange($event)"
+          placeholder=""
+        >
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="dropdown-container">
+      <label class="label relative" for="selectQuestion">Questions</label>
+      <div class="multiple-select grid p-3">
+        <p-dropdown
+          [options]="questions"
+          [(ngModel)]="selectedQuestion"
+          optionLabel="question"
+          [filter]="true"
+          filterBy="question"
+          [showClear]="false"
+          placeholder="Select Question"
+        ></p-dropdown>
+        <div class="add-questions">
+          <p-button
+            (click)="toggleDialog('question')"
+            icon="pi pi-plus"
+            class="m-1"
+          ></p-button>
+          <p-dialog
+            class="w-full"
+            [closable]="false"
+            header="Add Question"
+            [(visible)]="questionDialogVisible"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="false"
+          >
+            <div class="add-btn">
+              <div class="col-12">
+                <ng-container
+                  *ngFor="let area of questionTextInputs; let i = index"
+                >
+                  <div>
+                    <textarea
+                      rows="5"
+                      cols="30"
+                      pInputTextarea
+                      [(ngModel)]="area.value"
+                      class="mb-3"
+                    ></textarea>
+                    <p-button
+                      *ngIf="showMinusIcon[i]"
+                      (click)="clearInput(i, 'question')"
+                      icon="pi pi-minus"
+                      class="remove-icon"
+                    ></p-button>
+                  </div>
+                </ng-container>
+              </div>
+              <div class="round-icon-button">
+                <p-button
+                  (click)="appendNewText('question')"
+                  label="Add Questions"
+                >
+                  <span class="p-2"><span class="icon-plus"></span></span>
+                </p-button>
+              </div>
+            </div>
+            <div class="btn-group-model justify-content-between p-2 mt-3 grid">
+              <p-button
+                class="cancel-btn"
+                label="Cancel"
+                [text]="true"
+                (click)="toggleDialog('cancel')"
+                severity="secondary"
+              ></p-button>
+              <p-button
+                class="model-btn grid"
+                (click)="sendAnimationQuestion('question')"
+                label="Save"
+              ></p-button>
+            </div>
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown-container">
+      <label class="label relative" for="selectOffers">Offers providing</label>
+      <div class="multiple-select grid p-3">
+        <p-multiSelect
+          [options]="offers"
+          [(ngModel)]="selectedOffers"
+          [showToggleAll]="false"
+          placeholder="Select Offers"
+          optionLabel="offer"
+          [showClear]="true"
+        >
+          {{ offers }}
+          <ng-template let-offer pTemplate="item">
+            <div class="inputtext flex align-items-center gap-2">
+              <div>{{ offer.offer }}</div>
+            </div>
+          </ng-template>
+
+          <div class="text-box-footer">
+            <input type="text" pInputText />
+          </div>
+        </p-multiSelect>
+
+        <div class="btn-group">
+          <p-button
+            (click)="toggleDialog('offer')"
+            [showClear]="true"
+            icon="pi pi-plus"
+            class="m-1"
+          ></p-button>
+          <p-dialog
+            [closable]="false"
+            header="Add Offers"
+            [(visible)]="offerDialogVisible"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="false"
+            [showClear]="true"
+          >
+            <div class="add-btn">
+              <div class="p-2">
+                <ng-container
+                  *ngFor="let area of offerTextInputs; let i = index"
+                >
+                  <div class="mb-3 add-link flex gap-3">
+                    <div
+                      *ngIf="showTextarea[i]"
+                      class="relative w-full offer-textarea"
+                    >
+                      <textarea
+                        class="w-full"
+                        rows="5"
+                        cols="30"
+                        pInputTextarea
+                        placeholder="Enter Offers"
+                        [(ngModel)]="area.value"
+                      >
+                      </textarea>
+                      <button
+                        (click)="closeTextarea(i)"
+                        class="cursor-pointer absolute"
+                      >
+                        <span class="icon-cross block"></span>
+                      </button>
+                    </div>
+                    <div class="relative w-full custom-textarea">
+                      <textarea
+                        rows="5"
+                        cols="30"
+                        class="w-full"
+                        placeholder="Add link"
+                        (input)="onTextareaLinkInput($event)"
+                        [(ngModel)]="linkTextInputs[i].value"
+                        #linkTextarea
+                        pInputTextarea
+                      ></textarea>
+
+                      <img
+                        class="absolute w-1rem h-1rem"
+                        src="./../../../../../assets/img/link.svg"
+                        [hidden]="isTextareaActive"
+                        alt="Icon"
+                      />
+                    </div>
+
+                    <div
+                      class="delete-offer flex justify-content-center align-items-center"
+                    >
+                      <p-button
+                        *ngIf="showMinusIcon[i]"
+                        (click)="clearInput(i, 'offer')"
+                        class="remove-icon block"
+                        icon="pi pi-minus"
+                      ></p-button>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+              <div class="round-icon-button">
+                <p-button
+                  (click)="appendNewText('offer')"
+                  icon="pi pi-plus"
+                  label="Add Offers"
+                ></p-button>
+              </div>
+            </div>
+            <div class="btn-group-model justify-content-between grid gap-4">
+              <p-button
+                class="cancel-btn"
+                label="Cancel"
+                [text]="true"
+                (click)="toggleDialog('cancel')"
+                severity="secondary"
+              ></p-button>
+              <p-button
+                class="model-btn grid"
+                (click)="addOffer()"
+                [loading]="loading"
+                (onClick)="load()"
+                label="Save"
+              ></p-button>
+            </div>
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown-container">
+      <label class="label relative" for="selectClient">Animations</label>
+      <div class="dashboard-commands grid p-3">
+        <p-dropdown
+          [options]="animations"
+          optionLabel="animation"
+          [(ngModel)]="selectedAnimation"
+          placeholder=""
+        >
+        </p-dropdown>
+
+        <div class="add-animation">
+          <p-button
+            (click)="toggleDialog('animation')"
+            icon="pi pi-plus"
+            class="p-3"
+          ></p-button>
+          <p-dialog
+            [closable]="false"
+            header="Add Animations"
+            [(visible)]="animationDialogVisible"
+            [modal]="true"
+            [style]="{ width: '45%' }"
+            [draggable]="false"
+            [resizable]="false"
+          >
+            <div class="add-btn">
+              <div class="col-12">
+                <ng-container
+                  *ngFor="let area of animationTextInputs; let i = index"
+                >
+                  <div>
+                    <textarea
+                      rows="5"
+                      cols="30"
+                      pInputTextarea
+                      [(ngModel)]="area.value"
+                      class="mb-3"
+                    ></textarea>
+                    <p-button
+                      *ngIf="showMinusIcon[i]"
+                      (click)="clearInput(i, 'animation')"
+                      icon="pi pi-minus"
+                      class="remove-icon"
+                    ></p-button>
+                  </div>
+                </ng-container>
+              </div>
+              <div class="round-icon-button">
+                <p-button
+                  (click)="appendNewText('animation')"
+                  label="Add Animation"
+                  ><span class="p-2"><span class="icon-plus"></span></span
+                ></p-button>
+              </div>
+            </div>
+            <div class="btn-group-model justify-content-between p-2 mt-3 grid">
+              <p-button
+                class="cancel-btn"
+                label="Cancel"
+                [text]="true"
+                (click)="toggleDialog('cancel')"
+                severity="secondary"
+              ></p-button>
+              <p-button
+                class="model-btn grid"
+                (click)="sendAnimationQuestion('animation')"
+                label="Save"
+              ></p-button>
+            </div>
+          </p-dialog>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-btns relative justify-content-between grid">
+    <p-button class="cancel-btn w-9rem mr-4" label="Cancel"
+      ><span class="ml-3 pr-2"><span class="icon-cross block"></span></span
+    ></p-button>
+
+    <p-button class="submit-btn w-9rem" (click)="submitData()" label="Submit"
+      ><span class="ml-3"><span class="icon-check block"></span></span
+    ></p-button>
+  </div>
+</div>
