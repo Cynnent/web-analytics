@@ -1,0 +1,99 @@
+ [
+  {
+      "intent": "greeting",
+      "patterns": [
+          "Hi",
+          "Hey",
+          "How are you",
+          "Is anyone there?",
+          "Hello",
+          "Good day"
+      ],
+      "responses": [
+          "Hey :-)",
+          "Hello, thanks for visiting",
+          "Hi there, what can I do for you?",
+          "Hi there, how can I help?"
+      ]
+  },
+  {
+      "intent": "goodbye",
+      "patterns": ["Bye", "See you later", "Goodbye"],
+      "responses": [
+          "See you later, thanks for visiting",
+          "Have a nice day",
+          "Bye! Come back again soon."
+      ]
+  },
+  {
+      "intent": "thanks",
+      "patterns": ["Thanks", "Thank you", "That's helpful", "Thank's a lot!"],
+      "responses": ["Happy to help!", "Any time!", "My pleasure"]
+  },
+  {
+      "intent": "payments",
+      "patterns": [
+          "Do you take credit cards?",
+          "Do you accept Mastercard?",
+          "Can I pay with Paypal?",
+          "Are you cash only?"
+      ],
+      "responses": [
+          "We accept VISA, Mastercard and Paypal",
+          "We accept most major credit cards, and Paypal"
+      ]
+  },
+  {
+      "intent": "delivery",
+      "patterns": [
+          "How long does delivery take?",
+          "How long does shipping take?",
+          "When do I get my delivery?"
+      ],
+      "responses": [
+          "Delivery takes 2-4 days",
+          "Shipping takes 2-4 days"
+      ]
+  },
+  {
+      "intent": "SearchProductsByPriceRange",
+      "patterns": [
+          "Show products with price range {min} to {max} dollars",
+          "Can you show me products priced between {min} and {max} dollars?",
+          "What items are available in the price range {min} to {max} dollars?",
+          "Find products costing from {min} to {max} dollars.",
+          "Show me products that cost between {min} and {max} dollars.",
+          "I want to see items with prices ranging from {min} to {max} dollars.",
+          "Please display products priced from {min} to {max} dollars.",
+          "Are there any products priced between {min} and {max} dollars?"
+          ],
+      "responses": ["Please wait while I fetch the products for you."]
+  },
+  {
+      "intent": "SearchProductsByCategory",
+      "patterns": [
+          "Show products in the {category} category", 
+          "Show me {category} products",
+          "I want to see products in the {category} category",
+          "Please display products in the {category} category.",
+          "Show all products in the {category} category."
+          ],
+      "responses": ["Please wait while I fetch the products for you."]
+  },
+  {
+      "intent": "SearchProductsByProductName",
+      "patterns": [
+          "Show products with the name {product_name}",
+          "Show me products called {product_name}",
+          "Find products named {product_name}",
+          "Can you show me products with the name {product_name}?",
+          "Do you have any products named {product_name}?",
+          "I am looking for products called {product_name}.",
+          "Please find products with the name {product_name}.",
+          "Are there any products named {product_name}?",
+          "Show all products with the name {product_name}."
+      ],
+      "responses": ["Please wait while I fetch the products for you."]
+}
+
+]
