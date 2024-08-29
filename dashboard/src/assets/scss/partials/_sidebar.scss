@@ -13,10 +13,14 @@ aside {
   a {
     text-decoration: none;
 
+    .icon-text {
+      margin-left: 10px;
+    }
+
     .active {
       color: #c3ccec;
       fill: #c3ccec;
-      font-size: 16px;
+      font-size: 1rem;
     }
 
     .inactive {
@@ -39,5 +43,4 @@ aside {
       margin-left: 1.5rem;
     }
   }
-
 }

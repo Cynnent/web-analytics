@@ -23,12 +23,12 @@
     >
       Insights
     </button>
-    <button
+    <!-- <button
       (click)="changeActiveTab('commands')"
       [ngClass]="[activeTab === 'commands' ? 'active' : 'inactive']"
     >
       Commands
-    </button>
+    </button> -->
   </span>
 
   <div class="row dropdowns col-12" *ngIf="activeTab === 'insights'">
@@ -39,9 +39,8 @@
             [options]="clientNames"
             [(ngModel)]="defaultSelectedClient"
             (onChange)="insightClientChange(defaultSelectedClient)"
-            placeholder=""
-          >
-          </p-dropdown>
+            placeholder="Select Client"
+          ></p-dropdown>
         </div>
 
         <div class="col-12 md:col-4">
@@ -51,15 +50,32 @@
             (onChange)="userChange()"
             optionLabel="value"
             optionValue="id"
-            placeholder=""
-          >
-          </p-dropdown>
+            placeholder="Select User"
+          ></p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-4">
+          <p-dropdown
+            [options]="intervalOptions"
+            [(ngModel)]="selectedInterval"
+            (onChange)="intervalChange(selectedInterval)"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select Interval"
+          ></p-dropdown>
         </div>
       </div>
 
-      <!-- {{ userData.screens }} -->
+      <!-- Interval dropdown -->
+      <!-- <div class="grid col-12 mt-4">
+        
+      </div> -->
+
       <div *ngIf="userData" class="flow-graph mt-4 mb-4">
-        <h5 class="text-left" [ngClass]="{ hide: !userData.screens }">
+        <h5
+          class="text-left"
+          [ngClass]="{ 'disable-class-screen': isScreenOverview === true }"
+        >
           User Journey Flow
         </h5>
         <div
@@ -84,12 +100,9 @@
           </ol>
         </div>
 
-        <div
-          class="col-12 md:lg-12"
-          [ngClass]="{ hide: !isChartDataAvailable }"
-        >
+        <div class="col-12 md:lg-12">
           <div class="justify-content-between flex mb-2 text-left">
-            <div>
+            <div [ngClass]="{ hide: !isChartDataAvailable }">
               <label>Would you like to see user journey?</label>
               <div>
                 <p-calendar
@@ -102,15 +115,6 @@
                   placeholder="Select Date"
                 ></p-calendar>
               </div>
-            </div>
-            <div>
-              <p-dropdown
-                [options]="intervalOptions"
-                [(ngModel)]="selectedInterval"
-                (onChange)="intervalChange(selectedInterval)"
-                optionLabel="label"
-                optionValue="value"
-              ></p-dropdown>
             </div>
           </div>
           <div class="high-chart" [ngClass]="{ hide: !isChartDataAvailable }">
@@ -125,8 +129,7 @@
     </div>
   </div>
 
-  <!-- 
-dashboard -->
+  <!-- dashboard -->
   <div *ngIf="activeTab == 'dashboard'" class="p-4">
     <app-dashboard-overview></app-dashboard-overview>
   </div>

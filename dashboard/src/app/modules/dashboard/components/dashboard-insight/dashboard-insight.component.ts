@@ -212,11 +212,14 @@ export class InsightComponent {
     if (interval === MONTHLY_INTERVAL && this.selectedUsername) {
       this.fetchMonthlyChartData();
       this.isScreenOverview = true;
+      this.datePicker.writeValue(null);
     } else if (interval === WEEKLY_INTERVAL && this.selectedUsername) {
       this.getWeeklyData();
-    } else if (this.selectedInterval === WEEKLY_INTERVAL) {
-      this.datePicker.writeValue(null);
       this.isScreenOverview = true;
+      this.datePicker.writeValue(null);
+    } else if (this.selectedInterval === WEEKLY_INTERVAL) {
+      this.isScreenOverview = true;
+      this.datePicker.writeValue(null);
     } else if (this.selectedInterval === DAILY_INTERVAL) {
       this.isScreenOverview = false;
     }
@@ -375,21 +378,26 @@ export class InsightComponent {
         (userData) => {
           if (!userData) {
             this.toastr.error('Invalid response from API');
+            this.isChartDataAvailable = false;
             return;
           }
 
           if (userData.totalCount === 0) {
             this.toastr.error(TOAST_ERROR);
+            this.isChartDataAvailable = false;
           } else {
             this.userData = userData;
             const seriesData = [
               { name: 'Total Count', data: [userData.totalCount] },
             ];
             this.renderChart(seriesData, [selectedDateForId]);
+            this.isChartDataAvailable = true;
           }
         },
         (error) => {
           if (error.status === 404) {
+            this.isChartDataAvailable = false;
+            this.isScreenOverview = true;
           }
           this.toastr.error(
             error.status === 404 ? TOAST_ERROR : 'Error fetching user events',
@@ -412,6 +420,7 @@ export class InsightComponent {
       }
     }
   }
+
   loadDatesForUser(userId: string): void {
     const datesSubscription = this.dataService
       .getDatesByUserId(userId)

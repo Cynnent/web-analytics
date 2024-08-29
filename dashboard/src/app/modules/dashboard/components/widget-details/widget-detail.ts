@@ -72,7 +72,6 @@ export class TableComponent implements OnInit {
     public dataService: DataService,
     private selectedClientService: SelectedClientService,
   ) {
-    console.log(this.dataService.widgetLink);
     if (this.dataService.widgetLink === MOST_VIEWED_PAGES_LINK) {
       this.widgetHeading = MOST_VIEWED_PAGES_HEADING;
       this.setHeaders('Page Name', 'pageName', 'Percentage', 'percentage');
@@ -122,7 +121,6 @@ export class TableComponent implements OnInit {
 
   fetchTableData() {
     if (this.selectedClientName) {
-      console.log(this.selectedClientName);
       this.dataService.getTableData(this.selectedClientName).subscribe(
         (data) => {
           this.tableData = data;
@@ -133,14 +131,12 @@ export class TableComponent implements OnInit {
           console.error('Error fetching table data:', error);
         },
       );
-      console.log(this.tableType);
       if (this.tableType === 'primaryTable') {
         this.cols = [
           { field: 'serialNumber', header: 'Sl.No' },
           { field: this.primaryField, header: this.primaryHeader },
           { field: this.secondaryField, header: this.secondaryHeader },
         ];
-        console.log(this.cols);
       } else if (this.tableType === 'secondaryTable') {
         this.cols = [
           { field: 'serialNumber', header: 'Sl.No' },

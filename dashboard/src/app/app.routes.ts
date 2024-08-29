@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 
 import { InsightComponent } from './modules/dashboard/components/dashboard-insight/dashboard-insight.component';
 import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
+import { DashboardOverviewComponent } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
 
 export const routes: Routes = [
   {
@@ -30,5 +31,9 @@ export const routes: Routes = [
   {
     path: 'mostUsedBrowsers',
     component: TableComponent,
+  },
+  {
+    path: 'dashboard',
+    component: InsightComponent,
   },
 ];

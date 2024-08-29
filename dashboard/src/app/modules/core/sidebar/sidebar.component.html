@@ -1,25 +1,18 @@
 <aside class="hidden lg:block">
   <span class="flex justify-content-center align-items-center mb-5">
     <img class="logo" src="./../../../../assets/img/logo-icon.svg" />
-    
   </span>
   <ul>
     <li>
-      <a href="">
-        <svg
-          [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24.646"
-          height="27.729"
-          viewBox="0 0 24.646 27.729"
-        >
-          <path
-            id="home_FILL0_wght400_GRAD0_opsz24"
-            d="M163.081-815.353H167.7V-824.6h9.243v9.243h4.621v-13.864l-9.243-6.932-9.243,6.932ZM160-812.272v-18.485L172.324-840l12.324,9.243v18.485H173.864v-9.243h-3.081v9.243ZM172.324-825.751Z"
-            transform="translate(-160 840)"
-          />
-        </svg>
+      <a routerLink="/dashboard">
         <span
+          ><img
+            [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
+            src="./../../../../assets/img/dashboard.svg"
+        /></span>
+
+        <span
+          class="icon-text"
           [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
           (click)="changeActiveLink('dashboard', $event)"
           >Dashboard</span

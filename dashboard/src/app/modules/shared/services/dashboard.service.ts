@@ -53,9 +53,9 @@ export class DataService {
 
   getUsersByClientName(selectedClient: string): Observable<{ _id: string }[]> {
     return this.http
-      .get<UserResponse[]>(
-        `https://webanalyticals.onrender.com/getUsersByClientName/${selectedClient}`
-      )
+      .get<
+        UserResponse[]
+      >(`https://webanalyticals.onrender.com/getUsersByClientName/${selectedClient}`)
       .pipe(map((response) => response.map((user) => ({ _id: user._id }))));
   }
 
@@ -65,17 +65,16 @@ export class DataService {
       catchError((error) => {
         console.error('Error in getMonthlyData:', error);
         throw error;
-      })
+      }),
     );
   }
   getAccesedCountryCount(selectedClient: string): Observable<MapData[]> {
     const endpoint = `https://webanalyticals.onrender.com/accesedCountCountry/${selectedClient}`;
-    console.log('API Endpoint:', endpoint);
     return this.http.get<MapData[]>(endpoint).pipe(
       catchError((error) => {
         console.error('Error in getAccesedCountryCount:', error);
         throw error;
-      })
+      }),
     );
   }
 
@@ -85,7 +84,7 @@ export class DataService {
       catchError((error) => {
         console.error('Error in getMostUsedBrowsers:', error);
         throw error;
-      })
+      }),
     );
   }
 
@@ -95,41 +94,40 @@ export class DataService {
       catchError((error) => {
         console.error('Error in getWeeklyDataForUser:', error);
         throw error;
-      })
+      }),
     );
   }
 
   getDatesByUserId(
-    userId: string
+    userId: string,
   ): Observable<{ id: string; value: string }[]> {
     return this.http
-      .get<UserResponse[]>(
-        `https://webanalyticals.onrender.com/getDates/${userId}`
-      )
+      .get<
+        UserResponse[]
+      >(`https://webanalyticals.onrender.com/getDates/${userId}`)
       .pipe(
         map((response) =>
-          response.map((item) => ({ id: item.date, value: item.date }))
-        )
+          response.map((item) => ({ id: item.date, value: item.date })),
+        ),
       );
   }
 
   getlocationData(selectedClient: string): Observable<MapData[]> {
     const endpoint = `https://webanalyticals.onrender.com/getAllMapData/${selectedClient}`;
-    console.log('API Endpoint:', endpoint);
     return this.http.get<MapData[]>(endpoint).pipe(
       catchError((error) => {
         console.error('Error in getlocationData:', error);
         throw error;
-      })
+      }),
     );
   }
 
   getUserEvents(
     selectedUsername: string,
-    selectedDateForId: string
+    selectedDateForId: string,
   ): Observable<UserResponse> {
     return this.http.get<UserResponse>(
-      `https://webanalyticals.onrender.com/getUserEvents/${selectedUsername}/${selectedDateForId}`
+      `https://webanalyticals.onrender.com/getUserEvents/${selectedUsername}/${selectedDateForId}`,
     );
   }
 
@@ -139,7 +137,7 @@ export class DataService {
       map((data) => {
         this.mostVisitedPages = data;
         return data;
-      })
+      }),
     );
   }
 
@@ -149,13 +147,13 @@ export class DataService {
       map((data) => {
         this.mostClickedAction = data;
         return data;
-      })
+      }),
     );
   }
 
   getTableData(clientName: string): Observable<any> {
     return this.http.get(
-      `https://webanalyticals.onrender.com/${this.widgetLink}/${clientName}`
+      `https://webanalyticals.onrender.com/${this.widgetLink}/${clientName}`,
     );
   }
 }
