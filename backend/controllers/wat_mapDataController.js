@@ -1,23 +1,27 @@
 const MapData = require("../models/wat_mapData");
 
-const mapData = async (req, res) => {
-  const { _id, clientName, latitude, longitude, country, cityName } = req.body;
+const mapData = async (socket, locationInfoJson) => {
   try {
-    const newMapData = new MapData({
-      _id,
-      clientName,
-      latitude,
-      longitude,
-      country,
-      cityName,
-    });
-    const savedData = await newMapData.save();
-    res.status(200).json({ message: "map Data added successfully" });
+      const locationinfo = JSON.parse(locationInfoJson);
+
+      const { _id, clientName, latitude, longitude, country, cityName } = locationinfo;
+
+      const newMapData = new MapData({
+        _id,
+        clientName,
+        latitude,
+        longitude,
+        country,
+        cityName,
+      });
+
+   await newMapData.save().then((res) => console.log(res)).catch((err) => console.log(err))
   } catch (error) {
-    console.error("Error creating mapdata:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error creating mapdata:', error.message);
   }
 };
+
+
 
 const getAllMapData = async (req, res) => {
   try {
