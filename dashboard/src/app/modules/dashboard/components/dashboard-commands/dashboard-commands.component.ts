@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'app-dashboard-commands',
   templateUrl: './dashboard-commands.component.html',
-  styleUrl: './dashboard-commands.component.css',
 })
 export class DashboardCommandsComponent {
   countries!: Country[];

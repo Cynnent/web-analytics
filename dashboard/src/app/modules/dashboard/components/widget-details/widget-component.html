@@ -5,7 +5,7 @@
 
     <p-table
       class="primary-table"
-      #dt1
+      #widgetTable
       dataKey="id"
       styleClass="p-datatable-striped"
       [value]="tableData"
@@ -30,7 +30,7 @@
             />
           </span>
           <span>
-            <button (click)="dt1.exportCSV()">Export</button>
+            <button (click)="widgetTable.exportCSV()">Export</button>
           </span>
         </div>
       </ng-template>
@@ -64,7 +64,7 @@
     </p-table>
 
     <p-table
-      #dt1
+      #widgetTable
       dataKey="id"
       class="primary-table"
       [value]="tableData"
@@ -111,7 +111,7 @@
         let-rowspan="rowspan"
       >
         <tr>
-          <td>{{ rowIndex }}</td>
+          <td>{{ rowIndex+1 }}</td>
           <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
             <span class="font-bold ml-2">{{ data[this.primaryField] }}</span>
           </td>
