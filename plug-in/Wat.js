@@ -1,183 +1,3 @@
-const generateString = (length) => {
-  let result = "";
-  const charactersLength = characters.length;
- 
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
- 
-  return result;
-};
- 
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
- 
-  return `${year}-${month}-${day}`;
-}
- 
-function storeUserName(value) {
-  sessionStorage.setItem("usernames", JSON.stringify(value));
-}
- 
-// Event handler functions
-let isCookieCancel = false;
-function onAccept() {
-  this.getUserRegion();
-  closeCookiePopup();
-}
- 
-function onBlock() {
-  closeCookiePopup();
-  isCookieCancel = false;
-  if(isCookieCancel){
-    sendUserInfoToConfig(userDetail.userInfo[0])
-  }
-}
- 
-// Function to close the cookie popup
-function closeCookiePopup() {
-  const cookiePopup = document.getElementById("cookiePopup");
- 
-  if (cookiePopup) {
-    cookiePopup.remove();
-  }
- 
-}
- 
-// Function to set cookie with expiry time
-function setCookie(name, value, hours) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + hours * 60 * 60 * 1000); // Convert hours to milliseconds
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-}
- 
-function getUserRegion() {
- 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
- 
-        let userType;
- 
-        fetch(url)
-          .then((res) => res.json())
-          .then((data) => {
-            const country = data.address.country;
-            const city = data.address.county;
-            const storedUserData = sessionStorage.getItem("usernames");        
- 
-            for (let i = 0; i < sessionStorage.length; i++) {
-              const key = sessionStorage.key(i);
-            }
- 
-            if (storedUserData) {
-              userType = "Authenticated";
-            } else {
-              userType = "Anonymous";
-            }
- 
-            const deviceType = getCookie("deviceType");
-       
-            const userInfo = {
-              ip: ipAddress,
-              userName: generateString(5),
-              userType: userType,
-              browserName: browserName,
-              dates: date,
-              time: times,
-              clientName: clientName,
-              deviceType : deviceType,
- 
-            };
-            const locationInfo = {
-              clientName: clientName,
-              latitude: latitude.toString(),
-              longitude: longitude.toString(),
-              cityName : city.toString(),
-              country: country.toString(),
- 
-            }
-            const deviceTypeInfo = {
-              clientName: clientName,
-              DeviceName : deviceType,
-            }
- 
-           sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo);
-   
-          });
- 
-        setCookie("cookieAccepted", "true", 24);
-      },
-      (error) => {
-        console.error("Error getting user location:", error);
-      }
-    );
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  }
-}
- 
-function detectDeviceType() {
-  const userAgent = navigator.userAgent.toLowerCase();
- 
-  if (/ipad|tablet|playbook|silk/i.test(userAgent)) {
-      return 'tablet';
-  } else if (/mobile|iphone|ipod|blackberry|opera mini|iemobile|windows phone|trident|opera mobi|mobilesafari|htc|nokia|symbian|samsung|lg|mot/i.test(userAgent)) {
-      return 'mobile';
-  } else {
-      return 'pc';
-  }
-}
- 
-function getCookie(cookieName) {
-  const cookies = document.cookie.split(";");
- 
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
- 
-    if (cookie.indexOf(cookieName + "=") === 0) {
-      return cookie.substring(cookieName.length + 1);
-    }
-  }
- 
-  return null;
-}
- 
-// Function to inject HTML into the DOM
-function injectHTML(html) {
-  const sessionDetails = getCookie("cookieAccepted");
- 
-  if (!sessionDetails) {
-    const container = document.createElement("div");
-    container.innerHTML = htmlTemplate.trim();
-    document.body.appendChild(container.firstChild);
-  }
- 
-}
- 
-function storeUserEvent(value) {
-  sessionStorage.setItem("userevents", JSON.stringify(value));
-  isResponseToDB = true;
-}
- 
-function determineCurrentScreen() {
-  const currentURL = window.location.href;
-  pageName = currentURL.substring(currentURL.lastIndexOf("/") + 1);
-}
- 
-function changedPageName(isPageChangedtoOtherScreen) {
- 
-  if (isPageChangedtoOtherScreen) {
-    pageName = newPageName;
-  }
-  return pageName;
-}
- 
 const getDate = new Date();
 const year = getDate.getFullYear();
 const month = (getDate.getMonth() + 1).toString().padStart(2, "0");
@@ -187,19 +7,18 @@ const hh = getDate.getHours();
 const mm = getDate.getMinutes();
 const ss = getDate.getSeconds();
 const times = `${hh.toLocaleString()}:${mm.toLocaleString()}:${ss.toLocaleString()}`;
-const userAgent = navigator.userAgent;
-const browserName =  Object.keys(browserNameMapping).find((key) => userAgent.includes(key)) ||  "Unknown Browser";
- 
+
 const browserNameMapping = {
-  "Firefox": "Mozilla Firefox",
+  Firefox: "Mozilla Firefox",
   "Edg/": "Microsoft Edge",
-  "Chrome": "Google Chrome",
-  "Safari": "Apple Safari",
-  "Opera": "Opera",
-  "MSIE": "Internet Explorer",
+  Chrome: "Google Chrome",
+  Safari: "Apple Safari",
+  Opera: "Opera",
+  MSIE: "Internet Explorer",
   "Trident/": "Internet Explorer",
 };
-const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const characters = 
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const titleElements = document.querySelectorAll("title");
 const clientName = titleElements[0].innerHTML;
 // HTML template for cookie prompt
@@ -223,30 +42,61 @@ const htmlTemplate = `
   </div>
 </div>
 `;
- 
+
+let userDetail = {};
 let pageName = "";
 let newPageName = "";
 let isPageChanged = false;
-let isResponseToDB = false;
-let ls = {};
-let userDetail = {};
-let clickCounts = {};
 let id;
 let time;
 let serverUpdateTime;
+let isResponseToDB = false;
 let ipAddress;
+let ls = {};
+let clickCounts = {};
+
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); 
+  const day = String(date.getDate()).padStart(2, '0');
  
+  return `${year}-${month}-${day}`;
+}
+
+const generateString = (length) => {
+  let result = "";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+};
+
+const userAgent = navigator.userAgent;
+const browserName =
+  Object.keys(browserNameMapping).find((key) => userAgent.includes(key)) ||
+  "Unknown Browser";
+
+function storeUserName(value) {
+  sessionStorage.setItem("usernames", JSON.stringify(value));
+}
+
 if (!getCookie('deviceType')) {
   let deviceTypeInfo = detectDeviceType();
   setCookie('deviceType', deviceTypeInfo, 24);
 }
- 
-//tTo get  IP adress
+
+//to get ip adress
 fetch("https://api.ipify.org?format=json")
   .then((response) => response.json())
   .then((data) => {
-    ipAddress = data.ip;  
+    ipAddress = data.ip;   
     const deviceType = getCookie("deviceType");
+    console.log("Device Type:", deviceType);
+
     userDetail = {
       userInfo: [
         {
@@ -260,21 +110,131 @@ fetch("https://api.ipify.org?format=json")
         },
       ],
     };
- 
+
+    try {
+      const userNameKey = JSON.parse(sessionStorage.usernames);
+      const ipCheck = userNameKey.userInfo[0].ip;
+    } catch {
+      storeUserName(userDetail);
+    }
+
     const userNameKey = JSON.parse(sessionStorage.usernames);
     const ipCheck = userNameKey.userInfo[0].ip;
- 
+
     if (ipAddress != ipCheck) {
       storeUserName(userDetail);
     }
- 
+  
+
   })
   .catch((error) => {
     console.error("Error:", error);
   });
+  
+
+// Event handler functions
+let isCookieCancel = false;
+function onAccept() {
+  this.getUserRegion();
+  closeCookiePopup();
+}
+
+function onBlock() {
+  closeCookiePopup();
+  isCookieCancel = false;
+  if(isCookieCancel){
+    sendUserInfoToConfig(userDetail.userInfo[0])
+  }
+}
+
+// Function to close the cookie popup
+function closeCookiePopup() {
+  const cookiePopup = document.getElementById("cookiePopup");
+
+  if (cookiePopup) {
+    cookiePopup.remove();
+  }
+
+}
+
+// Function to set cookie with expiry time
+function setCookie(name, value, hours) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + hours * 60 * 60 * 1000); // Convert hours to milliseconds
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
+function getUserRegion() {
+  
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+
+        let userType;
+
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            const country = data.address.country;
+            const city = data.address.county;
+            const storedUserData = sessionStorage.getItem("usernames");        
+
+            for (let i = 0; i < sessionStorage.length; i++) {
+              const key = sessionStorage.key(i);
+            }
+
+            if (storedUserData) {
+              userType = "Authenticated";
+            } else {
+              userType = "Anonymous";
+            }
+
+            const deviceType = getCookie("deviceType");
+            console.log("Devices Type:", deviceType);            
+            const userInfo = {
+              ip: ipAddress,
+              userName: generateString(5),
+              userType: userType,
+              browserName: browserName,
+              dates: date,
+              time: times,
+              clientName: clientName,
+              deviceType : deviceType,
  
+            };
+            const locationInfo = {
+              clientName: clientName,
+              latitude: latitude.toString(),
+              longitude: longitude.toString(),
+              cityName : city.toString(),
+              country: country.toString(),
+
+            }
+            const deviceTypeInfo = {
+              clientName: clientName,
+              DeviceName : deviceType,
+            }
+
+           sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo);
+    
+          });
+
+        setCookie("cookieAccepted", "true", 24);
+      },
+      (error) => {
+        console.error("Error getting user location:", error);
+      }
+    );
+  } else {
+    console.log("Geolocation is not supported by this browser.");
+  }
+}
+
 async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
- 
+
   try {
     const response = await fetch("https://webanalyticals.onrender.com/config", {
       method: "POST",
@@ -285,23 +245,21 @@ async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
         userInfo: userInfo,
       }),
     });
- 
+
     if (!response.ok) {
       throw new Error(
         `Error sending userInfo to config API: ${response.status}`
       );
     }
- 
+
     const configData = await response.json();
     console.log("Config Data:", configData);
- 
     id = configData._id;
     time = configData.serverUpdateTime;
-    locationInfo ._id = id;
-    deviceTypeInfo._id = id;
- 
     setCookie("serverUpdateTime", time, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
     setCookie("userId", id, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
+    locationInfo ._id = id;
+    deviceTypeInfo._id = id;
     sendUserLocation(locationInfo);
     sendDeviceInfo(deviceTypeInfo);
   }
@@ -309,7 +267,7 @@ async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
     console.error("Error sending userInfo to config API:", error);
   }
 }
- 
+
 async function sendUserLocation(loctioninfo) {
   try {
     const response = await fetch("https://webanalyticals.onrender.com/saveMapData", {
@@ -319,7 +277,7 @@ async function sendUserLocation(loctioninfo) {
       },
       body: JSON.stringify(loctioninfo),
     });
- 
+
     if (!response.ok) {
       throw new Error(
         `Error sending loctioninfo to saveMapData API: ${response.status}`
@@ -327,7 +285,7 @@ async function sendUserLocation(loctioninfo) {
     }
     const locationData = await response.json();
     console.log("Location Data:", locationData);
- 
+
   }
   catch (error) {
     console.error("Error sending Location Information to Location API:", error);
@@ -335,80 +293,137 @@ async function sendUserLocation(loctioninfo) {
 }
 
 async function sendDeviceInfo(deviceTypeInfo) {
-    try {
-      const response = await fetch("https://webanalyticals.onrender.com/saveDeviceData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(deviceTypeInfo),
-      });
-   
-      if (!response.ok) {
-        throw new Error(
-          `Error sending loctioninfo to saveMapData API: ${response.status}`
-        );
-      }
-      const deviceData = await response.json();
-      console.log("Device Data:", deviceData);
-   
+  try {
+    const response = await fetch("https://webanalyticals.onrender.com/saveDeviceData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(deviceTypeInfo),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Error sending loctioninfo to saveMapData API: ${response.status}`
+      );
     }
-    catch (error) {
-      console.error("Error sending Device Information to Device API:", error);
+    const deviceData = await response.json();
+    console.log("Device Data:", deviceData);
+
+  }
+  catch (error) {
+    console.error("Error sending Device Information to Device API:", error);
+  }
+}
+
+function detectDeviceType() {
+  const userAgent = navigator.userAgent.toLowerCase();
+ 
+  if (/ipad|tablet|playbook|silk/i.test(userAgent)) {
+      return 'tablet';
+  } else if (/mobile|iphone|ipod|blackberry|opera mini|iemobile|windows phone|trident|opera mobi|mobilesafari|htc|nokia|symbian|samsung|lg|mot/i.test(userAgent)) {
+      return 'mobile';
+  } else {
+      return 'pc';
+  }
+}
+const deviceType = getCookie("deviceType");
+console.log("Device Type:", deviceType);
+
+function getCookie(cookieName) {
+  const cookies = document.cookie.split(";");
+
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+
+    if (cookie.indexOf(cookieName + "=") === 0) {
+      return cookie.substring(cookieName.length + 1);
     }
   }
-const deviceType = getCookie("deviceType");
- 
+
+  return null;
+}
+
+// Function to inject HTML into the DOM
+function injectHTML(html) {
+  const sessionDetails = getCookie("cookieAccepted");
+  
+  if (!sessionDetails) {
+    const container = document.createElement("div");
+    container.innerHTML = htmlTemplate.trim();
+    document.body.appendChild(container.firstChild);
+  }
+
+}
+
 // Inject HTML template into the DOM after DOMContentLoaded
 document.addEventListener("DOMContentLoaded", function () {
   injectHTML(htmlTemplate);
 });
- 
+
+function storeUserEvent(value) {
+  sessionStorage.setItem("userevents", JSON.stringify(value));
+  isResponseToDB = true;
+}
+
+function determineCurrentScreen() {
+  const currentURL = window.location.href;
+  pageName = currentURL.substring(currentURL.lastIndexOf("/") + 1);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   determineCurrentScreen();
 });
- 
+
+function changedPageName(isPageChangedtoOtherScreen) {
+  
+  if (isPageChangedtoOtherScreen) {
+    pageName = newPageName;
+  }
+  return pageName;
+}
+
 (function () {
   let captureObject = {};
   let clickCounts = {};
   let responseToDB;
   let requesteDataToDB;
- 
+
   function updateClickCount(tagId, tagType) {
- 
+
     if (!clickCounts[tagId]) {
       clickCounts[tagId] = 1;
     } else {
       clickCounts[tagId]++;
     }
- 
+
     const clickCountDisplay = document.getElementById(
       `${tagType}${tagId}_click_count`
     );
- 
+
     if (clickCountDisplay) {
       clickCountDisplay.textContent = clickCounts[tagId];
     }
- 
+
     if (!captureObject[pageName]) {
       captureObject[pageName] = {};
     }
- 
+
     userDetail.userEvents = [];
     captureObject[pageName][`${tagType}${tagId}`] = clickCounts[tagId];
     userDetail.userEvents = [{ ...captureObject }];
     console.log("User Clicked Events: " + JSON.stringify(userDetail));
     captureObject = {};
     clickCounts = {};
- 
+
     let oldObject;
-    let currentUserEvents;
-    let newDerivedObject;
     let userEventDetail = sessionStorage.getItem("userevents");
     let newObject = JSON.parse(JSON.stringify(userDetail));
-     
+    let currentUserEvents;
+    let newDerivedObject;
+
     oldObject = [userEventDetail];
- 
+
     if (oldObject == "" || oldObject == undefined) {
       currentUserEvents = [JSON.parse(JSON.stringify(newObject))];
       newObject.userEvents[0].date = date;
@@ -416,27 +431,27 @@ document.addEventListener("DOMContentLoaded", () => {
       storeUserEvent([newObject]);
     } else {
       let todayObject = oldObject;
- 
+
       if (!todayObject) {
         currentUserEvents = oldObject;
-       
+        
         newObject.userEvents.forEach((newEvent) => {
           console.log(JSON.stringify(newEvent));
           currentUserEvents[0].userEvents.push(newEvent);
         });
- 
+
       } else {
         newDerivedObject = JSON.parse(todayObject);
- 
+
         if (newObject.userEvents && Array.isArray(newObject.userEvents)) {
           newObject.userEvents.forEach((newEvent, index) => {
             newDerivedObject[0].userEvents[index] =
               newDerivedObject[0].userEvents[index] || {};
- 
+
             for (let screen in newEvent) {
               newDerivedObject[0].userEvents[index][screen] =
                 newDerivedObject[0].userEvents[index][screen] || {};
- 
+
               for (let button in newEvent[screen]) {
                 newDerivedObject[0].userEvents[index][screen][button] =
                   (newDerivedObject[0].userEvents[index][screen][button] || 0) +
@@ -445,16 +460,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           });
         }
- 
+
         newDerivedObject[0].userEvents[0].date = date;
         console.log("New Dervied Object" + JSON.stringify(newDerivedObject));
         const requestData = newDerivedObject[0];
         storeUserEvent([requestData]);
       }
     }
- 
+
     responseToDB = sessionStorage.getItem("userevents");
- 
+
     if (responseToDB) {
       const parsedData = JSON.parse(responseToDB);
       // Access userEvents key
@@ -462,11 +477,12 @@ document.addEventListener("DOMContentLoaded", () => {
       requesteDataToDB = JSON.stringify(userEvents);
     }
   }
-  console.log("Response to data base", responseToDB);
- 
+  console.log("responseToDB", responseToDB);
+  
   async function sendUserEventData() {
     if (isResponseToDB) {
-      const userId = getCookie("userId");    
+      const userId = getCookie("userId");
+      
       const response = await fetch(
         `https://webanalyticals.onrender.com/updateUserEvents/${userId}`,
         {
@@ -477,39 +493,39 @@ document.addEventListener("DOMContentLoaded", () => {
           body: requesteDataToDB,
         }
       );
- 
+
       if (!response.ok) {
         throw new Error(`Error fetching config data: ${response.status}`);
       }
-     
+      
     const configData = await response.json();
     console.log("Config Data:", configData);
       sessionStorage.clear();
- 
+
       if (requesteDataToDB.length) {
         isResponseToDB = false;
         requesteDataToDB = [];
       }
     }
   }
-  sendUserEventData();
+  sendUserEventData(); // Call sendData immediately if there's data
   function sendUserEventDataCall() {
     serverUpdateTime = getCookie("serverUpdateTime");
- 
+
     if (serverUpdateTime != null) {
       console.log("Server update time"+ serverUpdateTime)
       setInterval(sendUserEventData, serverUpdateTime);
       clearInterval(setTintervalTimer)
     }
   }
- 
+
   const setTintervalTimer = setInterval(sendUserEventDataCall, 1000);
- 
+
   function handleButtonClick(event) {
     const target = event.target;
     const isButton = target.tagName === "BUTTON" || target.closest("button");
     const linkElement = target.tagName === "A" ? target : target.closest("a");
- 
+
     if (isButton) {
       const buttonElement =
         target.tagName === "BUTTON" ? target : target.closest("button");
@@ -521,37 +537,36 @@ document.addEventListener("DOMContentLoaded", () => {
       updateClickCount(parentLinkContent, "link_");
       changedPageName(isPageChanged);
     }
- 
+
   }
- 
+
   function getParentContent(element, type) {
     let parentContent = element.textContent.trim();
     let parentElement = element.parentElement.closest(type);
- 
+
     while (parentElement) {
       parentContent = parentElement.textContent.trim();
       parentElement = parentElement.parentElement.closest(type);
     }
     return parentContent;
   }
- 
+
   document.addEventListener("click", handleButtonClick);
 })();
- 
+
 function startObserving() {
   const observer = new MutationObserver(() => {
     const currentUrl = window.location.href;
     newPageName = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
- 
+
     if (newPageName !== pageName) {
       isPageChanged = true;
     }
   });
- 
+
   const targetNode = document.body;
   const observerConfig = { subtree: true, childList: true };
   observer.observe(targetNode, observerConfig);
 }
- 
- 
+
 document.addEventListener("DOMContentLoaded", startObserving);
