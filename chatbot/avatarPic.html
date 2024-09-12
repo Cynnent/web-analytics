@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Alex bot</title>
+  </head>
+  <body></body>
+  <script src="./alex.js"></script>
+</html>
+
+<!-- <div
+id="chat"
+  style="
+    max-width: 400px;
+    border-radius: 17px;
+    box-shadow: 3px 6px 3px #0000000f;
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    background-color: #FFFFFF
+  "
+>
+  <div
+    class="header"
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 17px;
+      background-color: #052288;
+      border-radius: 17px 17px 0 0;
+      box-shadow: 0px 3px 6px #00000029;
+    "
+  >
+    <div style="display: flex; align-items: center">
+      <img
+        src="./alex-pic.svg"
+        alt="Alex profile picture"
+        style="width: 48.81px; height: 48.81px; margin-right: 12px"
+      />
+      <span style="color: #ebeef9">Alex</span>
+    </div>
+
+    <button
+      style="background-color: transparent; border: none; cursor: pointer"
+    >
+      <img src="./cross-white.svg" alt="Close icon" />
+    </button>
+  </div>
+  <div
+    class="chat"
+    style="
+      height: 500px;
+      border-radius: 0 0 17px 17px;
+      background-image: url('./chat-bg.svg');
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    "
+  >
+    <div
+      style="
+        width: 100%;
+        height: 100%;
+        max-height: calc(100% - 90px);
+        overflow-y: scroll;
+        padding: 22px 10px 22px 10px;
+      "
+      class="chat-container"
+    >
+      <ul style="list-style: none; width: 100%">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+          "
+        >
+          <span style="height: 1px; background-color: #8c92a4"></span>
+          <p style="font-size: 14px; color: #8c92a4">Monday 25,March</p>
+          <span style="height: 1px; background-color: #8c92a4"></span>
+        </div>
+
+        <li>
+          <img src="./alex-pic.svg" style="width: 28px; height: 28px;" />
+          <p
+            style="
+              padding: 19px;
+              background-color: #f4f4f4;
+              max-width: fit-content;
+              border-radius: 22px;
+              color: #707070;
+              font-size: 17px;
+              display: inline-block;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            "
+          >
+            Hi. How can I help you today?
+          </p>
+        </li>
+        <li style="display: flex; justify-content: end">
+          <p
+            style="
+              padding: 19px;
+              background-color: #052288;
+              max-width: fit-content;
+              border-radius: 22px;
+              color: #ebeef9;
+              font-size: 17px;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            "
+          >
+            I want to return my order.
+          </p>
+        </li>
+        <li style="display: flex; gap: 6.6px;">
+          <img src="./alex-pic.svg" style="width: 28px; height: 28px;" />
+          <p
+            style="
+            display: inline;
+              padding: 19px;
+              background-color: #f4f4f4;
+              max-width: fit-content;
+              border-radius: 22px;
+              color: #707070;
+              font-size: 17px;
+              margin-top: 6px;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            "
+          >
+            Can you please share me the order link
+          </p>
+        </li>
+        <li style="display: flex; justify-content: end">
+          <p
+            style="
+              padding: 19px;
+              background-color: #052288;
+              max-width: fit-content;
+              border-radius: 22px;
+              color: #ebeef9;
+              font-size: 17px;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            "
+          >
+            link&rlz=1C1CHBF_enIN1083IN1083&oq=dummy
+          </p>
+        </li>
+        <li>
+          <p
+            style="
+              padding: 19px;
+              background-color: #f4f4f4;
+              border-radius: 22px;
+              width: fit-content;
+              color: #707070;
+              font-size: 17px;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            "
+          >
+            Please select one of the below given option
+          </p>
+        </li>
+        <li>
+          <button
+            style="
+              padding: 14px;
+              border-radius: 40px;
+              border: 1px solid #052288;
+              background-color: #eef0f9;
+              color: #052288;
+              margin-bottom: 10px;
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+            "
+          >
+            <p style="margin-right: 10px; font-weight: 500">
+              Bought by mistake
+            </p>
+            <img src="./info-blue.svg" alt="info" />
+          </button>
+        </li>
+        <li>
+          <button
+            style="
+              padding: 14px;
+              border-radius: 40px;
+              border: 1px solid #052288;
+              background-color: #eef0f9;
+              color: #052288;
+              margin-bottom: 10px;
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+            "
+          >
+            <p style="margin-right: 10px; font-weight: 500">
+              Better price available
+            </p>
+            <img src="./badge-check-blue.svg" alt="info" />
+          </button>
+        </li>
+        <li>
+          <p>
+
+          <div class="typing"             style="
+              padding: 15px;
+              background-color: #f4f4f4;
+              border-radius: 22px;
+              width: fit-content;
+              color: #707070;
+              font-size: 17px;
+              margin-bottom: 16px;
+              max-width: calc(100% - 15px);
+              word-wrap: break-word;
+            ">
+            <div
+              class="dot"
+              style="
+                animation: mercuryTypingAnimation 1.8s infinite ease-in-out;
+                background-color: #8c92a5;
+                border-radius: 50%;
+                height: 7px;
+                margin-right: 2px;
+                vertical-align: middle;
+                width: 7px;
+                display: inline-block;
+                animation-delay: 200ms;
+              "
+            ></div>
+            <div
+              class="dot"
+              style="
+                animation: mercuryTypingAnimation 1.8s infinite ease-in-out;
+                background-color: #8c92a5;
+                border-radius: 50%;
+                height: 7px;
+                margin-right: 2px;
+                vertical-align: middle;
+                width: 7px;
+                display: inline-block;
+                animation-delay: 300ms;
+              "
+            ></div>
+            <div
+              class="dot"
+              style="
+                animation: mercuryTypingAnimation 1.8s infinite ease-in-out;
+                background-color: #8c92a5;
+                border-radius: 50%;
+                height: 7px;
+                margin-right: 2px;
+                vertical-align: middle;
+                width: 7px;
+                display: inline-block;
+                animation-delay: 400ms;
+              "
+            ></div>
+          </div>
+          </p>
+
+        </li>
+      </ul>
+    </div>
+
+    <div
+      style="
+        width: 90%;
+        position: absolute;
+        bottom: 35px;
+        display: flex;
+        justify-content: center;
+      "
+    >
+      <div style="position: relative; width: 100%">
+        <input
+          type="text"
+          id="chatbox"
+          name="chatbox"
+          style="
+            width: 100%;
+            padding: 12px 90px 12px 24px;
+            background-color: #f5f5f5;
+            border: none;
+            color: #8c92a4;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+          placeholder="Type your message..."
+        />
+        <div
+          style="
+            position: absolute;
+            top: 7px;
+            right: 16px;
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+            margin-bottom: auto;
+          "
+        >
+          <button
+            style="background-color: transparent; border: none; cursor: pointer"
+          >
+            <img src="./clip.svg" alt="clip" />
+          </button>
+          <button
+            style="background-color: transparent; border: none; cursor: pointer"
+          >
+            <img src="./paper-plane.svg" alt="send" />
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      class="footer"
+      style="
+        display: flex;
+        align-items: center;
+        position: absolute;
+        bottom: 0;
+        justify-content: center;
+      "
+    >
+      <span
+        style="
+          font-size: 14px;
+          color: #797e8e;
+          margin-right: 7px;
+          vertical-align: baseline;
+        "
+        >Powered by</span
+      >
+      <img src="./cynnent-logo.svg" alt="cynnent logo" />
+    </div>
+  </div>
+</div> -->
+
+<style>
+  .chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .chat-container::-webkit-scrollbar-thumb {
+    border-radius: 11px;
+    background-color: #c1c1c1;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Manrope", sans-serif;
+    font-weight: 500;
+  }
+
+  body {
+    /* background-color: #832424; */
+  }
+</style>

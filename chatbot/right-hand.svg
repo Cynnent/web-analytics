@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="53.197" height="34.95" viewBox="0 0 53.197 34.95">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" y1="0.5" x2="1" y2="1.206" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#ebbaa0"/>
+      <stop offset="1" stop-color="#c89280"/>
+    </linearGradient>
+  </defs>
+  <g id="Group_17473" data-name="Group 17473" transform="translate(0.44 0.507)">
+    <path id="Path_14011" data-name="Path 14011" d="M-6063.85-3529.009s5.853-10.85,9.763-9.3,9.571,9.129,5.88,15.489-10.186-6.185-10.186-6.185Z" transform="translate(6099.224 3547.04)" stroke="rgba(112,112,112,0.11)" stroke-linecap="round" stroke-linejoin="bevel" stroke-width="1" fill="url(#linear-gradient)"/>
+    <path id="Path_14010" data-name="Path 14010" d="M-6063.85-3523.6s9.2-17.052,15.343-14.623,15.042,14.346,9.241,24.342-16.008-9.719-16.008-9.719Z" transform="translate(6082.871 3540.239)" stroke="rgba(112,112,112,0.11)" stroke-linecap="round" stroke-linejoin="bevel" stroke-width="1" fill="url(#linear-gradient)"/>
+    <path id="Path_14009" data-name="Path 14009" d="M-6063.849-3522.046s10.437-18.839,17.41-16.155,17.07,15.85,10.488,26.893-18.166-10.738-18.166-10.738Z" transform="translate(6071.255 3538.463)" stroke="rgba(112,112,112,0.11)" stroke-linecap="round" stroke-linejoin="bevel" stroke-width="1" fill="url(#linear-gradient)"/>
+    <path id="Path_14008" data-name="Path 14008" d="M-6063.85-3523.6s9.2-17.052,15.343-14.623,15.042,14.346,9.241,24.342-16.008-9.719-16.008-9.719Z" transform="translate(6063.85 3544.994)" stroke="rgba(112,112,112,0.11)" stroke-linecap="round" stroke-linejoin="bevel" stroke-width="1" fill="url(#linear-gradient)"/>
+  </g>
+</svg>

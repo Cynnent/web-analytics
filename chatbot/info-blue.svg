@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20.462" height="20.462" viewBox="0 0 20.462 20.462">
+  <g id="Group_17169" data-name="Group 17169" transform="translate(-341.001 -573)">
+    <g id="exclamation" transform="translate(341.001 573)">
+      <path id="Path_864" data-name="Path 864" d="M10.231,0A10.231,10.231,0,1,0,20.462,10.231,10.231,10.231,0,0,0,10.231,0Zm0,18.757a8.526,8.526,0,1,1,8.526-8.526A8.526,8.526,0,0,1,10.231,18.757Z" transform="translate(0 0)" fill="#052288"/>
+      <path id="Path_865" data-name="Path 865" d="M11.853,5A.853.853,0,0,0,11,5.853v6.821a.853.853,0,0,0,1.705,0V5.853A.853.853,0,0,0,11.853,5Z" transform="translate(-1.621 -0.737)" fill="#052288"/>
+      <rect id="Rectangle_7072" data-name="Rectangle 7072" width="2" height="2" rx="1" transform="translate(9 14)" fill="#052288"/>
+    </g>
+  </g>
+</svg>
