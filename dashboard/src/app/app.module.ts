@@ -35,6 +35,7 @@ import { InsightComponent } from './modules/dashboard/components/dashboard-insig
 import { DashboardOverviewComponent } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
 import { DashboardCommandsComponent } from './modules/dashboard/components/dashboard-commands/dashboard-commands.component';
 import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
+import { SharedModule } from './modules/shared/shared.module';
 @NgModule({
   declarations: [
     AppComponent,
@@ -65,6 +66,7 @@ import { TableComponent } from './modules/dashboard/components/widget-details/wi
     DropdownModule,
     MultiSelectModule,
     NbThemeModule,
+    SharedModule,
     RouterModule.forRoot(routes),
   ],
   providers: [DataService, DashboardCommandService],

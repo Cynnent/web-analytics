@@ -50,7 +50,7 @@ export class DataService {
    * @param clientName - Name of the client to emit
    */
   emitSelectedClient(clientName: string): void {
-    this.selectedClient = clientName
+    this.selectedClient = clientName;
     this.socket.emit('clientName', clientName);
   }
 
@@ -63,9 +63,9 @@ export class DataService {
   }
 
   /**
-  * Emits the active tab status to the server via socket
-  * @param value - Boolean indicating the active tab status
-  */
+   * Emits the active tab status to the server via socket
+   * @param value - Boolean indicating the active tab status
+   */
   emitActiveTab(value: boolean) {
     this.socket.emit('activeTab', value);
   }
@@ -77,7 +77,6 @@ export class DataService {
   public onOverviewClientnames(callback: (data: any) => void): void {
     this.socket.on('ClientNamesOverview', callback);
   }
-
 
   /**
    * Listens for 'DeviceData' events from the server and executes the callback
@@ -175,7 +174,7 @@ export class DataService {
   emitInsightsUserEvents(userId: string, date: string): void {
     const data = {
       userId: userId,
-      date: date
+      date: date,
     };
     this.socket.emit('getUserEvents', data);
   }
@@ -288,9 +287,7 @@ export class DataService {
     userId: string
   ): Observable<{ id: string; value: string }[]> {
     return this.http
-      .get<userResponse[]>(
-        `${this.baseURL}/getDates/${userId}`
-      )
+      .get<userResponse[]>(`${this.baseURL}/getDates/${userId}`)
       .pipe(
         map((response) =>
           response.map((item) => ({ id: item.date, value: item.date }))

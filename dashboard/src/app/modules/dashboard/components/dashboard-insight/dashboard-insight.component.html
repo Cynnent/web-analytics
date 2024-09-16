@@ -1,4 +1,4 @@
-<h3>{{ header }}</h3>
+<h3>Dashboard Overview</h3>
 <ngx-spinner
   bdColor="rgba(0, 0, 0, 0.8)"
   size="medium"
@@ -130,11 +130,11 @@
   </div>
 
   <!-- dashboard -->
-  <div *ngIf="activeTab == 'dashboard'" class="p-4">
+  <div *ngIf="activeTab == 'dashboard'">
     <app-dashboard-overview></app-dashboard-overview>
   </div>
 
-  <div *ngIf="activeTab === 'commands'" class="p-4">
+  <div *ngIf="activeTab === 'commands'">
     <app-dashboard-commands></app-dashboard-commands>
   </div>
 </div>

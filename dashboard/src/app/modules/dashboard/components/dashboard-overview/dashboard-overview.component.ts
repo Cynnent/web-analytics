@@ -3,7 +3,7 @@ import {
   ChangeDetectorRef,
   Input,
   OnDestroy,
-  OnInit
+  OnInit,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import * as Highcharts from 'highcharts';
@@ -17,7 +17,7 @@ import {
   DeviceCount,
   MostClickedAction,
   MostViewedPage,
-  ProgressBar
+  ProgressBar,
 } from '../../../shared/interfaces/interfaces';
 import {
   DASHBOARD_TAB,
@@ -26,7 +26,7 @@ import {
   MOST_USED_DEVICES_LINK,
   MOST_VIEWED_PAGES_LINK,
   USER_BY_COUNTRY_LINK,
-  WEEKLY_INTERVAL
+  WEEKLY_INTERVAL,
 } from '../../../shared/constants/const';
 
 @Component({
@@ -71,8 +71,8 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
   constructor(
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
-    private spinner: NgxSpinnerService,
-  ) { }
+    private spinner: NgxSpinnerService
+  ) {}
   //Initializes the component and subscribes to data services.
   ngOnInit(): void {
     this.dataService.onDataUpdate((data) => {
@@ -107,11 +107,15 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
     this.selectedInterval = WEEKLY_INTERVAL;
 
-    this.dataService.emitActiveTab(true)
+    this.dataService.emitActiveTab(true);
 
     this.dataService.onOverviewClientnames((clients) => {
       this.clientNames = clients;
-      if (this.clientNames && this.clientNames.length > 0 && this.defaultSelectedClient === '') {
+      if (
+        this.clientNames &&
+        this.clientNames.length > 0 &&
+        this.defaultSelectedClient === ''
+      ) {
         this.defaultSelectedClient = this.clientNames[0];
         this.dataService.emitSelectedClient(this.clientNames[0]);
 
@@ -119,14 +123,12 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
           this.onDashboardChange(this.clientNames[0]);
           this.mostViwedCountry();
         }
-
       }
     });
   }
 
   // load all the widget when it changes the tab
   loadSelectedTabData() {
-
     if (this.activeTab.toUpperCase() === DASHBOARD_TAB) {
       setTimeout(() => {
         this.renderPieChart();
@@ -141,12 +143,12 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
   //Processes and loads device data for the pie chart.
   getDeviceData() {
-    const deviceData = this.mostDevicedata.filter((entry) => entry.DeviceName).map(
-      (entry) => ({
+    const deviceData = this.mostDevicedata
+      .filter((entry) => entry.DeviceName)
+      .map((entry) => ({
         name: entry.DeviceName,
         y: entry.count,
-      })
-    );
+      }));
 
     this.totalDeviceCount = deviceData.reduce(
       (total, entry) => total + entry.y,
@@ -185,9 +187,9 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
   }
 
   /**
- * Handles dashboard change when a different client is selected.
- * @param selectedClient The client selected.
- */
+   * Handles dashboard change when a different client is selected.
+   * @param selectedClient The client selected.
+   */
   onDashboardChange(selectedClient: string) {
     this.defaultSelectedClient = selectedClient;
     this.dataService.emitSelectedClient(selectedClient);
@@ -206,7 +208,6 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
   //Renders the pie chart for most viewed pages.
   renderPieChart() {
-
     if (this.mostViewedPagedata && this.mostViewedPagedata.length > 0) {
       const filteredData = this.mostViewedPagedata.filter(
         (item: any) =>
@@ -258,7 +259,6 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
       } else {
         this.isDisableViewedPages = true;
       }
-
     }
   }
 
@@ -300,6 +300,18 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
           animation: false,
           name: 'Browsers',
           type: 'column',
+          color: {
+            linearGradient: {
+              x1: 0,
+              y1: 0,
+              x2: 1,
+              y2: 1,
+            },
+            stops: [
+              [0, '#00FF00'], // Start color (green)
+              [1, '#000000'], // End color (black)
+            ],
+          },
           data: this.browserCounts.map(({ count }) => count),
         },
       ],
@@ -367,6 +379,18 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
             animation: false,
             type: 'bar',
             name: 'Clicks',
+            color: {
+              linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 1,
+                y2: 1,
+              },
+              stops: [
+                [0, '#6f269b'], // Start color (orange)
+                [1, '#a14ed3'], // End color (light green)
+              ],
+            },
             data: firstFiveData.map(({ count }) => count),
           },
         ],
@@ -380,7 +404,10 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
   getMapComponent() {
     this.ismapDisable = false;
 
-    if (!this.mostUsedCountriesdata || this.mostUsedCountriesdata.length === 0) {
+    if (
+      !this.mostUsedCountriesdata ||
+      this.mostUsedCountriesdata.length === 0
+    ) {
       this.ismapDisable = true;
       return;
     }
@@ -388,7 +415,8 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
     const data = this.mostUsedCountriesdata;
 
     const mapData = data.map((obj) => {
-      const countryCode = listOfCountryWithCode[obj.country.toLowerCase().trim()] || 'not found';
+      const countryCode =
+        listOfCountryWithCode[obj.country.toLowerCase().trim()] || 'not found';
       return {
         name: obj.country,
         color: '#666b7b',

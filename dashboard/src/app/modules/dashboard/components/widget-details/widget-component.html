@@ -1,8 +1,18 @@
 <h3>{{ widgetHeading }}</h3>
-<div class="dashboard-container">
-  
-  <div class="p-5" *ngIf="tableData != null">
 
+<div class="flex justify-content-end mb-4">
+  <p-button
+    label="Submit"
+    label="Back"
+    [outlined]="true"
+    (click)="gotoOverview()"
+    class="p-button-success"
+    icon="pi pi-arrow-left"
+  />
+</div>
+
+<div class="dashboard-container">
+  <div *ngIf="tableData != null">
     <p-table
       class="primary-table"
       #widgetTable
@@ -29,14 +39,17 @@
               placeholder="Search"
             />
           </span>
-          <span>
+          <!-- <span>
             <button (click)="widgetTable.exportCSV()">Export</button>
-          </span>
+          </span> -->
         </div>
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th *ngFor="let col of cols" style="min-width: 15rem ; padding: 1.5rem;">
+          <th
+            *ngFor="let col of cols"
+            style="min-width: 15rem; padding: 1.5rem"
+          >
             {{ col.header }}
           </th>
         </tr>
@@ -45,14 +58,14 @@
         <tr>
           <td>{{ rowIndex + 1 }}</td>
           <td>
-            <span class="ml-1 vertical-align-middle">{{
-              data[this.primaryField]
-            }}</span>
+            <span class="ml-1 vertical-align-middle"
+              >{{ data[this.primaryField] }}</span
+            >
           </td>
           <td>
-            <span class="ml-1 vertical-align-middle">{{
-              data[this.secondaryField]
-            }}</span>
+            <span class="ml-1 vertical-align-middle"
+              >{{ data[this.secondaryField] }}</span
+            >
           </td>
         </tr>
       </ng-template>
@@ -91,16 +104,14 @@
               (input)="handleInputChange($event)"
             />
           </span>
-          <span>
+          <!-- <span>
             <button>Export</button>
-          </span>
+          </span> -->
         </div>
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th *ngFor="let col of cols">
-            {{ col.header }}
-          </th>
+          <th *ngFor="let col of cols">{{ col.header }}</th>
         </tr>
       </ng-template>
       <ng-template
@@ -115,12 +126,8 @@
           <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
             <span class="font-bold ml-2">{{ data[this.primaryField] }}</span>
           </td>
-          <td>
-            {{ data.cityName }}
-          </td>
-          <td>
-            {{ data.users }}
-          </td>
+          <td>{{ data.cityName }}</td>
+          <td>{{ data.users }}</td>
         </tr>
       </ng-template>
     </p-table>
