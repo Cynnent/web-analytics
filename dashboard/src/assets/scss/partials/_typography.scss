@@ -6,3 +6,9 @@
 :root {
   --primary-font: "Manrope";
 }
+
+h3 {
+  background: -webkit-linear-gradient(#133db9, #af6ae3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

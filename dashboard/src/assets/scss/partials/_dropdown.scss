@@ -1,7 +1,9 @@
 .p-dropdown {
-  background: var(--primary-color) 0% 0% no-repeat padding-box;
+  background: transparent;
   // box-shadow: inset 0px 3px 6px var(--box-shadow-color);
-  border: 1px solid var(--secondary-color);
+  //border: 1px solid var(--secondary-color);
+  background: transparent;
+  border: 2px solid #e1e1e1;
   border-radius: 6px;
   padding: 0px 18px;
   align-items: center;
@@ -14,34 +16,32 @@
   }
 }
 
-.p-dropdown-items
-{
-    display: block;
-    justify-content: center;
-    text-align: center;
-    row-gap: 10px;
-    font-style: manrope;
-    text-align: left;
-    font-style: Manrope;
+.p-dropdown-items {
+  display: block;
+  justify-content: center;
+  text-align: center;
+  row-gap: 10px;
+  font-style: manrope;
+  text-align: left;
+  font-style: Manrope;
 }
 
-.ng-trigger-overlayAnimation{
-    width: 100%;
-    .p-datepicker-group-container{
-        padding-left: 1px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
-
-.p-calendar .p-component{
-    box-shadow: inset 0px 3px 6px rgba(5, 34, 136, 0.2196078431);
-    border: 1px solid var(--secondary-color);
-    border-radius: 6px;
-    padding: 13px 30px;
+.ng-trigger-overlayAnimation {
+  width: 100%;
+  .p-datepicker-group-container {
+    padding-left: 1px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    display: flex;
+  }
+}
+
+.p-calendar .p-component {
+  box-shadow: inset 0px 3px 6px rgba(5, 34, 136, 0.2196078431);
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+  padding: 13px 30px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 }

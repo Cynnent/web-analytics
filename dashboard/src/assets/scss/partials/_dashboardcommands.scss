@@ -4,8 +4,8 @@
   .p-inputwrapper {
     @include commandAnimationInputText;
     .p-dropdown {
-      background: var(--primary-color) 0% 0% no-repeat padding-box;
-      border: 1px solid var(--secondary-color);
+      background: transparent;
+      border: 1px solid #f1f1f1;
       border-radius: 6px;
       padding: 0px 18px;
       align-items: center;

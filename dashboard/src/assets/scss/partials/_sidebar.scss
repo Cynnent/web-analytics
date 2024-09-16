@@ -3,44 +3,30 @@
 aside {
   @include sideBarBaseStyle;
 
-  h1 {
-    font-size: 2.25rem;
-    text-align: center;
-    // margin-bottom: 2.25rem;
-    font-weight: 600;
-  }
-
-  a {
-    text-decoration: none;
-
-    .icon-text {
-      margin-left: 10px;
-    }
-
-    .active {
-      color: #c3ccec;
-      fill: #c3ccec;
-      font-size: 1rem;
-    }
-
-    .inactive {
-      color: #4e4f56;
-      fill: #4e4f56;
-    }
-
-    svg {
-      width: 1rem;
-      height: 1rem;
-      margin-right: 1.5rem;
-    }
-  }
-
   ul {
+    width: 100%;
     li {
       font-size: 1.5rem;
-      margin-bottom: 2.563rem;
-      font-weight: 400;
-      margin-left: 1.5rem;
+      padding: 10px;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      background: #f4f4fc;
+      color: #ccc;
+      a {
+        color: #091f44;
+        font-size: 1rem;
+        text-decoration: none;
+
+        .icon-text {
+          margin-left: 10px;
+        }
+
+        svg {
+          width: 1rem;
+          height: 1rem;
+          margin-right: 1.5rem;
+        }
+      }
     }
   }
 }
