@@ -487,7 +487,7 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
       lon: Number(obj.longitude),
     }));
 
-    this.chartOptions = {
+    const mapChartOptions: Highcharts.Options = {
       credits: { enabled: false },
       chart: {
         animation: false,
@@ -525,6 +525,7 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
         },
       ],
     };
+    Highcharts.chart('map-chart-container', mapChartOptions);
   }
 
   changeActiveTab(clickedTab: string) {

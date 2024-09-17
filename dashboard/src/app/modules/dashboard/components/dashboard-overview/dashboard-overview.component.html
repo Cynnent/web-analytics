@@ -28,6 +28,10 @@
         ></span>
       </p-card-header>
       <div id="pie-chart-container"></div>
+
+      @if (!mostViewedPagedata.length) {
+      <div class="text-center py-5">No Data Found</div>
+      }
     </div>
   </div>
 
@@ -47,6 +51,9 @@
         ></span>
       </p-card-header>
       <div id="bar-chart-container"></div>
+      @if (!mostClickedActions.length) {
+      <div class="text-center py-5">No Data Found</div>
+      }
     </div>
   </div>
 
@@ -64,8 +71,13 @@
             ><span class="icon-menu mt-3 block"></span></a
         ></span>
       </p-card-header>
+
+      @if (!mostDevicedata.length) {
+      <div class="text-center py-5">No Data Found</div>
+      } @else {
       <div id="pieChartContainer"></div>
       <div id="total-count" class="center-label"></div>
+      }
     </div>
   </div>
 
@@ -83,12 +95,16 @@
             ><span class="icon-menu mt-3 block"></span></a
         ></span>
       </p-card-header>
+
+      @if (!browserCounts.length) {
+      <div class="text-center py-5">No Data Found</div>
+      } @else {
       <div id="most-used-browsers-chart-container" class="browser-view"></div>
+      }
     </div>
   </div>
   <div
     class="col-12 lg:col-6 mb-5"
-    *ngIf="chartOptions !== null"
     [ngClass]="{ 'disable-class': ismapDisable === true }"
   >
     <div class="card-widget" size="large">
@@ -106,15 +122,22 @@
       </p-card-header>
       <div class="grid">
         <div class="md:col-7 sm:col-12">
-          <highcharts-chart
+          <!-- <highcharts-chart
             id="map-chart-container"
             [Highcharts]="Highcharts"
             [constructorType]="chartConstructor"
-            [options]="chartOptions"
+            [options]="mapChartOptions"
           >
-          </highcharts-chart>
+          </highcharts-chart> -->
+
+          @if (! mostUsedCountriesdata.length) {
+          <div class="text-center py-5">No Data Found</div>
+          } @else {
+          <div id="map-chart-container"></div>
+          }
         </div>
 
+        @if (mostUsedCountriesdata.length) {
         <div class="md:col-5 sm:col-12">
           <div class="flex align-items-center h-full">
             <div class="chart-progress-bars">
@@ -139,6 +162,7 @@
             </div>
           </div>
         </div>
+        }
       </div>
     </div>
   </div>
