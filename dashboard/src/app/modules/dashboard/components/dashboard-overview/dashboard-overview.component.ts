@@ -216,7 +216,15 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
       if (filteredData.length > 0) {
         const firstFiveData = filteredData.slice(0, 5);
-        const colors = ['#052288', '#FFD500', '#BBC1D2', '#78787A', '#1aadce'];
+
+        // Define gradient colors
+        const gradientColors = [
+          { start: '#052288', end: '#0A44FF' },
+          { start: '#FFD500', end: '#FFF17F' },
+          { start: '#BBC1D2', end: '#E6E9F0' },
+          { start: '#78787A', end: '#A3A3A5' },
+          { start: '#1aadce', end: '#7FDFFF' },
+        ];
 
         const options: Highcharts.Options = {
           credits: { enabled: false },
@@ -229,7 +237,6 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
           plotOptions: {
             pie: {
               animation: false,
-              colors: colors,
               borderWidth: 0,
               dataLabels: {
                 enabled: true,
@@ -245,7 +252,13 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
                 ({ pageName, percentage }: any, index: number) => ({
                   name: pageName,
                   y: parseFloat(percentage),
-                  color: colors[index],
+                  color: {
+                    linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+                    stops: [
+                      [0, gradientColors[index].start],
+                      [1, gradientColors[index].end],
+                    ],
+                  },
                 })
               ),
             },
@@ -294,7 +307,8 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
           borderRadius: 5,
         },
       },
-      legend: { itemStyle: { color: '#000000' } },
+      // legend: { itemStyle: { color: '#000000' } },
+      legend: { enabled: false },
       series: [
         {
           animation: false,
@@ -308,8 +322,8 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
               y2: 1,
             },
             stops: [
-              [0, '#00FF00'], // Start color (green)
-              [1, '#000000'], // End color (black)
+              [0, '#f9d628'], // Start color (green)
+              [1, '#fbe36c'], // End color (black)
             ],
           },
           data: this.browserCounts.map(({ count }) => count),
@@ -353,6 +367,7 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
       const options: Highcharts.Options = {
         credits: { enabled: false },
+
         chart: {
           animation: false,
           type: 'bar',
@@ -371,14 +386,57 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
           gridLineWidth: 0,
         },
         plotOptions: {
-          bar: { color: barFillColor, borderWidth: 0 },
+          bar: {
+            color: barFillColor,
+            borderWidth: 0,
+            pointPadding: 0.2,
+            groupPadding: 0.1,
+          },
         },
-        legend: { itemStyle: { color: '#000000' } },
+        // legend: { itemStyle: { color: '#000000' } },
+        legend: { enabled: false },
         series: [
           {
             animation: false,
             type: 'bar',
-            name: 'Clicks',
+            name: 'Actions',
+            data: firstFiveData.map(({ count }) => count),
+            events: {
+              load: function (this: Highcharts.Chart) {
+                // Access X-axis labels and add classes
+                this.xAxis.forEach((axis: any) => {
+                  if (axis && axis.labelGroup) {
+                    axis.labelGroup.element.childNodes.forEach((node: any) => {
+                      if (node instanceof SVGElement) {
+                        node.classList.add('x-axis-label');
+                      }
+                    });
+                  }
+                });
+
+                // Access Y-axis labels and add classes
+                this.yAxis.forEach((axis: any) => {
+                  if (axis && axis.labelGroup) {
+                    axis.labelGroup.element.childNodes.forEach((node: any) => {
+                      if (node instanceof SVGElement) {
+                        node.classList.add('y-axis-label');
+                      }
+                    });
+                  }
+                });
+
+                // Access the bars and apply classes
+                // chart.series.forEach((series) => {
+                //   series.points.forEach((point, index) => {
+                //     // Add a class to the graphic of each point
+                //     if (point.graphic) {
+                //       // Add a class to the graphic of each point
+                //       point.graphic.addClass(`bar-line-${index}`);
+                //     }
+                //   });
+                // });
+              },
+            },
             color: {
               linearGradient: {
                 x1: 0,
@@ -387,12 +445,11 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
                 y2: 1,
               },
               stops: [
-                [0, '#6f269b'], // Start color (orange)
-                [1, '#a14ed3'], // End color (light green)
+                [0, '#313ae7'], // Start color (purple)
+                [1, '#575eed'], // End color (light purple)
               ],
             },
-            data: firstFiveData.map(({ count }) => count),
-          },
+          } as Highcharts.SeriesOptionsType,
         ],
         tooltip: { pointFormat: '<b>Clicks</b>: {point.y}' },
       };

@@ -76,7 +76,7 @@ export class InsightComponent {
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
     private toastr: ToastrService,
-    private spinner: NgxSpinnerService,
+    private spinner: NgxSpinnerService
   ) {}
 
   ngOnInit(): void {
@@ -87,12 +87,12 @@ export class InsightComponent {
       this.clientNames = data;
       if (this.clientNames && this.clientNames.length > 0) {
         this.defaultSelectedClient = this.clientNames[0];
-  
+
         if (this.activeTab == INSIGHT) {
           this.insightClientChange(this.defaultSelectedClient);
         }
       }
-    })
+    });
   }
 
   // load the insight tab
@@ -111,41 +111,37 @@ export class InsightComponent {
     this.userData = [];
 
     this.dataService.onInsightUserEvents((data) => {
-     this.userData = data
-    })
+      this.userData = data;
+    });
 
     this.dataService.onInsightsUserId((users) => {
-        this.userDropdownData = users.map((user: any, index: any) => ({
-          id: user._id,
-          value: `User ${index + 1}`,
-        }));
-        this.selectedUsername = '';
-        this.insightRenderChart(defaultSelectedClient);
+      this.userDropdownData = users.map((user: any, index: any) => ({
+        id: user._id,
+        value: `User ${index + 1}`,
+      }));
+      this.selectedUsername = '';
+      this.insightRenderChart(defaultSelectedClient);
 
-        const isDailyInterval = this.selectedInterval === DAILY_INTERVAL;
-        const isMonthlyInterval = this.selectedInterval === MONTHLY_INTERVAL;
+      const isDailyInterval = this.selectedInterval === DAILY_INTERVAL;
+      const isMonthlyInterval = this.selectedInterval === MONTHLY_INTERVAL;
 
-        if (this.defaultSelectedClient && isDailyInterval) {
-          this.selectedInterval = WEEKLY_INTERVAL;
-          this.fetchMonthlyChartData();
-          this.datePicker.writeValue(null);
-          this.isScreenOverview = true;
-        } else if (this.selectedClient && isMonthlyInterval) {
-          this.fetchMonthlyChartData();
-        } else if (this.selectedClient && isDailyInterval) {
-          this.selectedInterval = WEEKLY_INTERVAL;
-          this.datePicker.writeValue(null);
-          this.isScreenOverview = true;
-        }
+      if (this.defaultSelectedClient && isDailyInterval) {
+        this.selectedInterval = WEEKLY_INTERVAL;
+        this.fetchMonthlyChartData();
+        this.datePicker.writeValue(null);
+        this.isScreenOverview = true;
+      } else if (this.selectedClient && isMonthlyInterval) {
+        this.fetchMonthlyChartData();
+      } else if (this.selectedClient && isDailyInterval) {
+        this.selectedInterval = WEEKLY_INTERVAL;
+        this.datePicker.writeValue(null);
+        this.isScreenOverview = true;
+      }
 
-        if (
-          this.selectedClient &&
-          this.selectedUsername &&
-          !this.selectedDate
-        ) {
-          this.getWeeklyData();
-        }
-      });
+      if (this.selectedClient && this.selectedUsername && !this.selectedDate) {
+        this.getWeeklyData();
+      }
+    });
   }
 
   // render the weekly and monthly chart based on the condition
@@ -160,22 +156,22 @@ export class InsightComponent {
 
     if (!this.selectedUsername || this.selectedUsername) {
       this.dataService.onInsightsUserId((users) => {
-          this.dataService.userDropdownData = users.map((user: any) => ({
-            id: user._id,
-            value: user._id,
-          }));
-          this.selectedUsername = this.dataService.userDropdownData[0]?.id;
+        this.dataService.userDropdownData = users.map((user: any) => ({
+          id: user._id,
+          value: user._id,
+        }));
+        this.selectedUsername = this.dataService.userDropdownData[0]?.id;
 
-          if (
-            selectedClient &&
-            this.selectedInterval === WEEKLY_INTERVAL &&
-            this.selectedUsername
-          ) {
-            this.getWeeklyData();
-          } else {
-            this.fetchMonthlyChartData();
-          }
-        });
+        if (
+          selectedClient &&
+          this.selectedInterval === WEEKLY_INTERVAL &&
+          this.selectedUsername
+        ) {
+          this.getWeeklyData();
+        } else {
+          this.fetchMonthlyChartData();
+        }
+      });
     }
   }
 
@@ -220,35 +216,44 @@ export class InsightComponent {
     if (!this.selectedUsername) {
       return;
     }
-  
+
     this.dataService.emitSelectedUsername(this.selectedUsername);
-  
+
     // Handle the success case
     this.dataService.onInsightWeeklyData((weeklyData) => {
       if (weeklyData && weeklyData.length > 0) {
         const currentDate = new Date();
-        const currentWeekStart = currentDate.getDate() - currentDate.getDay() + 1;
+        const currentWeekStart =
+          currentDate.getDate() - currentDate.getDay() + 1;
         const currentWeekEnd = currentWeekStart + 6;
-  
+
         const currentWeekData = this.getCurrentWeekTotalData(
           currentWeekStart,
           currentWeekEnd
         );
-  
+
         weeklyData.forEach((entry: any) => {
           const entryDate = new Date(entry.date);
           const dayIndex = entryDate.getDay();
-  
+
           if (dayIndex >= 0 && dayIndex < 7) {
             currentWeekData[dayIndex].totalCount = entry.totalCount;
           }
         });
-  
+
         const dates = this.fetchDatesMD(
-          new Date(currentDate.getFullYear(), currentDate.getMonth(), currentWeekStart),
-          new Date(currentDate.getFullYear(), currentDate.getMonth(), currentWeekEnd)
+          new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentWeekStart
+          ),
+          new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentWeekEnd
+          )
         );
-  
+
         const seriesData = [
           {
             name: this.selectedUsername,
@@ -256,7 +261,7 @@ export class InsightComponent {
             data: currentWeekData.map((entry) => entry.totalCount),
           },
         ];
-  
+
         this.isChartDataAvailable = true;
         this.renderChart(seriesData, dates);
         this.noDataFound = false;
@@ -265,11 +270,9 @@ export class InsightComponent {
 
     this.dataService.onInsightWeeklyDataError(() => {
       this.isChartDataAvailable = false;
-      this.noDataFound = true
-    })
-  
+      this.noDataFound = true;
+    });
   }
-  
 
   // method to get the week date
   getCurrentWeekTotalData(start: any, end: any) {
@@ -289,43 +292,42 @@ export class InsightComponent {
     }
     this.dataService.emitInsightSelectedClientMonthly(this.selectedUsername);
     this.dataService.onInsightMonthlyData((data) => {
-          const currentMonth = new Date().getMonth() + 1;
-          const currentYear = new Date().getFullYear();
-          const currentMonthData = data.filter((entry: any) => {
-            const entryDate = new Date(entry.date);
-            return (
-              entryDate.getMonth() + 1 === currentMonth &&
-              entryDate.getFullYear() === currentYear
-            );
-          });
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const currentMonthData = data.filter((entry: any) => {
+        const entryDate = new Date(entry.date);
+        return (
+          entryDate.getMonth() + 1 === currentMonth &&
+          entryDate.getFullYear() === currentYear
+        );
+      });
 
-          const startDate = new Date(currentYear, currentMonth - 1, 1);
-          const endDate = new Date(currentYear, currentMonth, 0);
-          const dates = this.fetchDatesMD(startDate, endDate);
+      const startDate = new Date(currentYear, currentMonth - 1, 1);
+      const endDate = new Date(currentYear, currentMonth, 0);
+      const dates = this.fetchDatesMD(startDate, endDate);
 
-          const totalCounts = dates.map((date) => {
-            const matchingEntry = currentMonthData.find(
-              (entry: any) => entry.date === date,
-            );
-            return matchingEntry ? matchingEntry.totalCount : 0;
-          });
+      const totalCounts = dates.map((date) => {
+        const matchingEntry = currentMonthData.find(
+          (entry: any) => entry.date === date
+        );
+        return matchingEntry ? matchingEntry.totalCount : 0;
+      });
 
-          const seriesData = [
-            {
-              name: this.selectedUsername,
-              type: 'line',
-              data: totalCounts,
-            },
-          ];
+      const seriesData = [
+        {
+          name: this.selectedUsername,
+          type: 'line',
+          data: totalCounts,
+        },
+      ];
 
-          this.isChartDataAvailable = true;
-          this.renderChart(seriesData, dates);
-        }
-      );
+      this.isChartDataAvailable = true;
+      this.renderChart(seriesData, dates);
+    });
 
-      this.dataService.onInsightMonthlyDataError(() => {
-        this.isChartDataAvailable = false
-      })
+    this.dataService.onInsightMonthlyDataError(() => {
+      this.isChartDataAvailable = false;
+    });
   }
 
   fetchDatesMD(startDate: any, endDate: any) {
@@ -343,33 +345,35 @@ export class InsightComponent {
   // load user events based on the selected date
   getChartDataBYUserId(selectedDateForId: string): void {
     if (!this.selectedUsername || !selectedDateForId) {
-      console.log("error")
+      console.log('error');
     }
 
-    this.dataService.emitInsightsUserEvents(this.selectedUsername, selectedDateForId)
+    this.dataService.emitInsightsUserEvents(
+      this.selectedUsername,
+      selectedDateForId
+    );
 
-  
-      this.dataService.onInsightUserEvents((userData) => {
-          if (!userData) {
-            this.toastr.error('Invalid response from API');
-            return;
-          }
-
-          if (userData.totalCount === 0) {
-            this.toastr.error(TOAST_ERROR);
-          } else {
-            this.userData = userData;
-            const seriesData = [
-              { name: 'Total Count', data: [userData.totalCount] },
-            ];
-            this.renderChart(seriesData, [selectedDateForId]);
-          }
-        })
-
-        this.dataService.onInsightUserEventsError(() => {
-         this.isScreenOverview = true
-        })
+    this.dataService.onInsightUserEvents((userData) => {
+      if (!userData) {
+        this.toastr.error('Invalid response from API');
+        return;
       }
+
+      if (userData.totalCount === 0) {
+        this.toastr.error(TOAST_ERROR);
+      } else {
+        this.userData = userData;
+        const seriesData = [
+          { name: 'Total Count', data: [userData.totalCount] },
+        ];
+        this.renderChart(seriesData, [selectedDateForId]);
+      }
+    });
+
+    this.dataService.onInsightUserEventsError(() => {
+      this.isScreenOverview = true;
+    });
+  }
 
   dateChange(selectedDate: Date): void {
     this.selectedDate = selectedDate;
@@ -408,7 +412,7 @@ export class InsightComponent {
       chart: { type: 'line', backgroundColor: 'transparent' },
 
       title: {
-        text: 'Insight',
+        text: '',
 
         style: { color: '#fff', fontSize: '14px', fontWeight: 'bold' },
       },
@@ -424,11 +428,12 @@ export class InsightComponent {
         gridLineColor: 'transparent',
         gridLineWidth: 0,
       },
-      legend: {
-        itemStyle: {
-          color: '#000000',
-        },
-      },
+      // legend: {
+      //   itemStyle: {
+      //     color: '#000000',
+      //   },
+      // },
+      legend: { enabled: false },
       series: seriesData,
     };
 
@@ -436,7 +441,7 @@ export class InsightComponent {
   }
 
   changeActiveTab(clickedTab: string) {
-    this.dataService.emitActiveTab(true)
+    this.dataService.emitActiveTab(true);
     this.selectedInterval = WEEKLY_INTERVAL;
     this.activeTab = clickedTab;
     this.loadSelectedTabData();

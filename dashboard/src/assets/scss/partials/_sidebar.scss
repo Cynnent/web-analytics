@@ -10,10 +10,10 @@ aside {
       padding: 10px;
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
-      background: #f4f4fc;
+      background: var(--background-color);
       color: #ccc;
       a {
-        color: #091f44;
+        color: var(--text-primary-color);
         font-size: 1rem;
         text-decoration: none;
 
