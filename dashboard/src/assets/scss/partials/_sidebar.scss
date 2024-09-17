@@ -30,3 +30,9 @@ aside {
     }
   }
 }
+
+.dark-mode {
+  aside {
+    filter: grayscale(1);
+  }
+}
