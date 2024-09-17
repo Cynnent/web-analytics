@@ -41,7 +41,7 @@ export class DataService {
    * @param http - Angular's HttpClient for making HTTP requests
    */
   constructor(private http: HttpClient) {
-    this.socket = io(this.apiUrl);
+    this.socket = io(this.baseURL);
     this.setupSocketListeners();
   }
 

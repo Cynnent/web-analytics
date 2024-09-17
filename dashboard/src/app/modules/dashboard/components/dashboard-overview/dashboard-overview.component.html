@@ -72,11 +72,10 @@
         ></span>
       </p-card-header>
 
-      @if (!mostDevicedata.length) {
-      <div class="text-center py-5">No Data Found</div>
-      } @else {
       <div id="pieChartContainer"></div>
       <div id="total-count" class="center-label"></div>
+      @if (!mostDevicedata.length) {
+      <div class="text-center py-5">No Data Found</div>
       }
     </div>
   </div>
@@ -95,12 +94,10 @@
             ><span class="icon-menu mt-3 block"></span></a
         ></span>
       </p-card-header>
-
+      <div id="most-used-browsers-chart-container" class="browser-view"></div>
       @if (!browserCounts.length) {
       <div class="text-center py-5">No Data Found</div>
-      } @else {
-      <div id="most-used-browsers-chart-container" class="browser-view"></div>
-      }
+      } 
     </div>
   </div>
   <div
@@ -129,12 +126,11 @@
             [options]="mapChartOptions"
           >
           </highcharts-chart> -->
+          <div id="map-chart-container"></div>
 
           @if (! mostUsedCountriesdata.length) {
           <div class="text-center py-5">No Data Found</div>
-          } @else {
-          <div id="map-chart-container"></div>
-          }
+          } 
         </div>
 
         @if (mostUsedCountriesdata.length) {

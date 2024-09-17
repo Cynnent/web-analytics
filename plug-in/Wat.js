@@ -22,26 +22,26 @@ const characters =
 const titleElements = document.querySelectorAll("title");
 const clientName = titleElements[0].innerHTML;
 // HTML template for cookie prompt
-const htmlTemplate = `
-<div id="cookiePopup" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999;">
-  <div class="wrapper" style="background: #fff; position: fixed; bottom: 20px; left: 50px; max-width: 500px; border-radius: 15px; text-align: center; border: 1px solid #493179; padding: 25px; overflow: hidden; box-shadow: 0 0 18px rgba(0, 0, 0, 0.13);">
-    <img src="../../assets/img/cookie.png" alt="" style="max-width: 90px;">
-    <div class="content" style="margin-top: 10px;">
-      <header style="font-size: 25px; font-weight: 600;">Cookies</header>
-      <h1 style="font-size: 25px; font-weight: 600;">GDPR Compliance Notice</h1>
-      <h5>What data do we collect?</h5>
-      <ul style="list-style-type: disc; text-align: left;">
-      <li>We collect personal information such as your name, email address, and location when you sign up for our service or interact with our platform.</li>
-      <li>We also gather data on your usage patterns, preferences, and interactions with our website/application/service to improve your experience and tailor our offerings to your needs.</li>
-    </ul>
-      <div class="buttons" style="display: flex; justify-content: center; align-items: center;">
-        <button class="item cancel" onclick="onBlock()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #eee; color: #333;">Cancel</button>
-        <button class="item accept" onclick="onAccept()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #493179; color: #fff;">Accept</button>
-      </div>
-    </div>
-  </div>
-</div>
-`;
+// const htmlTemplate = `
+// <div id="cookiePopup" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+//   <div class="wrapper" style="background: #fff; position: fixed; bottom: 20px; left: 50px; max-width: 500px; border-radius: 15px; text-align: center; border: 1px solid #493179; padding: 25px; overflow: hidden; box-shadow: 0 0 18px rgba(0, 0, 0, 0.13);">
+//     <img src="../../assets/img/cookie.png" alt="" style="max-width: 90px;">
+//     <div class="content" style="margin-top: 10px;">
+//       <header style="font-size: 25px; font-weight: 600;">Cookies</header>
+//       <h1 style="font-size: 25px; font-weight: 600;">GDPR Compliance Notice</h1>
+//       <h5>What data do we collect?</h5>
+//       <ul style="list-style-type: disc; text-align: left;">
+//       <li>We collect personal information such as your name, email address, and location when you sign up for our service or interact with our platform.</li>
+//       <li>We also gather data on your usage patterns, preferences, and interactions with our website/application/service to improve your experience and tailor our offerings to your needs.</li>
+//     </ul>
+//       <div class="buttons" style="display: flex; justify-content: center; align-items: center;">
+//         <button class="item cancel" onclick="onBlock()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #eee; color: #333;">Cancel</button>
+//         <button class="item accept" onclick="onAccept()" style="padding: 10px 20px; margin: 0 5px; border: none; outline: none; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; background: #493179; color: #fff;">Accept</button>
+//       </div>
+//     </div>
+//   </div>
+// </div>
+// `;
 
 let userDetail = {};
 let pageName = "";
@@ -193,7 +193,7 @@ function getUserRegion() {
             }
 
             const deviceType = getCookie("deviceType");
-            console.log("Devices Type:", deviceType);            
+            console.log("Device Type:", deviceType);            
             const userInfo = {
               ip: ipAddress,
               userName: generateString(5),
@@ -349,16 +349,17 @@ function injectHTML(html) {
   const sessionDetails = getCookie("cookieAccepted");
   
   if (!sessionDetails) {
-    const container = document.createElement("div");
-    container.innerHTML = htmlTemplate.trim();
-    document.body.appendChild(container.firstChild);
+    getUserRegion();
+    // const container = document.createElement("div");
+    // container.innerHTML = htmlTemplate.trim();
+    // document.body.appendChild(container.firstChild);
   }
 
 }
 
 // Inject HTML template into the DOM after DOMContentLoaded
 document.addEventListener("DOMContentLoaded", function () {
-  injectHTML(htmlTemplate);
+  injectHTML();
 });
 
 function storeUserEvent(value) {
