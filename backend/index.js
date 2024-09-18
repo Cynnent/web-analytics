@@ -35,7 +35,7 @@ const { Server } = require("socket.io");
 const WebSocket = require("ws");
 const ClientData = require("./models/botModels/bot_checkedModel");
 const app = express();
-const port = 3000;
+const port = 5000;
 
 const allowedOrigins = ["http://localhost:4200","http://localhost:51286/"];
 
