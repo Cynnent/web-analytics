@@ -81,7 +81,7 @@ const updateData = async (req, res) => {
 const user = async (req, res) => {
   const userData = req.body;
   const configData = {
-    endpoint: "https://webanalyticals.onrender.com",
+    endpoint: "https://web-analytics.onrender.com",
     serverUpdateTime: 5000,
     token: "",
   };

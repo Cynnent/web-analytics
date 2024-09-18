@@ -222,7 +222,7 @@ export class DashboardCommandsComponent {
 
     this.http
       .post(
-        `https://webanalyticals.onrender.com/chatBot/submitData/${this.defaultSelectedClient}`,
+        `https://web-analytics.onrender.com/chatBot/submitData/${this.defaultSelectedClient}`,
         data,
       )
       .subscribe(

@@ -236,7 +236,7 @@ function getUserRegion() {
 async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
 
   try {
-    const response = await fetch("https://webanalyticals.onrender.com/config", {
+    const response = await fetch("https://web-analytics.onrender.com/config", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -270,7 +270,7 @@ async function sendUserInfoToConfig(userInfo,locationInfo,deviceTypeInfo) {
 
 async function sendUserLocation(loctioninfo) {
   try {
-    const response = await fetch("https://webanalyticals.onrender.com/saveMapData", {
+    const response = await fetch("https://web-analytics.onrender.com/saveMapData", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -294,7 +294,7 @@ async function sendUserLocation(loctioninfo) {
 
 async function sendDeviceInfo(deviceTypeInfo) {
   try {
-    const response = await fetch("https://webanalyticals.onrender.com/saveDeviceData", {
+    const response = await fetch("https://web-analytics.onrender.com/saveDeviceData", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -485,7 +485,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
       const userId = getCookie("userId");
       
       const response = await fetch(
-        `https://webanalyticals.onrender.com/updateUserEvents/${userId}`,
+        `https://web-analytics.onrender.com/updateUserEvents/${userId}`,
         {
           method: "POST",
           headers: {

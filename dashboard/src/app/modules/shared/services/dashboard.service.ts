@@ -19,7 +19,7 @@ export class DataService {
 
   private socket: Socket; // Socket.io client instance
   private apiUrl = 'http://localhost:5000'; // Base URL for API endpoints
-  private baseURL = 'https://webanalyticals.onrender.com';
+  private baseURL = 'https://web-analytics.onrender.com';
   widgetLink: string = '';
 
   private setupSocketListeners(): void {

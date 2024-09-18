@@ -1,7 +1,7 @@
 // variables and constants
-const wsURL = "https://webanalyticals.onrender.com/";
+const wsURL = "https://web-analytics.onrender.com/";
 const clientName = "Appland";
-const getBotDataURL = "https://webanalyticals.onrender.com/chatBot/getBotData";
+const getBotDataURL = "https://web-analytics.onrender.com/chatBot/getBotData";
 const getGreetingData = {
   clientName: clientName,
   inputs: ["hi"],
@@ -58,7 +58,7 @@ function injectChatbot() {
 
 // get animations
 fetch(
-  `https://webanalyticals.onrender.com/chatBot/getSubmittedAnimation/${clientName}`
+  `https://web-analytics.onrender.com/chatBot/getSubmittedAnimation/${clientName}`
 )
   .then((response) => {
     if (!response.ok) {
