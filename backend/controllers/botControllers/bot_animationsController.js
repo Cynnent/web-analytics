@@ -1,4 +1,5 @@
 const Animations = require("../../models/botModels/bot_animationsModel");
+const ClientData = require("../../models/botModels/bot_checkedModel");
 
 const createAnimations = async (req, res) => {
   const { clientName } = req.params;
@@ -32,7 +33,9 @@ const createAnimations = async (req, res) => {
 const getAnimations = async (req, res) => {
   const { clientName } = req.params;
   try {
-    let client = await Animations.findOne({ clientName });
+    let client = await Animations.findOne({ clientName }).select(
+      "animations.animation -_id"
+    );
 
     if (!client) {
       return res.status(404).json({ message: "Client not found" });
@@ -45,4 +48,25 @@ const getAnimations = async (req, res) => {
   }
 };
 
-module.exports = { createAnimations, getAnimations };
+const submitAnimationData = async (req, res) => {
+  const { clientName } = req.params;
+
+  try {
+    const animationData = await ClientData.findOne({ clientName }).select(
+      "animations.animation -_id"
+    );
+
+    if (!animationData || !animationData.animations.length) {
+      return res
+        .status(404)
+        .json({ error: "No data found for the provided client name" });
+    }
+
+    res.json(animationData.animations);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = { createAnimations, getAnimations, submitAnimationData };

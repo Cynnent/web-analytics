@@ -101,17 +101,19 @@ const getweeklyData = async (req, res) => {
 
 const getmonthlyData = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.params.userId; 
     function getCurrentFormattedDate() {
       const today = new Date();
       const year = today.getFullYear();
+      // getMonth() returns month from 0 to 11, so add 1 to get the correct month
       const month = String(today.getMonth() + 1).padStart(2, "0");
       const day = String(today.getDate()).padStart(2, "0");
 
       return `${year}-${month}-${day}`;
     }
 
-    const date = getCurrentFormattedDate();
+    const date = getCurrentFormattedDate(); //"2024-03-11";
+
 
     const userData = await User.findOne({ _id: userId });
 

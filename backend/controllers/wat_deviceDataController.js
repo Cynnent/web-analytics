@@ -46,22 +46,23 @@ const mostUsedDevices = async (req, res) => {
     const client = req.params.clientName;
 
     const result = await DeviceData.aggregate([
-      { $match: { 'clientName': client } },
-      { $group: { _id: '$DeviceName', count: { $sum: 1 } } },
-      { $project: { DeviceName: '$_id', count: 1, _id: 0 } },
-      { $sort: { count: -1 } }
+      { $match: { clientName: client } },
+      { $group: { _id: "$DeviceName", count: { $sum: 1 } } },
+      { $project: { DeviceName: "$_id", count: 1, _id: 0 } },
+      { $sort: { count: -1 } },
     ]);
 
     if (result.length === 0) {
-      return res.json({ message: `No data found for the client name: ${client}.` });
+      return res.json({
+        message: `No data found for the client name: ${client}.`,
+      });
     }
 
     res.json(result);
   } catch (error) {
-    console.error('Error processing most used devices data:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error processing most used devices data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 module.exports = { saveDeviceData, getAllUserDeviceData, mostUsedDevices };

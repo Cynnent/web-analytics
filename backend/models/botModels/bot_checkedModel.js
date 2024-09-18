@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { chatbotConnection } = require('../../server');
 
-const submitDataSchema = new mongoose.Schema({
+const clientDataSchema = new mongoose.Schema({
     clientName: { type: String, required: true, unique: true },
     questions: [
         {
@@ -9,7 +10,8 @@ const submitDataSchema = new mongoose.Schema({
     ],
     offers: [
         {
-            offer: { type: String, required: true }
+            offer: { type: String, required: true },
+            link: { type: String }
         }
     ],
     animations: [
@@ -19,6 +21,6 @@ const submitDataSchema = new mongoose.Schema({
     ]
 });
 
-const SubmitData = mongoose.model('SubmitData', submitDataSchema);
+const ClientData = chatbotConnection.model('ClientData', clientDataSchema);
 
-module.exports = SubmitData;
+module.exports = ClientData;

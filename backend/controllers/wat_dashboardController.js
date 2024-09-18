@@ -3,9 +3,12 @@ const User = require("../models/wat_userModel");
 const clientData = async (req, res) => {
   try {
     const users = await User.find();
-
     const uniqueClientNames = [
-      ...new Set(users.map((user) => user.userInfo.clientName)),
+      ...new Set(
+        users
+          .filter((user) => user.userInfo && user.userInfo.clientName)
+          .map((user) => user.userInfo.clientName)
+      ),
     ];
 
     const result = uniqueClientNames.map((clientName) => ({ clientName }));
@@ -42,4 +45,28 @@ const getUsersByClientName = async (req, res) => {
   }
 };
 
-module.exports = { clientData, getUsersByClientName };
+const MostViewedBrowsers = async (req, res) => {
+  try {
+    const client = req.params.clientName;
+    const users = await User.find({ "userInfo.clientName": client });
+    if (users.length === 0) {
+      return res.json({
+        message: `No data found for the client name: ${client}.`,
+      });
+    }
+    // Group users by browserName and count occurrences
+    const browserCounts = await User.aggregate([
+      { $match: { "userInfo.clientName": client } },
+      { $group: { _id: "$userInfo.browserName", count: { $sum: 1 } } },
+      { $project: { _id: 0, browserName: "$_id", count: 1 } },
+      { $sort: { count: -1 } },
+    ]);
+
+    res.json(browserCounts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = { clientData, getUsersByClientName, MostViewedBrowsers };

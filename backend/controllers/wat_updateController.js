@@ -81,25 +81,25 @@ const updateData = async (req, res) => {
 const user = async (req, res) => {
   const userData = req.body;
   const configData = {
-      endpoint: 'https://webanalyticals.onrender.com',
-      serverUpdateTime: 5000,
-      token: '',
+    endpoint: "https://webanalyticals.onrender.com",
+    serverUpdateTime: 5000,
+    token: "",
   };
 
   try {
-      const response = {
-          ...configData,
-          _id: undefined, 
-      };
+    const response = {
+      ...configData,
+      _id: undefined,
+    };
 
-      const newUser = new User({ ...userData });
-      const savedUser = await newUser.save();
-      response._id = savedUser._id;
+    const newUser = new User({ ...userData });
+    const savedUser = await newUser.save();
+    response._id = savedUser._id;
 
-      res.json(response);
+    res.json(response);
   } catch (error) {
-      console.error('Error creating config:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error creating config:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

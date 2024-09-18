@@ -31,10 +31,12 @@ const mostClickedActions = async (req, res) => {
         }
       });
 
+      // Sort the buttons based on counts in descending order
       const sortedButtons = Object.keys(buttonCounts).sort(
         (a, b) => buttonCounts[b] - buttonCounts[a]
       );
 
+      // Create the result object
       const mostClickedButtons = sortedButtons.map((button) => ({
         ButtonName: button,
         count: buttonCounts[button],
@@ -43,7 +45,18 @@ const mostClickedActions = async (req, res) => {
       return { mostClickedButtons };
     };
 
+    // Call the function to get the most clicked buttons
     const result = getMostClickedButtons(users);
+    //console.log(result);
+
+    // If there is an existing document, update it; otherwise, create a new one
+    // if (existingMostViewedPage) {
+    //   await MostClickedActions.updateOne({}, result);
+    // } else {
+    //   const mostViewedPage = new MostClickedActions(result);
+    //   await mostViewedPage.save();
+    // }
+
     res.json(result.mostClickedButtons);
   } catch (error) {
     console.error("Error processing most viewed page data:", error);
