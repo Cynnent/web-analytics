@@ -58,14 +58,14 @@
         <tr>
           <td>{{ rowIndex + 1 }}</td>
           <td>
-            <span class="ml-1 vertical-align-middle"
-              >{{ data[this.primaryField] }}</span
-            >
+            <span class="ml-1 vertical-align-middle">{{
+              data[this.primaryField]
+            }}</span>
           </td>
           <td>
-            <span class="ml-1 vertical-align-middle"
-              >{{ data[this.secondaryField] }}</span
-            >
+            <span class="ml-1 vertical-align-middle">{{
+              data[this.secondaryField]
+            }}</span>
           </td>
         </tr>
       </ng-template>
@@ -89,7 +89,13 @@
       [loading]="loading"
       [paginator]="true"
       [scrollable]="true"
-      [globalFilterFields]="[primaryField, secondaryField, thirdField,'cityName','users']"
+      [globalFilterFields]="[
+        primaryField,
+        secondaryField,
+        thirdField,
+        'cityName',
+        'users'
+      ]"
       currentPageReportTemplate="Showing {first} - {last} of {totalRecords} records"
       *ngIf="tableType == 'secondaryTable'"
     >
@@ -122,7 +128,7 @@
         let-rowspan="rowspan"
       >
         <tr>
-          <td>{{ rowIndex+1 }}</td>
+          <td>{{ rowIndex + 1 }}</td>
           <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
             <span class="font-bold ml-2">{{ data[this.primaryField] }}</span>
           </td>

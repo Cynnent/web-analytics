@@ -4,19 +4,25 @@
   </span>
   <ul>
     <li>
-      <a routerLink="/dashboard" class="flex mt-2">
-        <span
+      <a routerLink="app/dashboard" class="flex mt-2" routerLinkActive="active">
+        <!-- <span
           ><img
             [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
             src="./../../../../assets/img/dashboard.svg"
-        /></span>
+        /></span> -->
 
-        <span
-          class="icon-text"
-          [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
-          (click)="changeActiveLink('dashboard', $event)"
-          >Dashboard</span
-        >
+        <span class="icon-text">Dashboard</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="app/insights" class="flex mt-2" routerLinkActive="active">
+        <!-- <span
+          ><img
+            [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
+            src="./../../../../assets/img/dashboard.svg"
+        /></span> -->
+
+        <span class="icon-text">Insights</span>
       </a>
     </li>
 

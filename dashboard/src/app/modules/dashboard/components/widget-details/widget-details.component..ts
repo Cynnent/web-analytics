@@ -42,10 +42,10 @@ interface Column {
 }
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './widget-component.html',
+  selector: 'app-widget-details',
+  templateUrl: './widget-details.component.html',
 })
-export class TableComponent implements OnInit {
+export class widgetDetailsComponent implements OnInit {
   @ViewChild('widgetTable', { static: false }) widgetTable!: Table;
 
   serialNumbers: number[] = [];
@@ -180,6 +180,6 @@ export class TableComponent implements OnInit {
   }
 
   gotoOverview() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['app/dashboard']);
   }
 }

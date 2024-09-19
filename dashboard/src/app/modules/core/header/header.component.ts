@@ -8,9 +8,11 @@ import { Component, Renderer2 } from '@angular/core';
 export class HeaderComponent {
   public username: string = 'Cynnent';
   public userRole: string = 'Super Administrator';
-  checked: boolean = false;
+  checked: boolean = true;
 
-  constructor(private renderer: Renderer2) {}
+  constructor(private renderer: Renderer2) {
+    this.toggleBodyClass();
+  }
 
   toggleBodyClass() {
     if (this.checked) {

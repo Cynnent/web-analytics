@@ -22,15 +22,20 @@
 
           <span class="icon-header">Most Viewed Pages</span>
         </div>
-        <span class="menu-icon"
-          ><a routerLink="/mostViewedPages" (click)="MostViewedPages()">
-            <span class="icon-menu mt-3 block"></span> </a
-        ></span>
+        <span class="menu-icon">
+          <span class="icon-menu mt-3 block" (click)="MostViewedPages()"></span>
+        </span>
       </p-card-header>
+
       <div id="pie-chart-container"></div>
 
       @if (!mostViewedPagedata.length) {
-      <div class="text-center py-5">No Data Found</div>
+      <div class="wrapper-cell">
+        <div class="text flex justify-content-center">
+          <div class="text-line circle"></div>
+        </div>
+      </div>
+      <!-- <div class="text-center py-5">No Data Found</div> -->
       }
     </div>
   </div>
@@ -51,8 +56,21 @@
         ></span>
       </p-card-header>
       <div id="bar-chart-container"></div>
+
       @if (!mostClickedActions.length) {
-      <div class="text-center py-5">No Data Found</div>
+      <div class="wrapper-cell">
+        <div class="text">
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+        </div>
+      </div>
+      <!-- <div class="text-center py-5">No Data Found</div> -->
       }
     </div>
   </div>
@@ -73,9 +91,18 @@
       </p-card-header>
 
       <div id="pieChartContainer"></div>
-      <div id="total-count" class="center-label"></div>
+      <div
+        id="total-count"
+        class="center-label"
+        [ngClass]="{ hide: mostDevicedata.length === 0 }"
+      ></div>
       @if (!mostDevicedata.length) {
-      <div class="text-center py-5">No Data Found</div>
+      <div class="wrapper-cell">
+        <div class="text flex justify-content-center">
+          <div class="text-line circle"></div>
+        </div>
+      </div>
+      <!-- <div class="text-center py-5">No Data Found</div> -->
       }
     </div>
   </div>
@@ -94,10 +121,28 @@
             ><span class="icon-menu mt-3 block"></span></a
         ></span>
       </p-card-header>
-      <div id="most-used-browsers-chart-container" class="browser-view"></div>
-      @if (!browserCounts.length) {
-      <div class="text-center py-5">No Data Found</div>
-      } 
+
+      @if (browserCounts.length !== 0) {
+      <div
+        id="most-used-browsers-chart-container"
+        class="browser-view"
+        [ngClass]="{ hide: browserCounts.length === 0 }"
+      ></div>
+      } @if (!browserCounts.length) {
+      <div class="wrapper-cell">
+        <div class="text">
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+          <div class="text-line"></div>
+        </div>
+      </div>
+      <!-- <div class="text-center py-5">No Data Found</div> -->
+      }
     </div>
   </div>
   <div
@@ -127,10 +172,6 @@
           >
           </highcharts-chart> -->
           <div id="map-chart-container"></div>
-
-          @if (! mostUsedCountriesdata.length) {
-          <div class="text-center py-5">No Data Found</div>
-          } 
         </div>
 
         @if (mostUsedCountriesdata.length) {
@@ -158,6 +199,20 @@
             </div>
           </div>
         </div>
+        } @if (! mostUsedCountriesdata.length) {
+        <div class="wrapper-cell">
+          <div class="text">
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+            <div class="text-line"></div>
+          </div>
+        </div>
+        <!-- <div class="text-center py-5">No Data Found</div> -->
         }
       </div>
     </div>

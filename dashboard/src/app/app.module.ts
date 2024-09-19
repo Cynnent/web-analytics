@@ -26,25 +26,25 @@ import { routes } from './app.routes';
 import { HeaderComponent } from './modules/core/header/header.component';
 import { SidebarComponent } from './modules/core/sidebar/sidebar.component';
 
-// import {DashboardOverviewComponent} from './modules/dashboard/overview/dashboard-overview'
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { InsightComponent } from './modules/dashboard/components/dashboard-insight/dashboard-insight.component';
-import { DashboardOverviewComponent } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
-import { DashboardCommandsComponent } from './modules/dashboard/components/dashboard-commands/dashboard-commands.component';
-import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
+import { DashboardOverview } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
+// import { DashboardCommandsComponent } from './modules/dashboard/components/dashboard-commands/dashboard-commands.component';
+import { widgetDetailsComponent } from './modules/dashboard/components/widget-details/widget-details.component.';
 import { SharedModule } from './modules/shared/shared.module';
+import { InsightsComponent } from './modules/insights/components/insights/insights.component';
+
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     SidebarComponent,
-    DashboardOverviewComponent,
-    DashboardCommandsComponent,
-    InsightComponent,
-    TableComponent,
+    DashboardOverview,
+    // DashboardCommandsComponent,
+    InsightsComponent,
+    widgetDetailsComponent,
   ],
   imports: [
     BrowserModule,

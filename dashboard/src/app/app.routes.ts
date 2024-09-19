@@ -3,37 +3,42 @@ import { SidebarComponent } from './modules/core/sidebar/sidebar.component';
 import { HeaderComponent } from './modules/core/header/header.component';
 import { AppComponent } from './app.component';
 
-import { InsightComponent } from './modules/dashboard/components/dashboard-insight/dashboard-insight.component';
-import { TableComponent } from './modules/dashboard/components/widget-details/widget-detail';
-import { DashboardOverviewComponent } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
+import { InsightsComponent } from './modules/insights/components/insights/insights.component';
+import { widgetDetailsComponent } from './modules/dashboard/components/widget-details/widget-details.component.';
+import { DashboardOverview } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: InsightComponent,
+    redirectTo: 'app/dashboard',
+    pathMatch: 'full',
   },
   {
-    path: 'mostViewedPages',
-    component: TableComponent,
+    path: 'app/dashboard',
+    component: DashboardOverview,
   },
   {
-    path: 'mostClickedActions',
-    component: TableComponent,
+    path: 'app/mostViewedPages',
+    component: widgetDetailsComponent,
   },
   {
-    path: 'mostActiveUser',
-    component: TableComponent,
+    path: 'app/mostClickedActions',
+    component: widgetDetailsComponent,
   },
   {
-    path: 'mostUsedCountries',
-    component: TableComponent,
+    path: 'app/mostActiveUser',
+    component: widgetDetailsComponent,
   },
   {
-    path: 'mostUsedBrowsers',
-    component: TableComponent,
+    path: 'app/mostUsedCountries',
+    component: widgetDetailsComponent,
   },
   {
-    path: 'dashboard',
-    component: InsightComponent,
+    path: 'app/mostUsedBrowsers',
+    component: widgetDetailsComponent,
+  },
+  {
+    path: 'app/insights',
+    component: InsightsComponent,
   },
 ];

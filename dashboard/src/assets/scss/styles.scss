@@ -14,6 +14,8 @@
   --card-bg: #ffffff;
   --text-primary-color: #333;
   --primary-bg: #091f44;
+  --menu-item-color: #ffffff;
+  --menu-item-active-color: #091932;
 }
 
 .dark-mode {
@@ -29,6 +31,8 @@
   --card-bg: #1a1a1a;
   --text-primary-color: #a3a3a3;
   --primary-bg: #f9d628;
+  --menu-item-color: #a3a3a3;
+  --menu-item-active-color: #a3a3a3;
 }
 
 .icon-header,
@@ -56,6 +60,17 @@ button {
 
 .p-datepicker-trigger.p-button-icon-only {
   background-color: var(--primary-bg);
+}
+
+.dark-mode {
+  @mixin animated-background() {
+    background: linear-gradient(
+      to right,
+      #2a2a2a 8%,
+      #303030 18%,
+      #2a2a2a 33%
+    ) !important;
+  }
 }
 
 ::-webkit-scrollbar {

@@ -1,0 +1,119 @@
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  [show]="isLoading"
+></ngx-spinner>
+
+<div class="dashboard-container">
+  <div class="row dropdowns col-12">
+    <div class="col-12">
+      <div class="grid col-12">
+        <div class="col-12 md:col-4">
+          <span class="text-xs mb-1 block">Choose the application</span>
+          <p-dropdown
+            [filter]="true"
+            [options]="clientNames"
+            [(ngModel)]="defaultSelectedClient"
+            (onChange)="insightClientChange(defaultSelectedClient)"
+            placeholder="Select Client"
+          ></p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-4">
+          <span class="text-xs mb-1 block">Choose the user</span>
+          <p-dropdown
+            [filter]="true"
+            [options]="userDropdownData"
+            [(ngModel)]="selectedUsername"
+            (onChange)="userChange()"
+            optionLabel="value"
+            optionValue="id"
+            placeholder="Select User"
+          ></p-dropdown>
+        </div>
+
+        <div class="col-12 md:col-4">
+          <span class="text-xs mb-1 block">Choose the type</span>
+          <p-dropdown
+            [options]="intervalOptions"
+            [(ngModel)]="selectedInterval"
+            (onChange)="intervalChange(selectedInterval)"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            placeholder="Select Interval"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <!-- Interval dropdown -->
+      <!-- <div class="grid col-12 mt-4">
+        
+      </div> -->
+
+      <div *ngIf="userData" class="flow-graph mt-4 mb-4">
+        <h5
+          class="text-left mb-5"
+          [ngClass]="{ 'disable-class-screen': isScreenOverview === true }"
+        >
+          User Journey Flow
+        </h5>
+        <div
+          class="col-lg-12 col-md-12 col-sm-12 flow-gragh-container"
+          [ngClass]="{ 'disable-class-screen': isScreenOverview === true }"
+        >
+          <ol class="journy-item">
+            <ng-container *ngFor="let screen of userData.screens | keyvalue">
+              <li>
+                <span id="screenName">{{ screen.key }}</span>
+                <div class="hide">
+                  <h6 class="border-bottom-1 pb-2 mb-2 font-bold">
+                    {{ screen.key }}
+                  </h6>
+                  <ng-container
+                    *ngFor="let entry of getObjectEntries(screen?.value)"
+                  >
+                    <div class="actions-list mb-1">
+                      {{ entry[0] }}: {{ entry[1] }}
+                    </div>
+                  </ng-container>
+                </div>
+              </li>
+            </ng-container>
+          </ol>
+        </div>
+
+        <div class="col-12 md:lg-12">
+          <div class="justify-content-end flex mb-2 text-left">
+            <div [ngClass]="{ hide: !isChartDataAvailable }">
+              <label class="text-xs"
+                >Select the date to find the user journey</label
+              >
+              <div>
+                <p-calendar
+                  class="date-input field"
+                  #datePicker
+                  [(ngModel)]="selectedDate"
+                  [showIcon]="true"
+                  (onSelect)="dateChange($event)"
+                  id="icondisplay"
+                  placeholder="Select Date"
+                ></p-calendar>
+              </div>
+            </div>
+          </div>
+          <div class="high-chart" [ngClass]="{ hide: !isChartDataAvailable }">
+            <div id="container"></div>
+          </div>
+        </div>
+
+        <div class="no-data" *ngIf="!isChartDataAvailable">
+          <h3 class="mt-8">No data found</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

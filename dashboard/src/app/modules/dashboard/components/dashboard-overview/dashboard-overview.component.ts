@@ -28,13 +28,14 @@ import {
   USER_BY_COUNTRY_LINK,
   WEEKLY_INTERVAL,
 } from '../../../shared/constants/const';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-overview',
   templateUrl: './dashboard-overview.component.html',
-  styleUrl: './dashboard-overview.component.css',
+  styleUrl: './dashboard-overview.component.scss',
 })
-export class DashboardOverviewComponent implements OnDestroy, OnInit {
+export class DashboardOverview implements OnDestroy, OnInit {
   @Input() latitude: number = 0;
   @Input() longitude: number = 0;
 
@@ -71,28 +72,37 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
   constructor(
     private cdr: ChangeDetectorRef,
     public dataService: DataService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private router: Router
   ) {}
   //Initializes the component and subscribes to data services.
   ngOnInit(): void {
     this.dataService.onDataUpdate((data) => {
       this.mostDevicedata = data;
-      this.getDeviceData();
+      setTimeout(() => {
+        this.getDeviceData();
+      }, 2000);
     });
 
     this.dataService.onMostViewedPage((data) => {
       this.mostViewedPagedata = data;
-      this.renderPieChart();
+      setTimeout(() => {
+        this.renderPieChart();
+      }, 2000);
     });
 
     this.dataService.onMostClickedActions((data) => {
       this.mostClickedActions = data;
-      this.renderBarChart();
+      setTimeout(() => {
+        this.renderBarChart();
+      }, 2000);
     });
 
     this.dataService.onMostUsedCountries((data) => {
       this.mostUsedCountriesdata = data;
-      this.getMapComponent();
+      setTimeout(() => {
+        this.getMapComponent();
+      }, 2000);
     });
 
     this.dataService.onCountryCounts((data) => {
@@ -102,7 +112,9 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
 
     this.dataService.onBrowserCounts((data) => {
       this.browserCounts = data;
-      this.loadMostUsedBrowsers();
+      setTimeout(() => {
+        this.loadMostUsedBrowsers();
+      }, 2000);
     });
 
     this.selectedInterval = WEEKLY_INTERVAL;
@@ -336,22 +348,27 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
   }
 
   MostViewedPages() {
+    this.router.navigate(['app/mostViewedPages']);
     this.dataService.setLink(MOST_VIEWED_PAGES_LINK);
   }
 
   MostClickedActions() {
+    this.router.navigate(['app/mostClickedActions']);
     this.dataService.setLink(MOST_CLICKED_ACTIONS_LINK);
   }
 
   ActiveUserByDevice() {
+    this.router.navigate(['app/mostActiveUser']);
     this.dataService.setLink(MOST_USED_DEVICES_LINK);
   }
 
   MostUsedCountries() {
+    this.router.navigate(['app/mostUsedCountries']);
     this.dataService.setLink(USER_BY_COUNTRY_LINK);
   }
 
   MostUsedBrowser() {
+    this.router.navigate(['app/mostUsedBrowsers']);
     this.dataService.setLink(MOST_USED_BROWSER_LINK);
   }
 
@@ -470,6 +487,7 @@ export class DashboardOverviewComponent implements OnDestroy, OnInit {
     }
 
     const data = this.mostUsedCountriesdata;
+    console.log('data', data);
 
     const mapData = data.map((obj) => {
       const countryCode =
