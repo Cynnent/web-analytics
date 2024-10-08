@@ -54,6 +54,7 @@ let isResponseToDB = false;
 let ipAddress;
 let ls = {};
 let clickCounts = {};
+let data = [wat_userevents, wat_usernames];
 
 function formatDate(date) {
   const year = date.getFullYear();
@@ -80,7 +81,7 @@ const browserName =
   "Unknown Browser";
 
 function storeUserName(value) {
-  sessionStorage.setItem("wat_usernames", JSON.stringify(value));
+  sessionStorage.setItem(data[1], JSON.stringify(value));
 }
 
 if (!getCookie("deviceType")) {
@@ -111,13 +112,13 @@ fetch("https://api.ipify.org?format=json")
     };
 
     try {
-      const userNameKey = JSON.parse(sessionStorage.usernames);
+      const userNameKey = JSON.parse(sessionStorage.wat_usernames);
       const ipCheck = userNameKey.userInfo[0].ip;
     } catch {
       storeUserName(userDetail);
     }
 
-    const userNameKey = JSON.parse(sessionStorage.usernames);
+    const userNameKey = JSON.parse(sessionStorage.wat_usernames);
     const ipCheck = userNameKey.userInfo[0].ip;
 
     if (ipAddress != ipCheck) {
@@ -174,7 +175,7 @@ function getUserRegion() {
           .then((data) => {
             const country = data.address.country;
             const city = data.address.county;
-            const storedUserData = sessionStorage.getItem("usernames");
+            const storedUserData = sessionStorage.getItem("wat_usernames");
 
             for (let i = 0; i < sessionStorage.length; i++) {
               const key = sessionStorage.key(i);
@@ -246,8 +247,8 @@ async function sendUserInfoToConfig(userInfo, locationInfo, deviceTypeInfo) {
     console.log("Config Data:", configData);
     id = configData._id;
     time = configData.serverUpdateTime;
-    setCookie("serverUpdateTime", time, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
-    setCookie("userId", id, 30); // Set a cookie named "userId" with the extracted id that expires in 30 days
+    setCookie("serverUpdateTime", time, 30);
+    setCookie("userId", id, 30);
     locationInfo._id = id;
     deviceTypeInfo._id = id;
     sendUserLocation(locationInfo);
@@ -357,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function storeUserEvent(value) {
-  sessionStorage.setItem("wat_userevents", JSON.stringify(value));
+  sessionStorage.setItem(data[0], JSON.stringify(value));
   isResponseToDB = true;
 }
 
@@ -410,7 +411,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
     clickCounts = {};
 
     let oldObject;
-    let userEventDetail = sessionStorage.getItem("userevents");
+    let userEventDetail = sessionStorage.getItem("wat_userevents");
     let newObject = JSON.parse(JSON.stringify(userDetail));
     let currentUserEvents;
     let newDerivedObject;
@@ -460,7 +461,7 @@ function changedPageName(isPageChangedtoOtherScreen) {
       }
     }
 
-    responseToDB = sessionStorage.getItem("userevents");
+    responseToDB = sessionStorage.getItem("wat_userevents");
 
     if (responseToDB) {
       const parsedData = JSON.parse(responseToDB);
@@ -494,12 +495,16 @@ function changedPageName(isPageChangedtoOtherScreen) {
       console.log("Config Data:", configData);
       // sessionStorage.clear();
 
-      for (let i = sessionStorage.length - 1; i >= 0; i--) {
-        const key = sessionStorage.key(i);
-        if (key.startsWith("wat_")) {
-          sessionStorage.removeItem(key);
-        }
+      for (let skeys of data) {
+        sessionStorage.removeItem(skeys);
       }
+
+      // for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      //   const key = sessionStorage.key(i);
+      //   if (key.startsWith("wat_")) {
+      //     sessionStorage.removeItem(key);
+      //   }
+      // }
 
       if (requesteDataToDB.length) {
         isResponseToDB = false;
