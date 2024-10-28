@@ -113,7 +113,11 @@ p-card-header {
     opacity: 1;
     background: var(--background-color);
     margin-right: 15px;
-    background: -webkit-linear-gradient(top, rgb(19, 61, 185), rgb(23 46 84));
+    background: linear-gradient(
+      90deg,
+      rgb(55, 70, 96) 0%,
+      rgba(46, 61, 87, 0.8) 100%
+    );
     .icons {
       margin-right: 7px;
       margin-top: 2px;

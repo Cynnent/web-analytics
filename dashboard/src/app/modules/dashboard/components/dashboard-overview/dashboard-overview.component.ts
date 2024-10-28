@@ -185,7 +185,7 @@ export class DashboardOverview implements OnDestroy, OnInit {
           },
         },
       },
-      colors: ['#ffc107', '#052288', '#BBC1D2'],
+      colors: ['#ffffff', '#989fd1', '#ffffff'],
       series: [{ type: 'pie', name: 'Count', data: deviceData }],
     };
 
@@ -231,7 +231,7 @@ export class DashboardOverview implements OnDestroy, OnInit {
 
         // Define gradient colors
         const gradientColors = [
-          { start: '#052288', end: '#0A44FF' },
+          { start: '#ffffff', end: '#ffffff' },
           { start: '#FFD500', end: '#FFF17F' },
           { start: '#BBC1D2', end: '#E6E9F0' },
           { start: '#78787A', end: '#A3A3A5' },
@@ -462,8 +462,8 @@ export class DashboardOverview implements OnDestroy, OnInit {
                 y2: 1,
               },
               stops: [
-                [0, '#313ae7'], // Start color (purple)
-                [1, '#575eed'], // End color (light purple)
+                [0, '#ffffff'], // Start color (purple)
+                [1, '#ffffff'], // End color (light purple)
               ],
             },
           } as Highcharts.SeriesOptionsType,

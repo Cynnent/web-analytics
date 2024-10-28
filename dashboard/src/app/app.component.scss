@@ -4,7 +4,17 @@
 }
 
 footer {
-  position: absolute;
   bottom: 10px;
   left: 20px;
+}
+
+.layout-wrap {
+  background: #2e3d57;
+  border-radius: 16px;
+  left: 94px;
+  max-width: calc(100% - 120px);
+  padding-left: 180px;
+  max-height: calc(100vh - 20px);
+  position: fixed !important;
+  overflow: auto;
 }

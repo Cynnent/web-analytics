@@ -12,19 +12,20 @@ const backend_URL = io('http://localhost:5000/');
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, FormsModule],
   templateUrl: './shortlink.component.html',
-  styleUrls: ['./shortlink.component.css'],
+  styleUrls: ['./shortlink.component.scss'],
 })
 export class ShortlinkComponent {
   longUrl: string = '';
   shortUrl: string = '';
   isCopied: boolean = false;
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService) {}
 
   generateShortLink() {
-    this.dataService.generateShortLink(this.longUrl)
+    this.dataService
+      .generateShortLink(this.longUrl)
       .toPromise()
-      .then(response => {
+      .then((response) => {
         const { statusCode } = response;
 
         if (statusCode === 201 || statusCode === 200) {
@@ -34,7 +35,7 @@ export class ShortlinkComponent {
           this.shortUrl = '';
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }

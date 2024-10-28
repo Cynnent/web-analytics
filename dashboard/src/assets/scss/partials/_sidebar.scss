@@ -28,19 +28,15 @@ aside {
         }
         &.active {
           color: var(--menu-item-active-color);
-          border-left: 1px solid #3b3a3a;
-          border-top: 1px solid #3b3a3a;
-          border-bottom: 1px solid #3b3a3a;
-          background: var(--background-color);
+          background: linear-gradient(
+            90deg,
+            rgb(55 70 96) 0%,
+            rgba(46, 61, 87, 0.8) 100%
+          );
+          border-left: 3px solid #fff;
           font-weight: bold;
         }
       }
     }
-  }
-}
-
-.dark-mode {
-  aside {
-    filter: grayscale(1);
   }
 }
