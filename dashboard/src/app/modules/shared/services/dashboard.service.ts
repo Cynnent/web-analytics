@@ -41,8 +41,12 @@ export class DataService {
    * @param http - Angular's HttpClient for making HTTP requests
    */
   constructor(private http: HttpClient) {
-    this.socket = io(this.baseURL);
+    this.socket = io(this.apiUrl);
     this.setupSocketListeners();
+  }
+
+  generateShortLink(longUrl: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/createUrl`, { longUrl });
   }
 
   /**

@@ -1,52 +1,73 @@
-<aside class="hidden lg:block">
-  <span class="flex justify-content-center align-items-center mb-5">
-    <img class="logo" src="./../../../../assets/img/logo-icon.svg" />
-  </span>
-  <ul>
-    <li>
-      <a routerLink="app/dashboard" class="flex mt-2" routerLinkActive="active">
-        <!-- <span
-          ><img
-            [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
-            src="./../../../../assets/img/dashboard.svg"
-        /></span> -->
+<div class="sidebar-section">
+  <aside class="hidden lg:block">
+    <span class="flex justify-content-center align-items-center mb-5">
+      <img class="logo" src="./../../../../assets/img/logo-icon.svg" />
+    </span>
+    <ul>
+      <li>
+        <a routerLink="app/dashboard" class="flex mt-2" routerLinkActive="active">
+          <!-- <span
+            ><img
+              [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
+              src="./../../../../assets/img/dashboard.svg"
+          /></span> -->
+  
+          <span class="icon-text">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="app/insights" class="flex mt-2" routerLinkActive="active">
+          <!-- <span
+            ><img
+              [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
+              src="./../../../../assets/img/dashboard.svg"
+          /></span> -->
+  
+          <span class="icon-text">Insights</span>
+        </a>
+      </li>
+  
+      <li>
+        <a routerLink="app/addons" class="flex mt-2" routerLinkActive="active" (click)="showSubMenu($event)">
+          <span class="icon-text">Add-ons</span>
+        </a>
+      </li>
+  
+      <!-- <li>
+        <a href="">
+          <svg
+            [ngClass]="[activeLink === 'data' ? 'active' : 'inactive']"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24.646"
+            height="27.729"
+            viewBox="0 0 24.646 27.729"
+          >
+            <path
+              id="home_FILL0_wght400_GRAD0_opsz24"
+              d="M163.081-815.353h18.485v-13.864H163.081ZM160-812.272V-840h24.647v27.728H160Z"
+              transform="translate(-160 840)"
+            />
+          </svg>
+          <span
+            [ngClass]="[activeLink === 'data' ? 'active' : 'inactive']"
+            (click)="changeActiveLink('data', $event)"
+            >Data</span
+          >
+        </a>
+      </li> -->
+    </ul>
+  </aside>
 
-        <span class="icon-text">Dashboard</span>
+  <ul *ngIf="activeSubMenu" class="submenu" [ngClass]="{'active-submenu': activeSubMenu}">
+    <li>
+      <a routerLink="app/addons/genui" class="submenu-item" routerLinkActive="active-item">
+        GenUI
       </a>
     </li>
     <li>
-      <a routerLink="app/insights" class="flex mt-2" routerLinkActive="active">
-        <!-- <span
-          ><img
-            [ngClass]="[activeLink === 'dashboard' ? 'active' : 'inactive']"
-            src="./../../../../assets/img/dashboard.svg"
-        /></span> -->
-
-        <span class="icon-text">Insights</span>
+      <a routerLink="app/addons/shortlink" class="submenu-item" routerLinkActive="active-item">
+        Short Link
       </a>
     </li>
-
-    <!-- <li>
-      <a href="">
-        <svg
-          [ngClass]="[activeLink === 'data' ? 'active' : 'inactive']"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24.646"
-          height="27.729"
-          viewBox="0 0 24.646 27.729"
-        >
-          <path
-            id="home_FILL0_wght400_GRAD0_opsz24"
-            d="M163.081-815.353h18.485v-13.864H163.081ZM160-812.272V-840h24.647v27.728H160Z"
-            transform="translate(-160 840)"
-          />
-        </svg>
-        <span
-          [ngClass]="[activeLink === 'data' ? 'active' : 'inactive']"
-          (click)="changeActiveLink('data', $event)"
-          >Data</span
-        >
-      </a>
-    </li> -->
   </ul>
-</aside>
+</div>

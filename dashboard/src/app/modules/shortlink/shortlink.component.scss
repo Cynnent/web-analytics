@@ -1,0 +1,52 @@
+.container {
+  background-color: #1C2853;
+  color: #BBC1D2;
+  width: 100%;
+  max-height: 470px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+  }
+  
+  .url-input {
+    padding: 10px;
+    width: 300px;
+    margin-bottom: 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .generate-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .short-link-box {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    width: 400px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .short-link-box:hover {
+    background-color: #e9ecef;
+  }
+  
+  .copied-msg {
+    color: green;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+  

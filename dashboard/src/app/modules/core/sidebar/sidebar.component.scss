@@ -1,0 +1,49 @@
+.sidebar-section {
+  display: flex;
+  gap: 5px;
+  height: fit-content;
+}
+
+.submenu{
+    margin: 10px 0px;
+    width: 150px;
+    padding: 15px; 
+    background-color: #1C2853; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); 
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+    row-gap: 15px;
+    align-items: center;
+
+    &.hidden {
+        opacity: 0;
+        transform: translateY(-10px); 
+        pointer-events: none;
+      }
+
+  li {
+    margin-bottom: 10px;
+    a{
+       text-decoration: none; 
+      color: #5B6175; 
+      padding: 4px 12px;
+      border-radius: 18px;
+      transition: background-color 0.3s ease;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      &.active-item {
+        color: white;
+        background: rgb(255,255,255);
+        background: linear-gradient(to right,white -200%,transparent
+        100%);
+      }
+    }
+  }
+  
+  
+}

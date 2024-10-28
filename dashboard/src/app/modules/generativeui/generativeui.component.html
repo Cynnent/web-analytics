@@ -1,0 +1,197 @@
+<div class="genui-form-container">
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <div class="form-header">
+      <p class="form-title">Title Data Inputs</p>
+      <div class="form-btns form-group">
+        <button type="button">X Cancel</button>
+        <button type="submit">✔ Submit</button>
+      </div>
+    </div>
+
+    <div class="drop-down-options grid-row-1">
+      <div class="grid-column">
+        <label for="template" class="promotion-type">
+          Promotion Type<span><sup>*</sup></span>
+        </label>
+        <br />
+        <select id="template" formControlName="template">
+          <option value="none" disabled selected>Select a template type</option>
+          <option value="Image">Image</option>
+          <option value="Video">Video</option>
+          <option value="Text">Text</option>
+        </select>
+      </div>
+
+      <div
+        *ngIf="productForm.get('template')?.value === 'Image'"
+        class="grid-column"
+      >
+        <label for="imageTemplate">
+          Templates Type<span><sup>*</sup></span>
+        </label>
+        <br />
+        <select id="imageTemplate" formControlName="imageTemplate">
+          <option value="none" disabled selected>
+            Select an image template
+          </option>
+          <option value="Pre-Designed-Template">Pre-Designed Template</option>
+          <option value="Background-Image-Template">
+            Background Image Template
+          </option>
+          <option value="Image-Upload">Image Upload</option>
+        </select>
+      </div>
+
+      <div class="input-column" *ngIf="productForm.get('template')?.value === 'Text'" >
+        <label for="textMessage">Enter The Text <span><sub>(Max Limit Up To 10 characters)</sub></span></label>
+        <input type="text" id="textMessage" formControlName="textMessage" maxlength="20" />
+      </div>
+
+      <div *ngIf="productForm.get('template')?.value === 'Text'">
+        <label for="productLink">Product Link</label>
+        <input id="productLink" type="text" formControlName="productLink" />
+      </div>
+
+      <div *ngIf="
+        productForm.get('imageTemplate')?.value === 'Image-Upload' && productForm.get('template')?.value === 'Image'" >
+        <label for="productLink">Product Link</label><br />
+        <input id="productLink" type="text" formControlName="productLink" />
+      </div>
+    </div>
+
+    <div
+      class="product-details-field grid-row-2"
+      *ngIf="
+        productForm.get('imageTemplate')?.value === 'Pre-Designed-Template' ||
+        (productForm.get('imageTemplate')?.value ===
+          'Background-Image-Template' &&
+          productForm.get('template')?.value === 'Image')
+      "
+    >
+      <div class="input-column grid-column">
+        <label for="productName"
+          >Product Name
+          <span><sub>(Max Limit Up To 30 characters)</sub></span></label
+        ><br />
+        <input id="productName" type="text" maxlength="30" formControlName="productName" />
+      </div>
+      <div class="input-column grid-column">
+        <label for="description"
+          >Description
+          <span><sub>(Max Limit Up To 50 characters)</sub></span></label
+        ><br />
+        <textarea
+          id="description"
+          maxlength="50"
+          rows="1"
+          cols="30"
+          formControlName="description"
+        ></textarea>
+      </div>
+      <div class="input-column grid-column">
+        <label for="productLink">Product Link</label><br />
+        <input id="productLink" type="text" formControlName="productLink" />
+      </div>
+    </div>
+
+    <div *ngIf="productForm.get('template')?.value === 'Image' && productForm.get('imageTemplate')?.value !== 'none'">
+      <div class="upload-container">
+        <div>
+          <input
+            type="radio"
+            id="upload-Image"
+            name="image-option"
+            value="Upload-Image"
+            formControlName="imageOption"
+          />
+          <label for="upload-image">Upload Image</label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            id="upload-URL"
+            name="image-option"
+            value="Upload-URL"
+            formControlName="imageOption"
+          />
+          <label for="upload-URL">Upload URL</label>
+        </div>
+        <div class="upload-url" *ngIf="productForm.get('imageOption')?.value === 'Upload-URL'">
+          <label for="image-url">Enter Image URL</label>
+          <input type="text" id="image-url" formControlName="imageLink" />
+        </div>
+      </div>
+
+      <div class="upload-file" *ngIf="productForm.get('imageOption')?.value === 'Upload-Image'">
+        <div class="upload-file-header">
+          <p>Upload File</p>
+          <input type="file" #fileInput hidden (change)="onFileSelected($event, 'image')" />
+          <label (click)="onBrowseClick()"> Add</label>
+        </div>
+
+        <div class="upload-file-section">
+          <div class="drag-area" [class.dragover]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <h4>Drag & Drop File Here to Upload</h4>
+          </div>
+          <p></p>
+          <div class="image-preview-container" *ngIf="imagePreview">
+            <img [src]="imagePreview" alt="Selected Image" class="image-preview" />
+            <h6 class="selectedFile">{{selectedFile?.name}}</h6>
+            <button (click)="removeSelectedFile()" class="cancel-button">X</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="productForm.get('template')?.value === 'Video'">
+      <div class="upload-container">
+        <div>
+          <input
+            type="radio"
+            id="upload-video"
+            name="video-option"
+            value="Upload-Video"
+            formControlName="videoOption"
+          />
+          <label for="upload-video">Upload Video</label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            id="upload-URL"
+            name="video-option"
+            value="Upload-URL"
+            formControlName="videoOption"
+          />
+          <label for="upload-URL">Upload URL</label>
+        </div>
+        <div class="upload-url" *ngIf="productForm.get('videoOption')?.value === 'Upload-URL'">
+          <label for="video-url">Enter Video URL</label>
+          <input type="text" id="video-url" formControlName="videoLink" />
+        </div>
+      </div>
+
+      <div class="upload-file" *ngIf="productForm.get('videoOption')?.value === 'Upload-Video'">
+        <div class="upload-file-header">
+          <p>Upload File</p>
+          <input type="file" accept="video/mp4" #fileInput hidden (change)="onFileSelected($event, 'video')" />
+          <label (click)="onBrowseClick()">Add</label>
+        </div>
+
+        <div class="upload-file-section">
+          <div class="drag-area" [class.dragover]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <h4>Drag & Drop File Here to Upload</h4>
+          </div>
+          <p></p>
+          <div class="video-preview" *ngIf="videoPreview">
+            <video controls autoplay loop >
+              <source [src]="videoPreview" type="video/mp4" />
+            </video>
+            <h6 class="selectedFile">{{selectedFile?.name}}</h6>
+            <button (click)="removeSelectedFile()" class="cancel-button">X</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

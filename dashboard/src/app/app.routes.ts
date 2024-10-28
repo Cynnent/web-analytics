@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { InsightsComponent } from './modules/insights/components/insights/insights.component';
 import { widgetDetailsComponent } from './modules/dashboard/components/widget-details/widget-details.component.';
 import { DashboardOverview } from './modules/dashboard/components/dashboard-overview/dashboard-overview.component';
+import { GenerativeuiComponent } from './modules/generativeui/generativeui.component';
+import { ShortlinkComponent } from './modules/shortlink/shortlink.component';
 
 export const routes: Routes = [
   {
@@ -40,5 +42,23 @@ export const routes: Routes = [
   {
     path: 'app/insights',
     component: InsightsComponent,
+  },
+  {
+    path: 'app/addons',
+    children: [
+      {
+        path: '',
+        redirectTo: 'genui',
+        pathMatch: 'full',
+      },
+      {
+        path: 'genui',
+        component: GenerativeuiComponent,
+      },
+      {
+        path: 'shortlink',
+        component: ShortlinkComponent
+      }
+    ],
   },
 ];

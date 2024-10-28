@@ -34,6 +34,7 @@ const { Server } = require("socket.io");
 
 const WebSocket = require("ws");
 const ClientData = require("./models/botModels/bot_checkedModel");
+const { createUrl, redirectUrl } = require("./controllers/wat_urlController");
 const app = express();
 const port = 5000;
 
@@ -87,6 +88,11 @@ app.get("/chatBot/getSubmittedAnimation/:clientName", submitAnimationData);
 app.get("/chatBot/getSubmittedData/:clientName", getSubmittedClientData);
 app.post("/chatBot/getBotData", getCheckedData);
 
+//shortlink
+
+app.post('/createUrl', createUrl);
+app.get('/shortUrl/:shortUrl',redirectUrl);
+
 //Starting the server
 
 const server = http.createServer(app);
@@ -101,10 +107,15 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
+  maxHttpBufferSize: 1e8
 });
 
 io.on("connection", (socket) => {
   console.log(socket.id);
+
+  socket.on("message", (data) => {
+    io.emit("receive_message", data);
+  });
 
   let clientname = "web_analytics_gp";
   let insightsClientName = "web_analytics_gp";
@@ -463,7 +474,7 @@ io.on("connection", (socket) => {
 wsServer.on("connection", (ws) => {
   ws.on("message", async (message) => {
     console.log("Received:", message);
-
+    
     // Parse the received message
     let parsedMessage;
     try {
