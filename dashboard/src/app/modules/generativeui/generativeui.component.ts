@@ -238,8 +238,8 @@ export class GenerativeuiComponent {
     } = this.productForm.value;
 
     let productHTML = '';
-    let finalImageUrl =
-      imageOption === 'link' ? this.productForm.get('imageLink')?.value : this.imagePreview;
+    let finalImageUrl = 
+    imageOption === 'Upload-URL' ? this.productForm.get('imageLink')?.value : this.imagePreview
     let videoLink = this.productForm.get('videoLink')?.value;
 
     
